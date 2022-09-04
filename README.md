@@ -1,4 +1,4 @@
-# ipdw
+# ipdw (InterPlanetary Data Wallet)
 InterPlanetary Data Wallet (IPDW): store your personal or users data within a safe distributed storage. It enables to build a real decentralised network (Web 4.0) without the need to be online. P2P interactions, Database-less backends, verified identities, and much more...
 
 Everyone have a key pair, that means that there are a public key and a private key, that can be saved in different formats (see the BIP39 standard for mnemonic phrases based deterministic key generation).
