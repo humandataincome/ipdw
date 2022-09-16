@@ -4,8 +4,8 @@ import {Vault} from "./core/vault";
 import {IPFSManager} from "./core/ipfs";
 
 export class IPDW {
-    public static async publish(web3: Web3, data: unknown): Promise<string> {
-        const signature = await web3.eth.sign("Login to your InterPlanetary Data Wallet <3 (by Andrea Silvi)", web3.eth.defaultAccount || 0);
+    public static async publish(data: unknown, sign: (msg: string) => Promise<string>): Promise<string> {
+        const signature = await sign("Login to your InterPlanetary Data Wallet <3 (by Andrea Silvi)");
 
         const privateKey = E2EManager.generateKeyPair(signature).privateKey;
         const password = signature + "DW$"
@@ -15,8 +15,8 @@ export class IPDW {
         return await ipfs.writeNamed(encryptedVault.toString('base64'), privateKey);
     }
 
-    public static async retrieve(web3: Web3): Promise<unknown> {
-        const signature = await web3.eth.sign("Login to your InterPlanetary Data Wallet <3 (by Andrea Silvi)", web3.eth.defaultAccount || 0);
+    public static async retrieve(sign: (msg: string) => Promise<string>): Promise<unknown> {
+        const signature = await sign("Login to your InterPlanetary Data Wallet <3 (by Andrea Silvi)");
 
         const privateKey = E2EManager.generateKeyPair(signature).privateKey;
         const password = signature + "DW$"

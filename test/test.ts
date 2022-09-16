@@ -17,9 +17,9 @@ async function main() {
     web3.eth.defaultAccount = account.address;
 
     const data = {hello: "world"};
-    const name = await IPDW.publish(web3, data);
+    const name = await IPDW.publish(data, async (msg) => await web3.eth.sign(msg, web3.eth.defaultAccount || 0));
     console.log("published url:", `https://gateway.pinata.cloud/ipns/${name}`);
-    const retrievedData = await IPDW.retrieve(web3);
+    const retrievedData = await IPDW.retrieve(async (msg) => await web3.eth.sign(msg, web3.eth.defaultAccount || 0));
     console.log('retrievedData:', retrievedData);
 }
 
