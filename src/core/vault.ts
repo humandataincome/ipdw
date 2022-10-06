@@ -16,7 +16,7 @@ class EncryptedVault {
 
 export class DecryptedVault {
     public salt: string;
-    public content: unknown;
+    public content: Buffer;
 }
 
 export class Vault {
@@ -55,14 +55,15 @@ export class Vault {
         buffer.fill(encryptedVault.iv, 62);
         buffer.fill(encryptedVault.payload, 78);
 
-        return buffer; // .toString('binary');
+        return buffer;
     }
 
     public static encrypt(decryptedVault: DecryptedVault, masterPassword: string): EncryptedVault {
         if (!new RegExp(this.passReg).test(masterPassword)) {
-            throw new Error('Password not vaild');
+            throw new Error('Password not valid');
         }
 
+        //TODO: Check salt sense
         if (decryptedVault.salt != null && decryptedVault.salt.length > 20) {
             throw new Error('Vault salt too long');
         }
@@ -80,7 +81,7 @@ export class Vault {
         const cipher = crypto.createCipheriv('aes-256-cbc', derivedKey, iv);
         encryptedVault.hash = derivedKeyHash;
         encryptedVault.iv = iv;
-        encryptedVault.payload = Buffer.concat([cipher.update(Buffer.from(JSON.stringify(decryptedVault.content), 'utf8')), cipher.final()])
+        encryptedVault.payload = Buffer.concat([cipher.update(decryptedVault.content), cipher.final()])
 
         return encryptedVault;
     }
@@ -97,19 +98,17 @@ export class Vault {
 
         const decipher = crypto.createDecipheriv('aes-256-cbc', derivedKey, encryptedVault.iv);
         decryptedVault.salt = encryptedVault.salt;
-        decryptedVault.content = JSON.parse(Buffer.concat([decipher.update(encryptedVault.payload), decipher.final()]).toString('utf8'));
+        decryptedVault.content = Buffer.concat([decipher.update(encryptedVault.payload), decipher.final()]);
 
         return decryptedVault;
     }
 
-    // FILE READ/WRITE PIPELINES (.ipdwv)
-
-    public static async unlock(data: Buffer, masterPassword: string): Promise<unknown> {
+    public static async unlock(data: Buffer, masterPassword: string): Promise<Buffer> {
         const encryptedVault = Vault.read(data);
         return Vault.decrypt(encryptedVault, masterPassword).content;
     }
 
-    public static async lock(content: unknown, masterPassword: string, salt?: string): Promise<Buffer> {
+    public static async lock(content: Buffer, masterPassword: string, salt?: string): Promise<Buffer> {
         salt = salt || crypto.randomBytes(10).toString('hex');
         const encryptedVault = Vault.encrypt({salt, content}, masterPassword);
         return Vault.write(encryptedVault);

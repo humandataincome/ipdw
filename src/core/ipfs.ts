@@ -16,6 +16,7 @@ export class IPFSManager {
         return IPFSManager.instance;
     }
 
+    //TODO: switch to a buffer content instead of string
     public async write(data: string): Promise<string> {
         const {cid} = await this.ipfs.add(data);
         return cid.toString();

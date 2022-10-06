@@ -4,10 +4,8 @@ URL(test) - https://ipfs.io/ipfs/QmNRCQWfgze6AbBCaT1rkrkV5tJ2aP4oTNPb5JZcXYywve 
  */
 
 import Web3 from "web3";
-import {IPFSManager} from "../src/core/ipfs";
-import {E2EManager} from "../src/core/e2e";
-import {DecryptedVault, Vault} from "../src/core/vault";
 import {IPDW} from "../src";
+import * as fs from "fs";
 
 async function main() {
     const web3 = new Web3(Web3.givenProvider || "https://bsc-dataseed.binance.org/");
@@ -16,11 +14,33 @@ async function main() {
     web3.eth.accounts.wallet.add(account);
     web3.eth.defaultAccount = account.address;
 
+    const ipdw = await IPDW.create(async (msg) => await web3.eth.sign(msg, web3.eth.defaultAccount || 0));
+
     const data = {hello: "world"};
-    const name = await IPDW.publish(data, async (msg) => await web3.eth.sign(msg, web3.eth.defaultAccount || 0));
-    console.log("published url:", `https://gateway.pinata.cloud/ipns/${name}`);
-    const retrievedData = await IPDW.retrieve(async (msg) => await web3.eth.sign(msg, web3.eth.defaultAccount || 0));
-    console.log('retrievedData:', retrievedData);
+
+    console.log('PUSHING LOCAL DATA TO REMOTE', data);
+    const dataBuffer = Buffer.from(JSON.stringify(data), 'utf8');
+    await ipdw.setData(dataBuffer, 'ENCRYPTED');
+    await ipdw.push();
+    console.log('PUSHED LOCAL DATA TO REMOTE');
+
+    console.log('SAVING LOCAL DATA TO FILE');
+    const rawData = await ipdw.getData('RAW');
+    console.log(rawData);
+    await fs.promises.writeFile('test.ipdw', rawData);
+    console.log('SAVED LOCAL DATA TO FILE');
+
+    console.log('READING FILE TO LOCAL DATA');
+    const rawSavedData = await fs.promises.readFile('test.ipdw');
+    await ipdw.setData(rawSavedData, 'RAW');
+    console.log(await ipdw.getData('RAW'));
+    console.log('READ FILE TO LOCAL DATA');
+
+    console.log('PULLING REMOTE DATA TO LOCAL');
+    await ipdw.pull();
+    const gotDataBuffer = await ipdw.getData('ENCRYPTED')
+    const gotData = JSON.parse(gotDataBuffer.toString('utf8'));
+    console.log('PULLED REMOTE DATA TO LOCAL', gotData);
 }
 
 (async () => {

@@ -1,5 +1,5 @@
 export interface IJWT3<T> {
-    header: {alg: string, typ: string};
+    header: { alg: string, typ: string };
     payload: T;
     signature: string;
 }
@@ -14,13 +14,14 @@ export class JWT3 {
             signature: await sign('Login to your Wallet')
         });
     }
-/*
 
-    public static async verify<T>(jwt: string): Promise<{address: string, payload:T}> {
-        return {address: "", payload: undefined};
-    }
+    /*
 
- */
+        public static async verify<T>(jwt: string): Promise<{address: string, payload:T}> {
+            return {address: "", payload: undefined};
+        }
+
+     */
 
     private static inflate<T>(jwt: string): IJWT3<T> {
         const components = jwt
@@ -37,7 +38,7 @@ export class JWT3 {
         }
     }
 
-    private static deflate<T>(jwt: IJWT3<T>): string  {
+    private static deflate<T>(jwt: IJWT3<T>): string {
         const components = [
             JSON.stringify(jwt.header),
             JSON.stringify(jwt.payload),

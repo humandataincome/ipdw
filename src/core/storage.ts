@@ -1,4 +1,5 @@
 export class Storage {
+    //TODO: evaluate if is node or browser, the first should use file, the latter indexeddb
     private storage: Map<string, string>;
 
     constructor() {
