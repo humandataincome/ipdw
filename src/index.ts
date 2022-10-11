@@ -1,30 +1,32 @@
 import {E2EManager} from "./core/e2e";
 import {Vault} from "./core/vault";
 import {IPFSManager} from "./core/ipfs";
+import {StorageProvider} from "./core/storage";
 
 export class IPDW {
     private readonly token: string;
     private readonly privateKey: string;
-    private data: Buffer;
+    private storage: StorageProvider;
 
-    constructor(token: string) {
+    constructor(token: string, storage: StorageProvider) {
         this.token = token;
         this.privateKey = E2EManager.generateKeyPair(this.token).privateKey;
+        this.storage = storage;
     }
 
-    public static async create(sign: (msg: string) => Promise<string>, nonce: string = 'Global'): Promise<IPDW> {
+    public static async create(sign: (msg: string) => Promise<string>, nonce: string = 'Global', storage: StorageProvider): Promise<IPDW> {
         // Lazy initialize IPFS node
-        return new IPDW(await sign(`Login to your InterPlanetary Data Wallet (${nonce})`));
+        return new IPDW(await sign(`Login to your InterPlanetary Data Wallet (${nonce})`), storage);
     }
 
     public async pull(): Promise<void> {
         const ipfs = await IPFSManager.getInstance();
-        this.data = Buffer.from(await ipfs.readNamed(this.privateKey), 'base64');
+        await this.storage.set('data', Buffer.from(await ipfs.readNamed(this.privateKey), 'base64'));
     }
 
     public async push(): Promise<void> {
         const ipfs = await IPFSManager.getInstance();
-        await ipfs.writeNamed(this.data.toString('base64'), this.privateKey);
+        await ipfs.writeNamed((await this.storage.get('data'))!.toString('base64'), this.privateKey);
     }
 
     public async sync(): Promise<void> {
@@ -32,21 +34,23 @@ export class IPDW {
     }
 
     public async getData(type: 'PLAIN' | 'ENCRYPTED', nonce: string = 'Global'): Promise<Buffer> {
+        const data = (await this.storage.get('data'))!;
+
         switch (type) {
             case 'PLAIN':
-                return this.data;
+                return data;
             case 'ENCRYPTED':
-                return await Vault.unlock(this.data, `${this.token}${nonce}`);
+                return await Vault.unlock(data, `${this.token}${nonce}`);
         }
     }
 
     public async setData(data: Buffer, type: 'PLAIN' | 'ENCRYPTED', nonce: string = 'Global'): Promise<void> {
         switch (type) {
             case 'PLAIN':
-                this.data = data;
+                await this.storage.set('data', data);
                 break;
             case 'ENCRYPTED':
-                this.data = await Vault.lock(data, `${this.token}${nonce}`);
+                await this.storage.set('data', await Vault.lock(data, `${this.token}${nonce}`));
                 break;
         }
     }

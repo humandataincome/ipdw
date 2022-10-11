@@ -6,6 +6,7 @@ URL(test) - https://ipfs.io/ipfs/QmNRCQWfgze6AbBCaT1rkrkV5tJ2aP4oTNPb5JZcXYywve 
 import Web3 from "web3";
 import {IPDW} from "../src";
 import * as fs from "fs";
+import {MemoryStorageProvider} from "../src/core/storage";
 
 async function main() {
     const web3 = new Web3(Web3.givenProvider || "https://bsc-dataseed.binance.org/");
@@ -14,7 +15,7 @@ async function main() {
     web3.eth.accounts.wallet.add(account);
     web3.eth.defaultAccount = account.address;
 
-    const ipdw = await IPDW.create(async (msg) => await web3.eth.sign(msg, web3.eth.defaultAccount || 0));
+    const ipdw = await IPDW.create(async (msg) => await web3.eth.sign(msg, web3.eth.defaultAccount || 0), 'Global', new MemoryStorageProvider());
 
     const data = {hello: "world"};
 

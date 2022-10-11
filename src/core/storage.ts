@@ -1,16 +1,72 @@
-export class Storage {
-    //TODO: evaluate if is node or browser, the first should use file, the latter indexeddb
-    private storage: Map<string, string>;
+export interface StorageProvider {
+    set(key: string, value: Buffer): Promise<void>;
+
+    has(key: string): Promise<boolean>;
+
+    get(key: string): Promise<Buffer | undefined>;
+
+    ls(): Promise<string[]>;
+}
+
+export class MemoryStorageProvider implements StorageProvider {
+    private storage: Map<string, Buffer>;
 
     constructor() {
-        this.storage = new Map<string, string>();
+        this.storage = new Map<string, Buffer>();
     }
 
-    public set(key: string, value: string): void {
-        this.storage.set(key, value);
+    public async set(key: string, value: Buffer | undefined): Promise<void> {
+        if (value)
+            this.storage.set(key, value);
+        else
+            this.storage.delete(key);
     }
 
-    public get(key: string): string | undefined {
+    public async has(key: string): Promise<boolean> {
+        return this.storage.has(key);
+    }
+
+    public async get(key: string): Promise<Buffer | undefined> {
         return this.storage.get(key);
+    }
+
+    public async ls(): Promise<string[]> {
+        return Array.from(this.storage.keys());
+    }
+}
+
+// This is the implementation for Node
+export class FileSystemStorageProvider implements StorageProvider {
+    public async set(key: string, value: Buffer | undefined): Promise<void> {
+    }
+
+    public async has(key: string): Promise<boolean> {
+        return false;
+    }
+
+    public async get(key: string): Promise<Buffer | undefined> {
+        return undefined;
+    }
+
+    public async ls(): Promise<string[]> {
+        return [];
+    }
+}
+
+// This is the implementation for Browser
+export class IndexedDBStorageProvider implements StorageProvider {
+    public async set(key: string, value: Buffer | undefined): Promise<void> {
+    }
+
+    public async has(key: string): Promise<boolean> {
+        return false;
+    }
+
+    public async get(key: string): Promise<Buffer | undefined> {
+        return undefined;
+    }
+
+    public async ls(): Promise<string[]> {
+        return [];
     }
 }
