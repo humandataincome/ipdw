@@ -25,15 +25,15 @@ async function main() {
     console.log('PUSHED LOCAL DATA TO REMOTE');
 
     console.log('SAVING LOCAL DATA TO FILE');
-    const rawData = await ipdw.getData('RAW');
+    const rawData = await ipdw.getData('PLAIN');
     console.log(rawData);
     await fs.promises.writeFile('test.ipdw', rawData);
     console.log('SAVED LOCAL DATA TO FILE');
 
     console.log('READING FILE TO LOCAL DATA');
     const rawSavedData = await fs.promises.readFile('test.ipdw');
-    await ipdw.setData(rawSavedData, 'RAW');
-    console.log(await ipdw.getData('RAW'));
+    await ipdw.setData(rawSavedData, 'PLAIN');
+    console.log(await ipdw.getData('PLAIN'));
     console.log('READ FILE TO LOCAL DATA');
 
     console.log('PULLING REMOTE DATA TO LOCAL');
@@ -41,6 +41,10 @@ async function main() {
     const gotDataBuffer = await ipdw.getData('ENCRYPTED')
     const gotData = JSON.parse(gotDataBuffer.toString('utf8'));
     console.log('PULLED REMOTE DATA TO LOCAL', gotData);
+
+    await ipdw.addMessageListener('PLAIN', 'bla bla', console.log);
+
+    await ipdw.sendMessage('PLAIN', 'bla bla', 'Hello World');
 }
 
 (async () => {

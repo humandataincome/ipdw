@@ -5,7 +5,7 @@ import crypto from "crypto";
 export class IPFSManager {
     private static instance: IPFSManager
 
-    private ipfs: Ipfs.IPFS;
+    public ipfs: Ipfs.IPFS;
 
     public static async getInstance(): Promise<IPFSManager> {
         if (!IPFSManager.instance) {
