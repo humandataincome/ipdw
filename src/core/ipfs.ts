@@ -10,7 +10,11 @@ export class IPFSManager {
     public static async getInstance(): Promise<IPFSManager> {
         if (!IPFSManager.instance) {
             IPFSManager.instance = new IPFSManager();
-            IPFSManager.instance.ipfs = await Ipfs.create();
+            IPFSManager.instance.ipfs = await Ipfs.create({
+                repo: `ipdw-ipfs`,
+                relay: {enabled: true, hop: {enabled: true, active: true}},
+                config: {Pubsub: {Enabled: true}},
+            });
         }
 
         return IPFSManager.instance;
