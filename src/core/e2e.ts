@@ -10,35 +10,19 @@ export class E2EManager {
     public static generateKeyPair(seed?: string): KeyPair {
         let privateKey, publicKey;
 
+        const rng = forge.random.createInstance();
+
         if (seed) {
             const md = forge.md.sha256.create();
             md.update(seed);
             const seedHash = md.digest().toHex();
-
-            const rng = forge.random.createInstance();
             rng.seedFileSync = () => seedHash
-
-            const keyPair = forge.pki.rsa.generateKeyPair({bits: 2048, e: 0x10001, prng: rng});
-
-            privateKey = forge.pki.privateKeyToPem(keyPair.privateKey);
-            publicKey = forge.pki.publicKeyToPem(keyPair.publicKey);
-        } else {
-            const keyPair = crypto.generateKeyPairSync('rsa',
-                {
-                    modulusLength: 2048,
-                    publicKeyEncoding: {
-                        type: 'pkcs1',
-                        format: 'pem'
-                    },
-                    privateKeyEncoding: {
-                        type: 'pkcs1',
-                        format: 'pem',
-                    }
-                });
-
-            privateKey = keyPair.privateKey;
-            publicKey = keyPair.publicKey;
         }
+
+        const keyPair = forge.pki.rsa.generateKeyPair({bits: 2048, e: 0x10001, prng: rng});
+
+        privateKey = forge.pki.privateKeyToPem(keyPair.privateKey);
+        publicKey = forge.pki.publicKeyToPem(keyPair.publicKey);
 
         return new KeyPair(privateKey, publicKey);
     }
