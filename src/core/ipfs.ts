@@ -11,10 +11,18 @@ export class IPFSManager {
         if (!IPFSManager.instance) {
             IPFSManager.instance = new IPFSManager();
             IPFSManager.instance.ipfs = await Ipfs.create({
-                repo: `ipdw-ipfs`,
-                relay: {enabled: true, hop: {enabled: true, active: true}},
-                config: {Pubsub: {Enabled: true}},
-            });
+                //repo: 'ipfs-ipdw',
+                config: {
+                    Addresses: {
+                        Swarm: [
+                            "/ip4/0.0.0.0/tcp/4002",
+                            "/ip4/127.0.0.1/tcp/4003/ws",
+                            "/dns4/wrtc-star1.par.dwebops.pub/tcp/443/wss/p2p-webrtc-star",
+                            "/dns4/wrtc-star2.sjc.dwebops.pub/tcp/443/wss/p2p-webrtc-star"
+                        ]
+                    }
+                }
+            })
         }
 
         return IPFSManager.instance;
