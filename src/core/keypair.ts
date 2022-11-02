@@ -1,5 +1,3 @@
-import crypto from "crypto";
-
 export class KeyPair {
     public publicKey: string;
     public privateKey: string;
@@ -9,6 +7,7 @@ export class KeyPair {
         if (publicKey)
             this.publicKey = publicKey;
         else {
+            /*
             this.publicKey = crypto.createPublicKey({
                 key: privateKey,
                 format: 'pem'
@@ -16,6 +15,9 @@ export class KeyPair {
                 format: 'pem',
                 type: 'pkcs1'
             }) as string;
+             */
+            this.publicKey = "";
+            //this.publicKey = pki.publicKeyToPem(pki.publicKeyFromPem(privateKey));
         }
     }
 

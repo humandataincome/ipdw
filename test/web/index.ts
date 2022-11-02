@@ -4,9 +4,8 @@ URL(test) - https://ipfs.io/ipfs/QmNRCQWfgze6AbBCaT1rkrkV5tJ2aP4oTNPb5JZcXYywve 
  */
 
 import Web3 from "web3";
-import {IPDW} from "../src";
-import * as fs from "fs";
-import {MemoryStorageProvider} from "../src/core/storage";
+import {IPDW} from "../../src";
+import {MemoryStorageProvider} from "../../src/core/storage";
 
 async function main() {
     const web3 = new Web3(Web3.givenProvider || "https://bsc-dataseed.binance.org/");
@@ -14,7 +13,7 @@ async function main() {
     const account = web3.eth.accounts.privateKeyToAccount("0xeffc0f0bac08c2157c8bcabfbbe71df7c96b499defcfdae2210139418618d574");
     web3.eth.accounts.wallet.add(account);
     web3.eth.defaultAccount = account.address;
-    console.log(account.address)
+    console.log(account.address);
 
     const ipdw = await IPDW.create(async (msg) => await web3.eth.sign(msg, web3.eth.defaultAccount || 0), 'Global', new MemoryStorageProvider());
 
@@ -25,18 +24,6 @@ async function main() {
     await ipdw.setData(dataBuffer, 'ENCRYPTED');
     await ipdw.push();
     console.log('PUSHED LOCAL DATA TO REMOTE');
-
-    console.log('SAVING LOCAL DATA TO FILE');
-    const rawData = await ipdw.getData('PLAIN');
-    console.log(rawData);
-    await fs.promises.writeFile('test.ipdw', rawData);
-    console.log('SAVED LOCAL DATA TO FILE');
-
-    console.log('READING FILE TO LOCAL DATA');
-    const rawSavedData = await fs.promises.readFile('test.ipdw');
-    await ipdw.setData(rawSavedData, 'PLAIN');
-    console.log(await ipdw.getData('PLAIN'));
-    console.log('READ FILE TO LOCAL DATA');
 
     console.log('PULLING REMOTE DATA TO LOCAL');
     await ipdw.pull();

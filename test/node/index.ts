@@ -4,9 +4,9 @@ URL(test) - https://ipfs.io/ipfs/QmNRCQWfgze6AbBCaT1rkrkV5tJ2aP4oTNPb5JZcXYywve 
  */
 
 import Web3 from "web3";
-import {IPDW} from "../src";
+import {IPDW} from "../../src";
 import * as fs from "fs";
-import {MemoryStorageProvider} from "../src/core/storage";
+import {MemoryStorageProvider} from "../../src/core/storage";
 
 async function main() {
     const web3 = new Web3(Web3.givenProvider || "https://bsc-dataseed.binance.org/");

@@ -13,16 +13,20 @@
     "sourceMap": true,
     "outDir": "./build",
     "strict": true,
-    "rootDirs": ["./src"],
+    "rootDirs": [
+      "./src"
+    ],
     "esModuleInterop": true,
     "skipLibCheck": true,
     "experimentalDecorators": true,
-    "strictPropertyInitialization": false,
-
-    "paths":{
-      "crypto":["node_modules/crypto-browserify"]
-    }
+    "strictPropertyInitialization": false
   },
-  "exclude": ["./build", "./node_modules/*"],
-  "include": ["./src/*"]
+  "exclude": [
+    "./build",
+    "./node_modules/*"
+  ],
+  "include": [
+    "./src/*",
+    "./test/*"
+  ]
 }
