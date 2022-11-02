@@ -48,3 +48,7 @@ Thumbs.db
 *.wmv
 
 # ENV files
+
+test.ipdw
+ipfs-ipdw-*
+build

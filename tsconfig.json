@@ -4,6 +4,7 @@
     "experimentalSpecifierResolution": "node"
   },
   "compilerOptions": {
+    "baseUrl": "./",
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "node",
@@ -17,6 +18,10 @@
     "skipLibCheck": true,
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
+
+    "paths":{
+      "crypto":["node_modules/crypto-browserify"]
+    }
   },
   "exclude": ["./build", "./node_modules/*"],
   "include": ["./src/*"]
