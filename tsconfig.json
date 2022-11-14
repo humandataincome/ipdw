@@ -1,32 +1,26 @@
 {
-  "ts-node": {
-    "esm": true,
-    "experimentalSpecifierResolution": "node"
-  },
   "compilerOptions": {
-    "baseUrl": "./",
-    "target": "esnext",
-    "module": "esnext",
+    "outDir": "./build/",
+    "noImplicitAny": true,
+    "module": "es2020",
+    "target": "es5",
+    "jsx": "react",
+    "allowJs": true,
     "moduleResolution": "node",
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "outDir": "./build",
-    "strict": true,
-    "rootDirs": [
-      "./src"
-    ],
-    "esModuleInterop": true,
-    "skipLibCheck": true,
+    "baseUrl": ".",
     "experimentalDecorators": true,
-    "strictPropertyInitialization": false
+    "emitDecoratorMetadata": true,
+    "allowSyntheticDefaultImports": true,
+    "paths": {
+      "crypto": [ "node_modules/crypto-browserify" ],
+      "assert": [ "node_modules/assert-browserify" ]
+    }
   },
-  "exclude": [
-    "./build",
-    "./node_modules/*"
-  ],
-  "include": [
-    "./src/*",
-    "./test/*"
-  ]
+  "ts-node": {
+    "compilerOptions": {
+      "module": "CommonJS"
+    }
+  },
+  "exclude": ["./build", "./node_modules/*"],
+  "include": ["./src/*"]
 }
