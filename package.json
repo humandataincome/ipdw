@@ -5,13 +5,22 @@
   "types": "build/index.d.ts",
   "main": "build/index.js",
   "scripts": {
-    "prepublish": "npm run build:node:prod",
     "build:dev": "webpack --mode development",
     "build:prod": "webpack --mode production",
     "test:dev": "webpack serve --mode development",
     "test:node:dev": "ts-node test/node/index.ts",
-    "test:node:dev:b": "npm run build:node:dev && node build/test.js"
+    "test:node:dev:b": "npm run build:node:dev && node build/test.js",
+    "prepublish": "npm run build:prod"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ansi-code/ipdw.git"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ansi-code/ipdw/issues"
+  },
+  "homepage": "https://github.com/ansi-code/ipdw#readme",
   "dependencies": {
     "crypto-browserify": "^3.12.0",
     "ipfs": "^0.65.0",
