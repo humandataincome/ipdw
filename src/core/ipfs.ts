@@ -1,16 +1,16 @@
-import * as Ipfs from 'ipfs-core';
+import {create, IPFS} from 'ipfs-core'
 import {KeyPair} from "./keypair";
 import crypto from "crypto";
 
 export class IPFSManager {
     private static instance: IPFSManager
 
-    public ipfs: Ipfs.IPFS;
+    public ipfs: IPFS;
 
     public static async getInstance(): Promise<IPFSManager> {
         if (!IPFSManager.instance) {
             IPFSManager.instance = new IPFSManager();
-            IPFSManager.instance.ipfs = await Ipfs.create({
+            IPFSManager.instance.ipfs = await create({
                 repo: 'ipfs-ipdw' + Math.random(),
                 config: {
                     Addresses: {

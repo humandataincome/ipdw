@@ -3,7 +3,7 @@
     "outDir": "./build/",
     "noImplicitAny": true,
     "module": "es2020",
-    "target": "es5",
+    "target": "es2020",
     "jsx": "react",
     "allowJs": true,
     "moduleResolution": "node",
@@ -17,9 +17,8 @@
     }
   },
   "ts-node": {
-    "compilerOptions": {
-      "module": "CommonJS"
-    }
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
   },
   "exclude": ["./build", "./node_modules/*"],
   "include": ["./src/*"]
