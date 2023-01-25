@@ -23,7 +23,6 @@ const commonsConfig = {
     devServer: {
         open: ['/test.html'],
         watchFiles: ['src/*', 'test/*'],
-        port: 9000,
         static: {
             directory: path.join(__dirname, 'build'),
         },

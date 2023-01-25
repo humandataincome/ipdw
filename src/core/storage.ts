@@ -35,38 +35,6 @@ export class MemoryStorageProvider implements StorageProvider {
     }
 }
 
-// This is the implementation for Node
-export class FileSystemStorageProvider implements StorageProvider {
-    public async set(key: string, value: Buffer | undefined): Promise<void> {
-    }
-
-    public async has(key: string): Promise<boolean> {
-        return false;
-    }
-
-    public async get(key: string): Promise<Buffer | undefined> {
-        return undefined;
-    }
-
-    public async ls(): Promise<string[]> {
-        return [];
-    }
-}
-
-// This is the implementation for Browser
-export class IndexedDBStorageProvider implements StorageProvider {
-    public async set(key: string, value: Buffer | undefined): Promise<void> {
-    }
-
-    public async has(key: string): Promise<boolean> {
-        return false;
-    }
-
-    public async get(key: string): Promise<Buffer | undefined> {
-        return undefined;
-    }
-
-    public async ls(): Promise<string[]> {
-        return [];
-    }
-}
+// See docs:
+// FileSystemStorageProvider is the implementation for Node;
+// IndexedDBStorageProvider is the implementation for Browser;
