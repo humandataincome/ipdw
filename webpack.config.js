@@ -1,7 +1,12 @@
-const path = require('path');
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const {ProvidePlugin} = require('webpack');
-const { merge: webpackMerge } = require('webpack-merge');
+import path from "path";
+import HtmlWebpackPlugin from "html-webpack-plugin";
+import pkg from 'webpack';
+const {ProvidePlugin} = pkg;
+import {merge as webpackMerge} from "webpack-merge";
+import {fileURLToPath} from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const commonsConfig = {
     context: __dirname,
@@ -29,7 +34,7 @@ const commonsConfig = {
     }
 }
 
-module.exports = (env, argv) => ([
+export default (env, argv) => ([
     webpackMerge(commonsConfig, {
         target: 'web',
 
@@ -45,8 +50,8 @@ module.exports = (env, argv) => ([
 
         resolve: {
             fallback: {
-                crypto: require.resolve('crypto-browserify'),
-                stream: require.resolve('stream-browserify')
+                crypto: 'crypto-browserify',
+                stream: 'stream-browserify'
             }
         },
 
@@ -82,8 +87,8 @@ module.exports = (env, argv) => ([
 
         resolve: {
             fallback: {
-                crypto: require.resolve('crypto'),
-                stream: require.resolve('stream')
+                crypto: 'crypto',
+                stream: 'stream'
             }
         },
 

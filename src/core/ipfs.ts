@@ -11,12 +11,12 @@ export class IPFSManager {
         if (!IPFSManager.instance) {
             IPFSManager.instance = new IPFSManager();
             IPFSManager.instance.ipfs = await create({
-                repo: 'ipfs-ipdw' + Math.random(),
+                repo: 'ipfs-ipdw', //+ Math.random(),
                 config: {
                     Addresses: {
                         Swarm: [
-                            "/ip4/0.0.0.0/tcp/4002",
-                            "/ip4/127.0.0.1/tcp/4003/ws",
+                            "/ip4/127.0.0.1/tcp/4002",
+                            "/ip4/127.0.0.1/tcp/5003/ws",
                             "/dns4/wrtc-star1.par.dwebops.pub/tcp/443/wss/p2p-webrtc-star",
                             "/dns4/wrtc-star2.sjc.dwebops.pub/tcp/443/wss/p2p-webrtc-star",
                             "/dns4/webrtc-star.discovery.libp2p.io/tcp/443/wss/p2p-webrtc-star/"
