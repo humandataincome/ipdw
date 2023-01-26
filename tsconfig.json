@@ -11,6 +11,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "declarationMap": true,
     "paths": {
       "crypto": [ "node_modules/crypto-browserify" ],
       "assert": [ "node_modules/assert-browserify" ]

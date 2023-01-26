@@ -1,8 +1,10 @@
 {
   "name": "ipdw",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "author": "Andrea Silvi",
-  "types": "build/index.d.ts",
+  "types": "build/src/index.d.ts",
+  "main": "build/index.js",
+  "files": ["build"],
   "type": "module",
   "scripts": {
     "build:dev": "webpack --mode development",
