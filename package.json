@@ -1,6 +1,6 @@
 {
   "name": "ipdw",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Andrea Silvi",
   "types": "build/index.d.ts",
   "type": "module",
