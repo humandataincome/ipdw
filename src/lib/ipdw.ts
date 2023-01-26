@@ -1,7 +1,4 @@
-import {E2EManager} from "../core/e2e";
-import {Vault} from "../core/vault";
-import {IPFSManager} from "../core/ipfs";
-import {StorageProvider} from "../core/storage";
+import {E2EManager, IPFSManager, StorageProvider, Vault} from "../core";
 
 export class IPDW {
     private readonly token: string;
@@ -10,7 +7,6 @@ export class IPDW {
 
     constructor(token: string, storage: StorageProvider) {
         this.token = token;
-        console.log(token)
         this.privateKey = E2EManager.generateKeyPair(this.token).privateKey;
         this.storage = storage;
     }

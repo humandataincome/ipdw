@@ -1,14 +1,16 @@
 import path from "path";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import pkg from 'webpack';
-const {ProvidePlugin} = pkg;
 import {merge as webpackMerge} from "webpack-merge";
 import {fileURLToPath} from 'url';
+
+const {ProvidePlugin} = pkg;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const commonsConfig = {
+    target: ['web', 'node'],
     context: __dirname,
     entry: {
         index: './src/index.ts',
@@ -21,17 +23,8 @@ const commonsConfig = {
     module: {
         rules: [
             {test: /\.ts?$/, use: 'ts-loader', exclude: /node_modules/},
-            {test: /\.html$/, use: 'html-loader'}
         ],
     },
-
-    devServer: {
-        open: ['/test.html'],
-        watchFiles: ['src/*', 'test/*'],
-        static: {
-            directory: path.join(__dirname, 'build'),
-        },
-    }
 }
 
 export default (env, argv) => ([
@@ -39,8 +32,8 @@ export default (env, argv) => ([
         target: 'web',
 
         entry: argv.mode === 'development'
-            ? { test: './test/web/index.ts' }
-            : { },
+            ? {test: './test/web/index.ts'}
+            : {},
 
         output: {
             path: __dirname + '/build/web',
@@ -49,7 +42,7 @@ export default (env, argv) => ([
         },
 
         resolve: {
-            fallback: {
+            alias: {
                 crypto: 'crypto-browserify',
                 stream: 'stream-browserify'
             }
@@ -59,8 +52,8 @@ export default (env, argv) => ([
             new ProvidePlugin({
                 Buffer: ['buffer', 'Buffer'],
             }),
-            ...( argv.mode !== 'development'
-                    ? [ ]
+            ...(argv.mode !== 'development'
+                    ? []
                     : [
                         new HtmlWebpackPlugin({
                             template: './test/web/index.html',
@@ -69,15 +62,23 @@ export default (env, argv) => ([
                         })
                     ]
             )
-        ]
+        ],
+
+        devServer: {
+            open: ['/test.html'],
+            watchFiles: ['src/*', 'test/*'],
+            static: {
+                directory: path.join(__dirname, 'build'),
+            },
+        }
     }),
 
     webpackMerge(commonsConfig, {
         target: 'node',
 
         entry: argv.mode === 'development'
-            ? { test: './test/node/index.ts' }
-            : { },
+            ? {test: './test/node/index.ts'}
+            : {},
 
         output: {
             path: __dirname + '/build/node',
@@ -85,11 +86,10 @@ export default (env, argv) => ([
             clean: true
         },
 
-        resolve: {
-            fallback: {
-                crypto: 'crypto',
-                stream: 'stream'
-            }
+        module: {
+            rules: [
+                {test: /\.node$/, use: 'node-loader'}
+            ],
         },
 
         plugins: []

@@ -1,4 +1,4 @@
-import crypto from "crypto";
+import forge from "node-forge";
 
 export class KeyPair {
     public publicKey: string;
@@ -9,13 +9,9 @@ export class KeyPair {
         if (publicKey)
             this.publicKey = publicKey;
         else {
-            this.publicKey = crypto.createPublicKey({
-                key: privateKey,
-                format: 'pem'
-            }).export({
-                format: 'pem',
-                type: 'pkcs1'
-            }) as string;
+            const privateKeyObj = forge.pki.privateKeyFromPem(privateKey);
+            const publicKeyObj = forge.pki.setRsaPublicKey(privateKeyObj.n, privateKeyObj.e);
+            this.publicKey = forge.pki.publicKeyToPem(publicKeyObj);
         }
     }
 
