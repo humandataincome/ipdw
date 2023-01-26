@@ -1,5 +1,6 @@
 .github
-src
+src/**/*.ts
+!src/**/*.d.ts
 test
 .gitignore
 tsconfig.json

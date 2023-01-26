@@ -1,6 +1,6 @@
 {
   "name": "ipdw",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "author": "Andrea Silvi",
   "types": "build/src/index.d.ts",
   "main": "build/index.js",
