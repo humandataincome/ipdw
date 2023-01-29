@@ -1,17 +1,10 @@
-import path from "path";
-import HtmlWebpackPlugin from "html-webpack-plugin";
-import pkg from 'webpack';
-import {merge as webpackMerge} from "webpack-merge";
-import {fileURLToPath} from 'url';
-
-const {ProvidePlugin} = pkg;
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const path = require('path');
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const {ProvidePlugin} = require('webpack');
+const { merge: webpackMerge } = require('webpack-merge');
 
 const commonsConfig = {
-    target: ['web', 'node'],
-    devtool: 'source-map',
+    devtool: 'inline-source-map',
     context: __dirname,
     entry: {
         index: './src/index.ts',
@@ -29,7 +22,7 @@ const commonsConfig = {
     },
 }
 
-export default (env, argv) => ([
+module.exports = (env, argv) => ([
     webpackMerge(commonsConfig, {
         target: 'web',
 
@@ -40,6 +33,7 @@ export default (env, argv) => ([
         output: {
             path: __dirname + '/dist/web',
             filename: '[name].js',
+            clean: true
         },
 
         resolve: {
@@ -84,13 +78,7 @@ export default (env, argv) => ([
         output: {
             path: __dirname + '/dist/node',
             filename: '[name].js',
-        },
-
-        resolve: {
-            fallback: {
-                crypto: false,
-                stream: false
-            }
+            clean: true
         },
     })
 ])
