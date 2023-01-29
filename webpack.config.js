@@ -11,6 +11,7 @@ const __dirname = path.dirname(__filename);
 
 const commonsConfig = {
     target: ['web', 'node'],
+    devtool: 'source-map',
     context: __dirname,
     entry: {
         index: './src/index.ts',
@@ -23,6 +24,7 @@ const commonsConfig = {
     module: {
         rules: [
             {test: /\.ts?$/, use: 'ts-loader', exclude: /node_modules/},
+            {test: /\.html$/, use: 'html-loader'}
         ],
     },
 }
@@ -32,28 +34,35 @@ export default (env, argv) => ([
         target: 'web',
 
         entry: argv.mode === 'development'
-            ? {test: './test/web/index.ts'}
-            : {},
+            ? { test: './test/web/index.ts' }
+            : { },
 
         output: {
-            path: __dirname + '/build/web',
+            path: __dirname + '/dist/web',
             filename: '[name].js',
-            clean: true,
         },
 
         resolve: {
-            alias: {
+            fallback: {
                 crypto: 'crypto-browserify',
                 stream: 'stream-browserify'
             }
+        },
+
+        devServer: {
+            open: ['/test.html'],
+            watchFiles: ['src/*', 'test/*'],
+            static: {
+                directory: path.join(__dirname, 'build'),
+            },
         },
 
         plugins: [
             new ProvidePlugin({
                 Buffer: ['buffer', 'Buffer'],
             }),
-            ...(argv.mode !== 'development'
-                    ? []
+            ...( argv.mode !== 'development'
+                    ? [ ]
                     : [
                         new HtmlWebpackPlugin({
                             template: './test/web/index.html',
@@ -62,36 +71,26 @@ export default (env, argv) => ([
                         })
                     ]
             )
-        ],
-
-        devServer: {
-            open: ['/test.html'],
-            watchFiles: ['src/*', 'test/*'],
-            static: {
-                directory: path.join(__dirname, 'build'),
-            },
-        }
+        ]
     }),
 
     webpackMerge(commonsConfig, {
         target: 'node',
 
         entry: argv.mode === 'development'
-            ? {test: './test/node/index.ts'}
-            : {},
+            ? { test: './test/node/index.ts' }
+            : { },
 
         output: {
-            path: __dirname + '/build/node',
+            path: __dirname + '/dist/node',
             filename: '[name].js',
-            clean: true
         },
 
-        module: {
-            rules: [
-                {test: /\.node$/, use: 'node-loader'}
-            ],
+        resolve: {
+            fallback: {
+                crypto: false,
+                stream: false
+            }
         },
-
-        plugins: []
     })
 ])

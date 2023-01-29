@@ -6,17 +6,17 @@ import * as crypto from 'crypto';
  */
 
 class EncryptedVault {
-    public version: number; // 1 Byte
-    public magic: Buffer; // 9 Bytes
-    public salt: string; // MAX 20 Bytes (/0 end padding)
-    public hash: Buffer; // 32 Bytes
-    public iv: Buffer; // 16 Bytes
-    public payload: Buffer; // ? Bytes (till end)
+    public version!: number; // 1 Byte
+    public magic!: Buffer; // 9 Bytes
+    public salt!: string; // MAX 20 Bytes (/0 end padding)
+    public hash!: Buffer; // 32 Bytes
+    public iv!: Buffer; // 16 Bytes
+    public payload!: Buffer; // ? Bytes (till end)
 }
 
 export class DecryptedVault {
-    public salt: string;
-    public content: Buffer;
+    public salt!: string;
+    public content!: Buffer;
 }
 
 export class Vault {

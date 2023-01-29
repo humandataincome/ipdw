@@ -1,7 +1,11 @@
 .github
+.idea
 src/**/*.ts
 !src/**/*.d.ts
 test
 .gitignore
 tsconfig.json
 webpack.config.js
+ipfs-ipdw
+ipfs-ipdw-*
+test.ipdw

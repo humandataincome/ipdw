@@ -1,5 +1,5 @@
 class ChatMessage {
-    public payload: Buffer; // EncryptedVault packed buffer
+    public payload!: Buffer; // EncryptedVault packed buffer
     public sig?: Buffer;
 }
 
@@ -10,7 +10,7 @@ export class IPDWChat {
 
     // Using scheme ACK
     public async sendMessage(chatId: string, message: string): Promise<ChatMessage> {
-        return null;
+        return new ChatMessage();
     }
 
 }
