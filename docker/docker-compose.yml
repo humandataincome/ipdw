@@ -1,0 +1,28 @@
+version: '3'
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+      - "4003:4003"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./.htpasswd:/etc/nginx/.htpasswd
+      - ./key.pem:/root/ssl/key.pem
+      - ./cert.pem:/root/ssl/cert.pem
+  ipfs:
+    image: ipfs/go-ipfs:latest
+    environment:
+      - IPFS_PROFILE=server
+      - IPFS_PATH=/ipfsdata
+    volumes:
+      - ./data/ipfs:/ipfsdata
+    command:
+      - ipfs config --json API.HTTPHeaders.Access-Control-Allow-Origin '[\"*\"]'
+      - ipfs config --json API.HTTPHeaders.Access-Control-Allow-Methods '[\"PUT\", \"GET\", \"POST\"]'
+    ports:
+      - "4001:4001"
+      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:8081:8081"
+      - "127.0.0.1:5001:5001"

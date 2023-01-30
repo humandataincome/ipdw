@@ -4,7 +4,8 @@ URL(test) - https://ipfs.io/ipfs/QmNRCQWfgze6AbBCaT1rkrkV5tJ2aP4oTNPb5JZcXYywve 
  */
 
 import Web3 from "web3";
-import {IPDW, MemoryStorageProvider} from "../../src";
+import * as fs from "fs";
+import {IPDW, MemoryStorageProvider} from "ipdw";
 
 async function main() {
     const web3 = new Web3(Web3.givenProvider || "https://bsc-dataseed.binance.org/");
@@ -23,6 +24,18 @@ async function main() {
     await ipdw.setData(dataBuffer, 'ENCRYPTED');
     await ipdw.push();
     console.log('PUSHED LOCAL DATA TO REMOTE');
+
+    console.log('SAVING LOCAL DATA TO FILE');
+    const rawData = await ipdw.getData('PLAIN');
+    console.log(rawData);
+    await fs.promises.writeFile('test.ipdw', rawData);
+    console.log('SAVED LOCAL DATA TO FILE');
+
+    console.log('READING FILE TO LOCAL DATA');
+    const rawSavedData = await fs.promises.readFile('test.ipdw');
+    await ipdw.setData(rawSavedData, 'PLAIN');
+    console.log(await ipdw.getData('PLAIN'));
+    console.log('READ FILE TO LOCAL DATA');
 
     console.log('PULLING REMOTE DATA TO LOCAL');
     await ipdw.pull();

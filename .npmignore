@@ -5,7 +5,9 @@ src/**/*.ts
 test
 .gitignore
 tsconfig.json
-webpack.config.cjs
+jest.config.json
+webpack.config.js
 ipfs-ipdw
 ipfs-ipdw-*
 test.ipdw
+demo
