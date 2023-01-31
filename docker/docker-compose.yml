@@ -1,5 +1,5 @@
 version: '3'
-services:      
+services:
   nginx:
     image: nginx:latest
     ports:
@@ -10,10 +10,10 @@ services:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ./data/certbot/www:/var/www/certbot:ro
       - ./data/certbot/conf:/etc/letsencrypt:ro
-      - ./data/nginx/.htpasswd:/etc/nginx/.htpasswd
-      
+      - ./data/nginx/.htpasswd:/etc/nginx/.htpasswd:ro
+
   ipfs:
-    image: ipfs/go-ipfs:latest
+    image: ipfs/kubo:latest
     environment:
       - IPFS_PROFILE=server
       - IPFS_PATH=/ipfsdata
