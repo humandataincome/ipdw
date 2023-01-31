@@ -12,7 +12,12 @@
     "skipLibCheck": true,
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
-    "moduleResolution": "Node"
+    "moduleResolution": "Node",
+
+  },
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
   },
   "exclude": ["./dist", "./node_modules/*"],
   "include": ["./src/*"]
