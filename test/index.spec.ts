@@ -6,10 +6,9 @@ URL(test) - https://ipfs.io/ipfs/QmNRCQWfgze6AbBCaT1rkrkV5tJ2aP4oTNPb5JZcXYywve 
 import {IPDW, MemoryStorageProvider} from "../src";
 
 describe("Simple expression tests", async () => {
-
     const ipdw = await IPDW.create(async (msg) => msg, 'Global', new MemoryStorageProvider());
 
-    test("Check 1", async () => {
+    it("Check 1", async () => {
         const data = {hello: "world"};
 
         console.log('PUSHING LOCAL DATA TO REMOTE', data);

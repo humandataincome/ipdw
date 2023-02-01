@@ -12,7 +12,8 @@
     "skipLibCheck": true,
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
-    "moduleResolution": "Node"
+    "moduleResolution": "Node",
+    "types": ["mocha"],
   },
   "ts-node": {
     "esm": true,
