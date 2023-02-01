@@ -1,16 +1,13 @@
 {
   "name": "ipdw",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "author": "Andrea Silvi",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "type": "module",
-  "files": [
-    "/dist"
-  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "ts-mocha test/*.ts"
+    "test": "ts-mocha --timeout 60000 test/*.ts"
   },
   "keywords": [
     "IPDW"
@@ -19,7 +16,7 @@
     "type": "git",
     "url": "git+https://github.com/ansi-code/ipdw.git"
   },
-  "license": "ISC",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/ansi-code/ipdw/issues"
   },

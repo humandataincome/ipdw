@@ -1,24 +1,18 @@
 {
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"],
   "compilerOptions": {
-    "target": "es2020",
     "module": "es2020",
+    "target": "es2020",
+    "moduleResolution": "node",
     "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "outDir": "./dist",
+    "outDir": "dist",
     "strict": true,
-    "rootDirs": ["./src"],
     "esModuleInterop": true,
-    "skipLibCheck": true,
-    "experimentalDecorators": true,
-    "strictPropertyInitialization": false,
-    "moduleResolution": "Node",
-    "types": ["mocha"],
+    "baseUrl": ".",
   },
   "ts-node": {
     "esm": true,
     "experimentalSpecifierResolution": "node"
-  },
-  "exclude": ["./dist", "./node_modules/*"],
-  "include": ["./src/*"]
+  }
 }

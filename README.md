@@ -1,26 +1,94 @@
 # ipdw (InterPlanetary Data Wallet)
-InterPlanetary Data Wallet (IPDW): store your personal or users data within a safe distributed storage. It enables to build a real decentralised network (Web 4.0) without the need to be online. P2P interactions, Database-less backends, verified identities, and much more...
 
-Everyone have a key pair, that means that there are a public key and a private key, that can be saved in different formats (see the BIP39 standard for mnemonic phrases based deterministic key generation).
+PDW is a repository for storing personal or user data within a safe and distributed storage. 
+It enables you to build a real decentralized network (Web 4.0) without needing to be online. 
+You can take advantage of P2P interactions, database-less backends, verified identities, and much more.
 
-In Web 3.0 applications can recognise your wallet address (derived from the public key) to let you act on the distributed ledger (the storage) as a well-identified identity.
+## Features
 
-The blockchains have different replicated and redundant ledger and different consensus algorithms. There is a competition rush to find the best algorithm to achieve it, increase throughput, security and so on...
+- Store personal or user data within a safe and distributed storage
+- Build a decentralized network (Web 4.0) without needing to be online
+- Enjoy P2P interactions
+- Utilize database-less backends
+- Verify identities
+- And much more!
 
-Let remove the term "blockchain" from the equation, Web 3.0 users are familiar with Private Key usage and management because of applications like Metamask/Trust. These ones simplified a lot the User Experience and right now managing keys and signing a message using RSA is an easy game.
+## Key Pair
 
-Thanks to these applications now users are able to do things that in past were done only by expert users like using GPG messaging systems. Remember "adoption" is the key for the evolution. Poor UX/UI means poor adoption.
+Everyone has a key pair, consisting of a public key and a private key, which can be saved in different formats (such as the BIP39 standard for mnemonic phrases-based deterministic key generation).
 
-Why we are talking about these in-famous private keys and public keys?
+In Web 3.0 applications, your wallet address (derived from the public key) can be recognized, allowing you to act on the distributed ledger (the storage) as a well-identified identity.
 
-As we know today nothing except a super quantum computer (reliable in matter of years since the time I'm writing this) can defeat/brute force this wonderful thing. They are only vulnerable to social/phishing and similar attacks. One rule to remember: "Humans every time are the vulnerable elements in the chain".
+## Decentralization and Security
 
-Using thins assertion we can recreate a lot of computer science related things, now that users are familiar with using them.
+The blockchains have different replicated and redundant ledgers and consensus algorithms, with a competition underway to find the best algorithm for increased throughput, security, and more.
 
-Surely you have a physical wallet in your bag or pocket, it is offline and only during a transaction it is eye-visible to the other peer.
+Thanks to applications like Metamask/Trust, Web 3.0 users are now familiar with private key usage and management. These applications have simplified the user experience, making it easy for users to manage keys and sign messages using RSA.
 
-Now let's introduce the InterPlanetary Data Wallet as a sophisticated mechanism to store all kind of data, that can works offline and only duringa a transaction it can be partially exposed.
+Private keys and public keys are nearly invulnerable to attacks from computers, except for social/phishing and similar attacks. "Humans are always the vulnerable element in the chain," so it's important to always be cautious.
 
-No worries, it is offline but it can be synced between all your devices using some P2P communication strategies like IPFS and IPNS. Yes, it is encrypted, so it is safe to share it without knowing the passphrase.
+## Data Wallet
 
-IF YOU LIKED THIS MANIFESTO, PLEASE SHARE THE LINK AND HELP DEFEAT INTERNET DATA CENTRALISATION
+The InterPlanetary Data Wallet is a sophisticated mechanism for storing all kinds of data that works offline and only partially exposes the data during a transaction. The data is encrypted, so it can be safely shared without knowing the passphrase.
+
+The wallet can be synced between all your devices using P2P communication strategies like IPFS and IPNS, and is always offline until a transaction occurs.
+
+## Getting Started
+
+To get started with IPDW, you will need to follow these steps:
+
+Clone the repository:
+```bash
+$ git clone https://github.com/ansi-code/ipdw.git
+```
+
+Install the required dependencies:
+```bash
+$ npm install
+```
+
+Start using IPDW.
+```js
+const web3 = new Web3(Web3.givenProvider || "https://bsc-dataseed.binance.org/");
+
+const account = web3.eth.accounts.privateKeyToAccount("0xeffc0f0bac08c2157c8bcabfbbe71df7c96b499defcfdae2210139418618d574");
+web3.eth.accounts.wallet.add(account);
+web3.eth.defaultAccount = account.address;
+console.log(account.address);
+
+const ipdw = await IPDW.create(async (msg) => await web3.eth.sign(msg, web3.eth.defaultAccount || 0), 'Global', new MemoryStorageProvider());
+
+const data = {hello: "world"};
+
+console.log('PUSHING LOCAL DATA TO REMOTE', data);
+const dataBuffer = Buffer.from(JSON.stringify(data), 'utf8');
+await ipdw.setData(dataBuffer, 'ENCRYPTED');
+await ipdw.push();
+console.log('PUSHED LOCAL DATA TO REMOTE');
+
+console.log('PULLING REMOTE DATA TO LOCAL');
+await ipdw.pull();
+const gotDataBuffer = await ipdw.getData('ENCRYPTED')
+const gotData = JSON.parse(gotDataBuffer.toString('utf8'));
+console.log('PULLED REMOTE DATA TO LOCAL', gotData);
+
+await ipdw.addMessageListener('PLAIN', 'bla bla', console.log);
+await ipdw.sendMessage('PLAIN', 'bla bla', 'Hello World');
+```
+
+## Contributing
+
+We welcome contributions to IPDW! If you would like to contribute, please follow these steps:
+
+1. Fork the repository
+2. Create a new branch for your changes
+3. Commit your changes and open a pull request
+4. Support
+
+If you need help using IPDW or have any questions, please open an issue in this repository and we will be happy to assist you.
+
+## License
+
+This project is licensed under the Apache 2.0 License. See the [LICENSE](./LICENSE) file for details.
+
+We hope you will join us in our mission to defeat internet data centralization!
