@@ -20,7 +20,8 @@ export default (env, argv) => ({
         module: {
             rules: [
                 {test: /\.ts?$/, use: 'ts-loader', exclude: /node_modules/},
-                {test: /\.html$/, use: 'html-loader'}
+                {test: /\.html$/, use: 'html-loader'},
+                {test: /\.m?js/, resolve: { fullySpecified: false }}
             ],
         },
 

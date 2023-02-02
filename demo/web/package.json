@@ -3,13 +3,16 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "webpack serve --mode development",
+    "start:dev": "webpack serve --mode development",
+    "build:dev": "webpack --target web --mode development",
     "build:prod": "webpack --target web --mode production",
     "publish": "IPFS_USERNAME= IPFS_PASSWORD= ts-node scripts/publish.ts"
   },
   "dependencies": {
-    "ipdw": "^1.2.4",
-    "web3": "^1.8.2"
+    "ipdw": "^1.3.3",
+    "web3": "^1.8.2",
+    "crypto-browserify": "^3.12.0",
+    "stream-browserify": "^3.0.0"
   },
   "devDependencies": {
     "html-loader": "^4.2.0",
