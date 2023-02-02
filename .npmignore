@@ -1,15 +1,17 @@
 .github
 .idea
 .gitignore
+.mocharc.json
 
 src/**/*.ts
 !src/**/*.d.ts
 tsconfig.json
+webpack.config.js
 
 test
 demo
 scripts
 docker
 
-ipfs-ipdw-*
 test.ipdw
+ipfs-ipdw*

@@ -51,4 +51,4 @@ Thumbs.db
 
 package-lock.json
 test.ipdw
-ipfs-ipdw-*
+ipfs-ipdw*

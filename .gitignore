@@ -50,4 +50,5 @@ Thumbs.db
 # ENV files
 
 package-lock.json
+test.ipdw
 ipfs-ipdw*
