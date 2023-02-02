@@ -1,6 +1,6 @@
 {
   "name": "ipdw",
-  "version": "1.4.2",
+  "version": "1.4.4",
   "author": "Andrea Silvi",
   "exports": {
     "./node": "./dist/node/index.js",
