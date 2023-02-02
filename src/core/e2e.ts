@@ -1,6 +1,7 @@
 import * as crypto from 'crypto';
 import forge from "node-forge";
 import {KeyPair} from "./keypair";
+import {Buffer} from "buffer";
 
 /*
     Asymmetric encryption wrapper

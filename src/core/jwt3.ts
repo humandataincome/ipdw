@@ -1,3 +1,5 @@
+import {Buffer} from "buffer";
+
 export interface IJWT3<T> {
     header: { alg: string, typ: string };
     payload: T;

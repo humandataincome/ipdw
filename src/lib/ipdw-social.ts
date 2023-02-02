@@ -1,3 +1,5 @@
+import {Buffer} from "buffer";
+
 class IpdwSocialProfile {
     public name!: Buffer;
     public posts!: string[];

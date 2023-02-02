@@ -1,3 +1,4 @@
+import {Buffer} from "buffer";
 import {E2EManager, IPFSManager, StorageProvider, Vault} from "../core";
 
 export class IPDW {

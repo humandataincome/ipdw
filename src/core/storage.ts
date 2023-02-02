@@ -1,3 +1,5 @@
+import {Buffer} from "buffer";
+
 export interface StorageProvider {
     set(key: string, value: Buffer): Promise<void>;
 

@@ -5,6 +5,7 @@ URL(test) - https://ipfs.io/ipfs/QmNRCQWfgze6AbBCaT1rkrkV5tJ2aP4oTNPb5JZcXYywve 
 
 import Web3 from "web3";
 import {IPDW, MemoryStorageProvider} from "ipdw/web";
+import {Buffer} from "buffer"; //PAY ATTENTION TO USE THIS OR USE "PROVIDE PLUGIN" IN WEBPACK
 
 async function main() {
     const web3 = new Web3(Web3.givenProvider || "https://bsc-dataseed.binance.org/");

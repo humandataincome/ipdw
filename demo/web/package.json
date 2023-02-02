@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start:dev": "webpack serve --mode development",
-    "build:dev": "webpack --target web --mode development",
+    "start:prod": "webpack serve --mode production",
     "build:prod": "webpack --target web --mode production",
     "publish": "IPFS_USERNAME= IPFS_PASSWORD= ts-node scripts/publish.ts"
   },

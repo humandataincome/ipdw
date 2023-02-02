@@ -1,3 +1,5 @@
+import {Buffer} from "buffer";
+
 import * as crypto from 'crypto';
 
 /*

@@ -33,32 +33,41 @@ const commonsConfig = {
             {test: /\.ts?$/, use: 'ts-loader', exclude: /node_modules/},
         ],
     },
+
+    performance: {
+        hints: false
+    },
+
+    optimization: {
+        minimize: true
+    }
 }
 
 export default (env, argv) => ([
     webpackMerge(commonsConfig, {
         target: 'web',
 
+        experiments: {
+            outputModule: true,
+        },
+
         output: {
             path: __dirname + '/dist/web',
             filename: '[name].js',
-            library: {
-                name: "ipdw",
-                type: "umd"
-            },
-            globalObject: "globalThis"
+            libraryTarget: "module",
+            chunkFormat: "module"
         },
 
         resolve: {
             fallback: {
                 crypto: 'crypto-browserify',
-                stream: 'stream-browserify'
+                stream: 'stream-browserify',
             }
         },
 
         plugins: [
             new ProvidePlugin({
-                Buffer: ['buffer', 'Buffer'],
+                Buffer: ['buffer', 'Buffer'] // Fix for sub-dependencies that use Buffer not from buffer
             })
         ]
     }),
