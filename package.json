@@ -2,6 +2,7 @@
   "name": "ipdw",
   "version": "1.4.4",
   "author": "Andrea Silvi",
+  "type": "module",
   "exports": {
     "./node": "./dist/node/index.js",
     "./web": "./dist/web/index.js"
@@ -12,7 +13,6 @@
       "web": [ "./dist/@types/index.d.ts" ]
     }
   },
-  "type": "module",
   "scripts": {
     "test": "ts-mocha --timeout 60000 test/*.ts",
     "build:prod": "webpack --mode production",
@@ -55,7 +55,6 @@
     "webpack-cli": "^5.0.1",
     "webpack-merge": "^5.8.0",
     "webpack-node-externals": "^3.0.0",
-    "clean-webpack-plugin": "^4.0.0",
-    "webpack-bundle-analyzer": "^4.7.0"
+    "clean-webpack-plugin": "^4.0.0"
   }
 }
