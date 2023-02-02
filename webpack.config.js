@@ -3,6 +3,7 @@ import pkg from 'webpack';
 import {fileURLToPath} from 'url';
 import {merge as webpackMerge} from "webpack-merge";
 import nodeExternals from "webpack-node-externals";
+import {CleanWebpackPlugin} from "clean-webpack-plugin";
 
 const {ProvidePlugin} = pkg;
 
@@ -11,6 +12,13 @@ const __dirname = path.dirname(__filename);
 
 const commonsConfig = {
     context: __dirname,
+
+    plugins: [
+        new CleanWebpackPlugin({
+            cleanStaleWebpackAssets: false,
+            cleanOnceBeforeBuildPatterns: [path.resolve(__dirname, './dist')],
+        })
+    ],
 
     entry: {
         index: './src/index.ts',
@@ -34,8 +42,11 @@ export default (env, argv) => ([
         output: {
             path: __dirname + '/dist',
             filename: '[name].min.js',
-            libraryTarget: 'umd',
-            library: 'ipdw',
+            library: {
+                name: "ipdw",
+                type: "umd"
+            },
+            globalObject: "globalThis"
         },
 
         resolve: {
@@ -55,16 +66,17 @@ export default (env, argv) => ([
     webpackMerge(commonsConfig, {
         target: 'node',
 
-        externals: [ nodeExternals() ],
+        externals: [ nodeExternals({ importType: 'module' }) ],
+
+        experiments: {
+            outputModule: true,
+        },
 
         output: {
             path: __dirname + '/dist',
             filename: '[name].js',
-            globalObject: 'this',
-            library: {
-                name: 'ipdw',
-                type: 'umd',
-            },
+            libraryTarget: "module",
+            chunkFormat: "module"
         },
     })
 ])

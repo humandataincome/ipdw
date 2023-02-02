@@ -5,11 +5,9 @@ URL(test) - https://ipfs.io/ipfs/QmNRCQWfgze6AbBCaT1rkrkV5tJ2aP4oTNPb5JZcXYywve 
 
 import Web3 from "web3";
 import * as fs from "fs";
-import * as ipdw from "ipdw";
+import {IPDW, MemoryStorageProvider} from "ipdw";
 
 async function main() {
-    console.log(ipdw)
-    /*
     const web3 = new Web3(Web3.givenProvider || "https://bsc-dataseed.binance.org/");
 
     const account = web3.eth.accounts.privateKeyToAccount("0xeffc0f0bac08c2157c8bcabfbbe71df7c96b499defcfdae2210139418618d574");
@@ -48,7 +46,6 @@ async function main() {
     await ipdw.addMessageListener('PLAIN', 'bla bla', console.log);
 
     await ipdw.sendMessage('PLAIN', 'bla bla', 'Hello World');
-     */
 }
 
 (async () => {
