@@ -6,7 +6,7 @@
     "target": "es2020",
     "moduleResolution": "node",
     "declaration": true,
-    "outDir": "dist",
+    "outDir": "dist/@types",
     "strict": true,
     "esModuleInterop": true,
     "baseUrl": ".",

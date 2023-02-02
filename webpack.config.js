@@ -40,8 +40,8 @@ export default (env, argv) => ([
         target: 'web',
 
         output: {
-            path: __dirname + '/dist',
-            filename: '[name].min.js',
+            path: __dirname + '/dist/web',
+            filename: '[name].js',
             library: {
                 name: "ipdw",
                 type: "umd"
@@ -73,7 +73,7 @@ export default (env, argv) => ([
         },
 
         output: {
-            path: __dirname + '/dist',
+            path: __dirname + '/dist/node',
             filename: '[name].js',
             libraryTarget: "module",
             chunkFormat: "module"
