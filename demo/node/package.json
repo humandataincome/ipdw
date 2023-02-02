@@ -6,7 +6,7 @@
     "start": "ts-node src/index.ts"
   },
   "dependencies": {
-    "ipdw": "^1.3.5",
+    "ipdw": "file:../../",
     "web3": "^1.8.2"
   },
   "devDependencies": {

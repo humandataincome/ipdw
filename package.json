@@ -1,15 +1,11 @@
 {
   "name": "ipdw",
-  "version": "1.3.5",
+  "version": "1.4.0",
   "author": "Andrea Silvi",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "browser": "./dist/index.min.js",
   "type": "module",
-  "browserslist": [
-    "defaults and supports es6-module",
-    "maintained node versions"
-  ],
   "scripts": {
     "test": "ts-mocha --timeout 60000 test/*.ts",
     "build:prod": "webpack --mode production",

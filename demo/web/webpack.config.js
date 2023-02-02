@@ -21,7 +21,6 @@ export default (env, argv) => ({
             rules: [
                 {test: /\.ts?$/, use: 'ts-loader', exclude: /node_modules/},
                 {test: /\.html$/, use: 'html-loader'},
-                {test: /\.m?js/, resolve: { fullySpecified: false }}
             ],
         },
 
@@ -33,10 +32,6 @@ export default (env, argv) => ({
 
         resolve: {
             extensions: ['.ts', '.js', '.json'],
-            fallback: {
-                crypto: 'crypto-browserify',
-                stream: 'stream-browserify'
-            }
         },
 
         devServer: {
@@ -48,9 +43,6 @@ export default (env, argv) => ({
         },
 
         plugins: [
-            new ProvidePlugin({
-                Buffer: ['buffer', 'Buffer'],
-            }),
             new HtmlWebpackPlugin({
                 template: './src/index.html',
                 filename: 'index.html',

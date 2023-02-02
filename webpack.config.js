@@ -34,6 +34,8 @@ export default (env, argv) => ([
         output: {
             path: __dirname + '/dist',
             filename: '[name].min.js',
+            libraryTarget: 'umd',
+            library: 'ipdw',
         },
 
         resolve: {
@@ -52,16 +54,17 @@ export default (env, argv) => ([
 
     webpackMerge(commonsConfig, {
         target: 'node',
-        externals: [nodeExternals()],
 
-        experiments: {
-            outputModule: true,
-        },
+        externals: [ nodeExternals() ],
 
         output: {
             path: __dirname + '/dist',
             filename: '[name].js',
-            chunkFormat: "array-push",
+            globalObject: 'this',
+            library: {
+                name: 'ipdw',
+                type: 'umd',
+            },
         },
     })
 ])
