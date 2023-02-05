@@ -17,6 +17,8 @@ mkdir -p "data/certbot/conf"
 curl -s https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf > "data/certbot/conf/options-ssl-nginx.conf"
 openssl dhparam -out "data/certbot/conf/ssl-dhparams.pem" 2048
 
+sudo sysctl -w net.core.rmem_max=250000
+
 docker-compose -f docker-compose.pre.yml down
 export EMAIL=${EMAIL}
 export DOMAIN=${DOMAIN}
