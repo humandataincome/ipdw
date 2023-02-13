@@ -1,14 +1,5 @@
 import {Buffer} from "buffer";
-
-export interface StorageProvider {
-    set(key: string, value: Buffer): Promise<void>;
-
-    has(key: string): Promise<boolean>;
-
-    get(key: string): Promise<Buffer | undefined>;
-
-    ls(): Promise<string[]>;
-}
+import {StorageProvider} from "./index";
 
 export class MemoryStorageProvider implements StorageProvider {
     private storage: Map<string, Buffer>;

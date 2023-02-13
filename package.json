@@ -1,6 +1,6 @@
 {
   "name": "ipdw",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "author": "Andrea Silvi",
   "type": "module",
   "exports": {
@@ -55,6 +55,7 @@
     "webpack-cli": "^5.0.1",
     "webpack-merge": "^5.8.0",
     "webpack-node-externals": "^3.0.0",
-    "clean-webpack-plugin": "^4.0.0"
+    "clean-webpack-plugin": "^4.0.0",
+    "fake-indexeddb": "^4.0.1"
   }
 }
