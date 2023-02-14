@@ -2,7 +2,7 @@ import {StorageProvider} from "./";
 
 interface Metadata {
     chunksCount: number;
-    length: number;
+    totalLength: number;
 }
 
 export class StreamProvider {
@@ -20,12 +20,32 @@ export class StreamProvider {
         return this.storage.has(key + "_");
     }
 
-    // Resumable
     public async getWritable(key: string, maxChunkSize: number = 131072 /* 128kb default*/, append: boolean = true): Promise<WritableStream> {
-        const metadata = {chunksCount: 0, totalLength: 0};
-
+        let metadata = {chunksCount: 0, totalLength: 0};
         let tmp = new Uint8Array(maxChunkSize);
         let tmpSize = 0;
+
+        if (await this.storage.has(key + "_")) {
+            const tmpMetadata = JSON.parse(new TextDecoder().decode(await this.storage.get(key + "_"))) as Metadata
+
+            if (append && tmpMetadata.chunksCount > 0) {
+                const lastChunk = await this.storage.get(key + "_" + (tmpMetadata.chunksCount - 1));
+                if (lastChunk!.length < maxChunkSize) {
+                    tmpSize = lastChunk!.length;
+                    tmp.set(lastChunk!, 0);
+                    metadata.chunksCount = tmpMetadata.chunksCount - 1;
+                    metadata.totalLength = tmpMetadata.totalLength - tmpSize;
+                } else {
+                    metadata.chunksCount = tmpMetadata.chunksCount;
+                    metadata.totalLength = tmpMetadata.totalLength;
+                }
+            } else {
+                for (let pivot = tmpMetadata.chunksCount - 1; pivot >= 0; pivot--)
+                    await this.storage.set(key + "_" + pivot, undefined);
+
+                await this.storage.set(key + "_", undefined);
+            }
+        }
 
         const _self = this;
         return new WritableStream<Uint8Array>({
@@ -61,7 +81,8 @@ export class StreamProvider {
         });
     }
 
-    public async getReadable(key: string): Promise<ReadableStream> {
+    // TODO: implement maxChunkSize logic
+    public async getReadable(key: string, maxChunkSize: number = 131072 /* 128kb default*/): Promise<ReadableStream> {
         const metadata = JSON.parse(new TextDecoder().decode(await this.storage.get(key + "_"))) as Metadata;
 
         const _self = this;

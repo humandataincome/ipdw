@@ -58,7 +58,7 @@ describe("Simple expression tests", async () => {
         const stream = new StreamProvider(storage);
 
         let res;
-        res = (await stream.getWritable("key1", 1)).getWriter();
+        res = (await stream.getWritable("key1", 3)).getWriter();
         await res.write(new TextEncoder().encode("va"));
         await res.write(new TextEncoder().encode("lue1"));
         await res.close();
