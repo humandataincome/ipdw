@@ -21,26 +21,25 @@ export class StreamProvider {
     }
 
     // Resumable
-    public async getWritable(key: string, chunkSize: number = 131072 /* 128kb default*/): Promise<WritableStream> {
+    public async getWritable(key: string, maxChunkSize: number = 131072 /* 128kb default*/, append: boolean = true): Promise<WritableStream> {
         const metadata = {chunksCount: 0, totalLength: 0};
 
-        let tmp = new Uint8Array(chunkSize);
+        let tmp = new Uint8Array(maxChunkSize);
         let tmpSize = 0;
 
         const _self = this;
-
         return new WritableStream<Uint8Array>({
             async write(chunk) {
                 let writtenSize = 0;
                 while (writtenSize < chunk.length) {
-                    const writableSize = Math.min(chunkSize - tmpSize, chunk.length - writtenSize);
-                    const subChunk = chunk.slice(0, writableSize);
+                    const writableSize = Math.min(maxChunkSize - tmpSize, chunk.length - writtenSize);
+                    const subChunk = chunk.slice(writtenSize, writtenSize + writableSize);
 
                     tmp.set(subChunk, tmpSize);
                     tmpSize += writableSize;
                     writtenSize += writableSize
 
-                    if (tmpSize === chunkSize) {
+                    if (tmpSize === maxChunkSize) {
                         metadata.chunksCount++;
                         metadata.totalLength += tmpSize;
                         tmpSize = 0;
@@ -51,11 +50,13 @@ export class StreamProvider {
                 }
             },
             async close() {
-                metadata.chunksCount++;
-                metadata.totalLength += tmpSize;
+                if (tmpSize > 0) {
+                    metadata.chunksCount++;
+                    metadata.totalLength += tmpSize;
 
-                await _self.storage.set(key + "_" + (metadata.chunksCount - 1), tmp.slice(0, tmpSize));
-                await _self.storage.set(key + "_", new TextEncoder().encode(JSON.stringify(metadata)))
+                    await _self.storage.set(key + "_" + (metadata.chunksCount - 1), tmp.slice(0, tmpSize));
+                    await _self.storage.set(key + "_", new TextEncoder().encode(JSON.stringify(metadata)))
+                }
             }
         });
     }

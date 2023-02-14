@@ -53,12 +53,12 @@ describe("Simple expression tests", async () => {
 
     it("Check StreamProvider", async () => {
         //const storage = new MemoryStorageProvider();
-        //const storage = new FileSystemStorageProvider();
-        const storage = await IndexedDBStorageProvider.Init();
+        const storage = new FileSystemStorageProvider();
+        //const storage = await IndexedDBStorageProvider.Init();
         const stream = new StreamProvider(storage);
 
         let res;
-        res = (await stream.getWritable("key1")).getWriter();
+        res = (await stream.getWritable("key1", 1)).getWriter();
         await res.write(new TextEncoder().encode("va"));
         await res.write(new TextEncoder().encode("lue1"));
         await res.close();
