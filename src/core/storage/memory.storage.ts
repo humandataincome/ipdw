@@ -1,14 +1,13 @@
-import {Buffer} from "buffer";
 import {StorageProvider} from "./index";
 
 export class MemoryStorageProvider implements StorageProvider {
-    private storage: Map<string, Buffer>;
+    private storage: Map<string, Uint8Array>;
 
     constructor() {
-        this.storage = new Map<string, Buffer>();
+        this.storage = new Map<string, Uint8Array>();
     }
 
-    public async set(key: string, value: Buffer | undefined): Promise<void> {
+    public async set(key: string, value: Uint8Array | undefined): Promise<void> {
         if (value)
             this.storage.set(key, value);
         else
@@ -19,7 +18,7 @@ export class MemoryStorageProvider implements StorageProvider {
         return this.storage.has(key);
     }
 
-    public async get(key: string): Promise<Buffer | undefined> {
+    public async get(key: string): Promise<Uint8Array | undefined> {
         return this.storage.get(key);
     }
 

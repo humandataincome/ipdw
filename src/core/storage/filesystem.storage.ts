@@ -1,4 +1,3 @@
-import {Buffer} from "buffer";
 import {StorageProvider} from "./index";
 import fs from "fs";
 
@@ -12,7 +11,7 @@ export class FileSystemStorageProvider implements StorageProvider {
             fs.mkdirSync(this.basePath, {recursive: true});
     }
 
-    public async set(key: string, value: Buffer | undefined): Promise<void> {
+    public async set(key: string, value: Uint8Array | undefined): Promise<void> {
         if (value)
             await fs.promises.writeFile(this.basePath + key, value)
         else
@@ -23,7 +22,7 @@ export class FileSystemStorageProvider implements StorageProvider {
         return fs.existsSync(this.basePath + key);
     }
 
-    public async get(key: string): Promise<Buffer | undefined> {
+    public async get(key: string): Promise<Uint8Array | undefined> {
         return fs.promises.readFile(this.basePath + key);
     }
 

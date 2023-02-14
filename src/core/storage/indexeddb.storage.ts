@@ -1,4 +1,3 @@
-import {Buffer} from "buffer";
 import {StorageProvider} from "./index";
 
 export class IndexedDBStorageProvider implements StorageProvider {
@@ -30,11 +29,11 @@ export class IndexedDBStorageProvider implements StorageProvider {
         });
     }
 
-    public async set(key: string, value: Buffer | undefined): Promise<void> {
+    public async set(key: string, value: Uint8Array | undefined): Promise<void> {
         if (value)
             await IndexedDBStorageProvider.IDBRequestPromisify(this.database.transaction("data", "readwrite").objectStore("data").put({
-                value,
-                key
+                key,
+                value: value.buffer
             }));
         else
             await IndexedDBStorageProvider.IDBRequestPromisify(this.database.transaction("data", "readwrite").objectStore("data").delete(key));
@@ -44,11 +43,13 @@ export class IndexedDBStorageProvider implements StorageProvider {
         return await IndexedDBStorageProvider.IDBRequestPromisify(this.database.transaction("data", "readonly").objectStore("data").count(key)) > 0;
     }
 
-    public async get(key: string): Promise<Buffer | undefined> {
-        return await IndexedDBStorageProvider.IDBRequestPromisify(this.database.transaction("data", "readonly").objectStore("data").get(key));
+    public async get(key: string): Promise<Uint8Array | undefined> {
+        return new Uint8Array((await IndexedDBStorageProvider.IDBRequestPromisify(this.database.transaction("data", "readonly").objectStore("data").get(key))).value);
     }
 
     public async ls(): Promise<string[]> {
         return await IndexedDBStorageProvider.IDBRequestPromisify(this.database.transaction("data", "readonly").objectStore("data").getAllKeys()) as string[];
     }
+
+    //For better stream support add cursor
 }

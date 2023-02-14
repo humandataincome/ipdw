@@ -24,7 +24,7 @@ export class IPDW {
 
     public async push(): Promise<void> {
         const ipfs = await IPFSManager.getInstance();
-        await ipfs.writeNamed((await this.storage.get('data'))!.toString('base64'), this.privateKey);
+        await ipfs.writeNamed(Buffer.from((await this.storage.get('data'))!).toString('base64'), this.privateKey);
     }
 
     public async sync(): Promise<void> {
@@ -36,9 +36,9 @@ export class IPDW {
 
         switch (type) {
             case 'PLAIN':
-                return data;
+                return data as Buffer;
             case 'ENCRYPTED':
-                return await Vault.unlock(data, `${this.token}${nonce}`);
+                return await Vault.unlock(data as Buffer, `${this.token}${nonce}`);
         }
     }
 
