@@ -9,7 +9,7 @@ export class MemoryStorageProvider implements StorageProvider {
 
     public async set(key: string, value: Uint8Array | undefined): Promise<void> {
         if (value)
-            this.storage.set(key, value);
+            this.storage.set(key, new Uint8Array(value));
         else
             this.storage.delete(key);
     }
