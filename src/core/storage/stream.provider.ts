@@ -84,6 +84,7 @@ export class StreamProvider {
     public async getReadable(key: string, maxChunkSize: number = 131072 /* 128kb default*/): Promise<ReadableStream> {
         const metadata = JSON.parse(new TextDecoder().decode(await this.storage.get(key + "_"))) as Metadata;
         let pivot = {chunk: 0, end: 0};
+        let chunk: Uint8Array | undefined;
 
         const _self = this;
         return new ReadableStream<Uint8Array>({
@@ -91,7 +92,9 @@ export class StreamProvider {
                 let tmp = {chunk: new Uint8Array(maxChunkSize), size: 0};
 
                 while (pivot.chunk < metadata.chunks) {
-                    const chunk = await _self.storage.get(key + "_" + pivot.chunk);
+                    if (pivot.end === 0)
+                        chunk = await _self.storage.get(key + "_" + pivot.chunk);
+
                     const readableSize = Math.min(maxChunkSize - tmp.size, chunk!.length - pivot.end);
 
                     const subChunk = chunk!.slice(pivot.end, pivot.end + readableSize);
