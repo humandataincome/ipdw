@@ -15,7 +15,7 @@ export class IPFSManager {
         if (!IPFSManager.instance) {
             IPFSManager.instance = new IPFSManager(
                 await create({
-                    repo: 'ipfs-ipdw', //+ Math.random(),
+                    repo: 'ipfs-ipdw',// + Math.random(),
                     config: {
                         Addresses: {
                             Swarm: [
@@ -78,5 +78,19 @@ export class IPFSManager {
         }
 
         return content;
+    }
+
+    public async readStream(cid: string, offset: number = 0): Promise<ReadableStream<Uint8Array>> {
+        const _self = this;
+        return new ReadableStream<Uint8Array>({
+            async start(controller) {
+                const iterable = await _self.node.cat(cid);
+
+                for await (const chunk of iterable)
+                    controller.enqueue(chunk);
+
+                controller.close();
+            },
+        });
     }
 }
