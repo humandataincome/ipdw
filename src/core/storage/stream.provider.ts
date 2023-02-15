@@ -22,8 +22,7 @@ export class StreamProvider {
 
     public async getWritable(key: string, maxChunkSize: number = 131072 /* 128kb default*/, append: boolean = false): Promise<WritableStream> {
         let metadata = {chunks: 0, size: 0};
-        let tmp = new Uint8Array(maxChunkSize);
-        let tmpSize = 0;
+        let tmp = {chunk: new Uint8Array(maxChunkSize), size: 0};
 
         if (await this.storage.has(key + "_")) {
             const tmpMetadata = JSON.parse(new TextDecoder().decode(await this.storage.get(key + "_"))) as Metadata
@@ -31,10 +30,10 @@ export class StreamProvider {
             if (append && tmpMetadata.chunks > 0) {
                 const lastChunk = await this.storage.get(key + "_" + (tmpMetadata.chunks - 1));
                 if (lastChunk!.length < maxChunkSize) {
-                    tmpSize = lastChunk!.length;
-                    tmp.set(lastChunk!, 0);
+                    tmp.size = lastChunk!.length;
+                    tmp.chunk.set(lastChunk!, 0);
                     metadata.chunks = tmpMetadata.chunks - 1;
-                    metadata.size = tmpMetadata.size - tmpSize;
+                    metadata.size = tmpMetadata.size - tmp.size;
                 } else {
                     metadata.chunks = tmpMetadata.chunks;
                     metadata.size = tmpMetadata.size;
@@ -51,30 +50,31 @@ export class StreamProvider {
         return new WritableStream<Uint8Array>({
             async write(chunk) {
                 let writtenSize = 0;
+
                 while (writtenSize < chunk.length) {
-                    const writableSize = Math.min(maxChunkSize - tmpSize, chunk.length - writtenSize);
+                    const writableSize = Math.min(maxChunkSize - tmp.size, chunk.length - writtenSize);
                     const subChunk = chunk.slice(writtenSize, writtenSize + writableSize);
 
-                    tmp.set(subChunk, tmpSize);
-                    tmpSize += writableSize;
+                    tmp.chunk.set(subChunk, tmp.size);
+                    tmp.size += writableSize;
                     writtenSize += writableSize
 
-                    if (tmpSize === maxChunkSize) {
+                    if (tmp.size === maxChunkSize) {
                         metadata.chunks++;
-                        metadata.size += tmpSize;
-                        tmpSize = 0;
+                        metadata.size += tmp.size;
+                        tmp.size = 0;
 
-                        await _self.storage.set(key + "_" + (metadata.chunks - 1), tmp);
+                        await _self.storage.set(key + "_" + (metadata.chunks - 1), tmp.chunk);
                         await _self.storage.set(key + "_", new TextEncoder().encode(JSON.stringify(metadata)))
                     }
                 }
             },
             async close() {
-                if (tmpSize > 0) {
+                if (tmp.size > 0) {
                     metadata.chunks++;
-                    metadata.size += tmpSize;
+                    metadata.size += tmp.size;
 
-                    await _self.storage.set(key + "_" + (metadata.chunks - 1), tmp.slice(0, tmpSize));
+                    await _self.storage.set(key + "_" + (metadata.chunks - 1), tmp.chunk.slice(0, tmp.size));
                     await _self.storage.set(key + "_", new TextEncoder().encode(JSON.stringify(metadata)))
                 }
             }
@@ -88,17 +88,16 @@ export class StreamProvider {
         const _self = this;
         return new ReadableStream<Uint8Array>({
             async pull(controller) { // Using pull function instead of start to read it asynchronously
-                let tmp = new Uint8Array(maxChunkSize);
-                let tmpSize = 0;
+                let tmp = {chunk: new Uint8Array(maxChunkSize), size: 0};
 
-                while (true) {
+                while (pivot.chunk < metadata.chunks) {
                     const chunk = await _self.storage.get(key + "_" + pivot.chunk);
-                    const readableSize = Math.min(maxChunkSize - tmpSize, chunk!.length - pivot.end);
+                    const readableSize = Math.min(maxChunkSize - tmp.size, chunk!.length - pivot.end);
 
                     const subChunk = chunk!.slice(pivot.end, pivot.end + readableSize);
-                    tmp.set(subChunk, tmpSize);
+                    tmp.chunk.set(subChunk, tmp.size);
 
-                    tmpSize += readableSize;
+                    tmp.size += readableSize;
                     pivot.end += readableSize;
 
                     if (pivot.end === chunk!.length) {
@@ -106,17 +105,15 @@ export class StreamProvider {
                         pivot.end = 0;
                     }
 
-                    if (tmpSize === maxChunkSize) {
-                        controller.enqueue(tmp);
-                        break;
-                    }
-
-                    if (pivot.chunk === metadata.chunks) {
-                        controller.enqueue(tmp.slice(0, tmpSize));
-                        controller.close();
-                        break;
+                    if (tmp.size === maxChunkSize) {
+                        controller.enqueue(tmp.chunk);
+                        return;
                     }
                 }
+
+                if (tmp.size > 0)
+                    controller.enqueue(tmp.chunk.slice(0, tmp.size));
+                controller.close();
             },
         });
     }
