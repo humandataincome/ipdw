@@ -19,13 +19,24 @@ export class Persistence {
             this.instance = new Persistence(
                 typeof window === 'undefined' ?
                     new FileSystemStorageProvider(basePath) :
-                    await IndexedDBStorageProvider.Init());
+                    await IndexedDBStorageProvider.Init(basePath));
         }
 
         return this.instance;
     }
 
     public async fetchOrGet(url: string, progress: ((progress: number) => void) | undefined = undefined): Promise<Uint8Array | undefined> { // support for [file://, http(s)://, ip(f/n)s://]
+        const storageKey = crypto.pbkdf2Sync(url, "", 1, 32, "sha256").toString("hex");
+
+        let storageValueSize = 0;
+        if (await this.stream.has(storageKey)) {
+            const storageMetadata = await this.stream.metadata(storageKey);
+            if (storageMetadata.done)
+                return StreamUtils.GetAsUint8Array(await this.stream.getReadable(storageKey, 1048576));
+
+            storageValueSize = storageMetadata.size;
+        }
+
         const parsedUrl = new URL(url);
 
         let expectedSize = 0;
@@ -43,14 +54,8 @@ export class Persistence {
                 break;
         }
 
-        const storageKey = crypto.pbkdf2Sync(url, "", 1, 32, "sha256").toString("hex");
-
-        let storageValueSize = 0;
-        if (await this.stream.has(storageKey)) {
-            storageValueSize = (await this.stream.metadata(storageKey)).size;
-            if (storageValueSize === expectedSize)
-                return StreamUtils.GetAsUint8Array(await this.stream.getReadable(storageKey));
-        }
+        if (storageValueSize === expectedSize)
+            return StreamUtils.GetAsUint8Array(await this.stream.getReadable(storageKey, 1048576));
 
         let readable: ReadableStream<Uint8Array>;
 
@@ -72,7 +77,7 @@ export class Persistence {
         const writer = await this.stream.getWritable(storageKey, 1048576, true);
         await readable!.pipeThrough(progressStream).pipeTo(writer);
 
-        return StreamUtils.GetAsUint8Array(await this.stream.getReadable(storageKey))
+        return StreamUtils.GetAsUint8Array(await this.stream.getReadable(storageKey, 1048576))
     }
 
 }
