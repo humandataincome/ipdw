@@ -84,7 +84,7 @@ export class IPFSManager {
         const _self = this;
         return new ReadableStream<Uint8Array>({
             async start(controller) {
-                const iterable = await _self.node.cat(cid);
+                const iterable = await _self.node.cat(cid, {offset});
 
                 for await (const chunk of iterable)
                     controller.enqueue(chunk);
@@ -92,5 +92,10 @@ export class IPFSManager {
                 controller.close();
             },
         });
+    }
+
+    public async getStats(cid: string): Promise<{ size: number, type: 'directory' | 'file' }> {
+        const stat = await this.node.files.stat("/ipfs/" + cid);
+        return {size: stat.size, type: stat.type};
     }
 }

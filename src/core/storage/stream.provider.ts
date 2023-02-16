@@ -3,6 +3,7 @@ import {StorageProvider} from "./";
 interface Metadata {
     chunks: number;
     size: number;
+    done: boolean;
 }
 
 export class StreamProvider {
@@ -21,7 +22,7 @@ export class StreamProvider {
     }
 
     public async getWritable(key: string, maxChunkSize: number = 131072 /* 128kb default*/, append: boolean = false): Promise<WritableStream> {
-        let metadata = {chunks: 0, size: 0};
+        let metadata = {chunks: 0, size: 0, done: false};
         let tmp = {chunk: new Uint8Array(maxChunkSize), size: 0};
 
         if (await this.storage.has(key + "_")) {
@@ -73,6 +74,7 @@ export class StreamProvider {
                 if (tmp.size > 0) {
                     metadata.chunks++;
                     metadata.size += tmp.size;
+                    metadata.done = true;
 
                     await _self.storage.set(key + "_" + (metadata.chunks - 1), tmp.chunk.slice(0, tmp.size));
                     await _self.storage.set(key + "_", new TextEncoder().encode(JSON.stringify(metadata)))

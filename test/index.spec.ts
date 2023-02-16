@@ -3,7 +3,7 @@ Wallet(test) - Address: 0xb9470887f963694195053Da319e17dd44CCfFC46 - Private key
 URL(test) - https://ipfs.io/ipfs/QmNRCQWfgze6AbBCaT1rkrkV5tJ2aP4oTNPb5JZcXYywve or https://gateway.pinata.cloud/ipfs/QmW7fmJG5i3S6K6EPBPYYqkzkn2G1mNz8MEBiDGEFhPrKv
  */
 
-import {IPDW, IPFSManager, MemoryStorageProvider} from "../src";
+import {IPDW, MemoryStorageProvider} from "../src";
 
 describe("Simple expression tests", async () => {
 

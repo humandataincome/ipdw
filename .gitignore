@@ -53,3 +53,4 @@ package-lock.json
 test.ipdw
 ipfs-ipdw*
 .storage
+.persistence

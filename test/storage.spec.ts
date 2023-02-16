@@ -1,12 +1,7 @@
-import {
-    FileSystemStorageProvider,
-    IndexedDBStorageProvider,
-    IPFSManager,
-    MemoryStorageProvider,
-    StreamProvider
-} from "../src";
+import {FileSystemStorageProvider, IndexedDBStorageProvider, MemoryStorageProvider, StreamProvider} from "../src";
 
 import "fake-indexeddb/auto";
+import {Persistence} from "../src/core/persistence";
 
 describe("Simple expression tests", async () => {
     it("Check MemoryStorageProvider", async () => {
@@ -80,30 +75,9 @@ describe("Simple expression tests", async () => {
     });
 
     it("Check IPFS streamed storage", async () => {
-        const storage = new FileSystemStorageProvider();
-        const stream = new StreamProvider(storage);
-
-        //const cid = "Qma5BYqiv2XMgEyNFGg8CGhSKHPGbBgxo1nmX8BnxKqQPB";
         const cid = "QmecpDvGdWfcKw7BM4nxyEb7TB856sTY1MqY1dCR45rWjv";
-        const ipfs = await IPFSManager.getInstance();
-        //await ipfs.read(cid);
-        const reader = await ipfs.readStream(cid);
-        const writer = await stream.getWritable("file1");
-
-        let offset = 0;
-        const size = (await ipfs.node.files.stat("/ipfs/" + cid)).size;
-
-        console.log("Loading...");
-
-        const progressStream = new TransformStream<Uint8Array, Uint8Array>({
-            async transform(chunk, controller) {
-                offset += chunk.length;
-                const progress = offset / size;
-                console.log(progress);
-                controller.enqueue(chunk);
-            }
-        });
-
-        await reader.pipeThrough(progressStream).pipeTo(writer);
+        const persistence = await Persistence.getInstance();
+        const data = await persistence.fetchOrGet("ipfs://" + cid, console.log);
+        console.log(data);
     }).timeout(60000);
 });
