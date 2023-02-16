@@ -1,8 +1,11 @@
 {
   "name": "ipdw",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "author": "Andrea Silvi",
   "type": "module",
+  "main": "./dist/node/index.js",
+  "browser": "./dist/web/index.js",
+  "types": "./dist/@types/index.d.ts",
   "exports": {
     "./node": "./dist/node/index.js",
     "./web": "./dist/web/index.js"
