@@ -12,19 +12,17 @@ describe("Simple expression tests", async () => {
         const data = {hello: "world"};
 
         console.log('PUSHING LOCAL DATA TO REMOTE', data);
-        const dataBuffer = Buffer.from(JSON.stringify(data), 'utf8');
-        await ipdw.setData(dataBuffer, 'ENCRYPTED');
+        await ipdw.setString(JSON.stringify(data), 'ENCRYPTED');
         await ipdw.push();
         console.log('PUSHED LOCAL DATA TO REMOTE');
 
         console.log('PULLING REMOTE DATA TO LOCAL');
         await ipdw.pull();
-        const gotDataBuffer = await ipdw.getData('ENCRYPTED')
-        const gotData = JSON.parse(gotDataBuffer.toString('utf8'));
+        const gotData = JSON.parse(await ipdw.getString('ENCRYPTED'));
         console.log('PULLED REMOTE DATA TO LOCAL', gotData);
 
         await ipdw.addMessageListener('PLAIN', 'bla bla', console.log);
         await ipdw.sendMessage('PLAIN', 'bla bla', 'Hello World');
-    });
+    }).timeout(60000);
 
 });

@@ -31,14 +31,22 @@ export class IPDW {
         //TODO: update from remote is timestamp is more than local one
     }
 
+    public async getString(type: 'PLAIN' | 'ENCRYPTED', nonce: string = 'Global'): Promise<string> {
+        return (await this.getData(type, nonce)).toString('utf-8');
+    }
+
+    public async setString(data: string, type: 'PLAIN' | 'ENCRYPTED', nonce: string = 'Global'): Promise<void> {
+        return await this.setData(Buffer.from(data, 'utf-8'), type, nonce);
+    }
+
     public async getData(type: 'PLAIN' | 'ENCRYPTED', nonce: string = 'Global'): Promise<Buffer> {
         const data = (await this.storage.get('data'))!;
 
         switch (type) {
             case 'PLAIN':
-                return data as Buffer;
+                return Buffer.from(data);
             case 'ENCRYPTED':
-                return await Vault.unlock(data as Buffer, `${this.token}${nonce}`);
+                return await Vault.unlock(Buffer.from(data), `${this.token}${nonce}`);
         }
     }
 
