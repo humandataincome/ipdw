@@ -1,7 +1,6 @@
 import {FileSystemStorageProvider, IndexedDBStorageProvider, StorageProvider, StreamProvider} from "./storage";
-import crypto from "crypto";
 import {IPFSManager} from "./ipfs";
-import {StreamUtils} from "../utils/stream";
+import {HashUtils, StreamUtils} from "../utils";
 
 export class Persistence {
     private static instance: Persistence;
@@ -26,7 +25,7 @@ export class Persistence {
     }
 
     public async fetchOrGet(url: string, progress: ((progress: number) => void) | undefined = undefined): Promise<Uint8Array | undefined> { // support for [file://, http(s)://, ip(f/n)s://]
-        const storageKey = crypto.pbkdf2Sync(url, "", 1, 32, "sha256").toString("hex");
+        const storageKey = (await HashUtils.pbkdf2(url, "", 1, 32, "sha256")).toString("hex");
 
         let storageValueSize = 0;
         if (await this.stream.has(storageKey)) {

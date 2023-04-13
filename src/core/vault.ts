@@ -1,6 +1,7 @@
 import {Buffer} from "buffer";
 
 import * as crypto from 'crypto';
+import {HashUtils} from "../utils";
 
 /*
     Vault encryption key: PBKDF2(SHA-256, Master Password, Vault Id, 100,100, 256)
@@ -60,7 +61,7 @@ export class Vault {
         return buffer;
     }
 
-    public static encrypt(decryptedVault: DecryptedVault, masterPassword: string): EncryptedVault {
+    public static async encrypt(decryptedVault: DecryptedVault, masterPassword: string): Promise<EncryptedVault> {
         if (!new RegExp(this.passReg).test(masterPassword)) {
             throw new Error('Password not valid');
         }
@@ -76,8 +77,8 @@ export class Vault {
         encryptedVault.magic = Vault.MAGIC;
         encryptedVault.salt = decryptedVault.salt || crypto.randomBytes(10).toString('hex');
 
-        const derivedKey = crypto.pbkdf2Sync(masterPassword, encryptedVault.salt, 100100, 32, 'sha256');
-        const derivedKeyHash = crypto.pbkdf2Sync(derivedKey, encryptedVault.salt, 1, 32, 'sha256');
+        const derivedKey = await HashUtils.pbkdf2(masterPassword, encryptedVault.salt, 100100, 32, 'sha256');
+        const derivedKeyHash = await HashUtils.pbkdf2(derivedKey, encryptedVault.salt, 1, 32, 'sha256');
 
         const iv = crypto.randomBytes(16);
         const cipher = crypto.createCipheriv('aes-256-cbc', derivedKey, iv);
@@ -88,11 +89,11 @@ export class Vault {
         return encryptedVault;
     }
 
-    public static decrypt(encryptedVault: EncryptedVault, masterPassword: string): DecryptedVault {
+    public static async decrypt(encryptedVault: EncryptedVault, masterPassword: string): Promise<DecryptedVault> {
         const decryptedVault = new DecryptedVault();
 
-        const derivedKey = crypto.pbkdf2Sync(masterPassword, encryptedVault.salt, 100100, 32, 'sha256');
-        const derivedKeyHash = crypto.pbkdf2Sync(derivedKey, encryptedVault.salt, 1, 32, 'sha256');
+        const derivedKey = await HashUtils.pbkdf2(masterPassword, encryptedVault.salt, 100100, 32, 'sha256');
+        const derivedKeyHash = await HashUtils.pbkdf2(derivedKey, encryptedVault.salt, 1, 32, 'sha256');
 
         if (encryptedVault.hash.compare(derivedKeyHash) !== 0) {
             throw new Error('Invalid master password');
@@ -107,12 +108,13 @@ export class Vault {
 
     public static async unlock(data: Buffer, masterPassword: string): Promise<Buffer> {
         const encryptedVault = Vault.read(data);
-        return Vault.decrypt(encryptedVault, masterPassword).content;
+        const decryptedVault = await Vault.decrypt(encryptedVault, masterPassword)
+        return decryptedVault.content;
     }
 
     public static async lock(content: Buffer, masterPassword: string, salt?: string): Promise<Buffer> {
         salt = salt || crypto.randomBytes(10).toString('hex');
-        const encryptedVault = Vault.encrypt({salt, content}, masterPassword);
+        const encryptedVault = await Vault.encrypt({salt, content}, masterPassword);
         return Vault.write(encryptedVault);
     }
 }

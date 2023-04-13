@@ -1,6 +1,6 @@
 import {create, IPFS} from 'ipfs-core'
 import {KeyPair} from "./keypair";
-import crypto from "crypto";
+import {HashUtils} from "../utils";
 
 export class IPFSManager {
     private static instance: IPFSManager
@@ -55,7 +55,7 @@ export class IPFSManager {
         const cid = await this.write(data);
 
         const publicKey = new KeyPair(privateKey).publicKey;
-        const publicKeyHash = crypto.pbkdf2Sync(publicKey, 'ipdw', 1, 32, 'sha256').toString('hex');
+        const publicKeyHash = (await HashUtils.pbkdf2(publicKey, 'ipdw', 1, 32, 'sha256')).toString('hex');
         if (!(await this.node.key.list()).find(e => e.name === publicKeyHash))
             await this.node.key.import(publicKeyHash, privateKey, '');
 
@@ -66,7 +66,7 @@ export class IPFSManager {
 
     public async readNamed(privateKey: string): Promise<string> {
         const publicKey = new KeyPair(privateKey).publicKey;
-        const publicKeyHash = crypto.pbkdf2Sync(publicKey, 'ipdw', 1, 32, 'sha256').toString('hex');
+        const publicKeyHash = (await HashUtils.pbkdf2(publicKey, 'ipdw', 1, 32, 'sha256')).toString('hex');
         if (!(await this.node.key.list()).find(e => e.name === publicKeyHash))
             await this.node.key.import(publicKeyHash, privateKey, '');
 
