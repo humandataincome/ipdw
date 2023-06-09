@@ -4,7 +4,7 @@ URL(test) - https://ipfs.io/ipfs/QmNRCQWfgze6AbBCaT1rkrkV5tJ2aP4oTNPb5JZcXYywve 
  */
 
 import Web3 from "web3";
-import {IPDW, MemoryStorageProvider} from "ipdw/web";
+import {IPDW, MemoryStorageProvider} from "ipdw";
 import {Buffer} from "buffer"; //PAY ATTENTION TO USE THIS OR USE "PROVIDE PLUGIN" IN WEBPACK
 
 async function main() {
@@ -15,7 +15,8 @@ async function main() {
     web3.eth.defaultAccount = account.address;
     console.log(account.address);
 
-    const ipdw = await IPDW.create(async (msg: string) => await web3.eth.sign(msg, web3.eth.defaultAccount || 0), 'Global', new MemoryStorageProvider());
+
+    const ipdw = await IPDW.create(async (msg: string) => (await web3.eth.sign('aasdasds', web3.eth.defaultAccount!) as any).signature, 'Global', new MemoryStorageProvider());
 
     const data = {hello: "world"};
 

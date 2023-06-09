@@ -69,7 +69,10 @@ export default (env, argv) => ([
         plugins: [
             new ProvidePlugin({
                 Buffer: ['buffer', 'Buffer'] // Fix for sub-dependencies that use Buffer not from buffer
-            })
+            }),
+            new ProvidePlugin({
+                process: 'process/browser',
+            }),
         ]
     }),
 

@@ -1,6 +1,8 @@
 import path from "path";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import {fileURLToPath} from 'url';
+import pkg from 'webpack';
+const {ProvidePlugin} = pkg;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -42,6 +44,9 @@ export default (env, argv) => ({
             new HtmlWebpackPlugin({
                 template: './src/index.html',
                 filename: 'index.html',
+            }),
+            new ProvidePlugin({
+                process: 'process/browser',
             }),
         ],
 

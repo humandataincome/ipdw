@@ -1,13 +1,13 @@
 {
   "name": "ipdw",
-  "version": "1.5.7",
+  "version": "1.5.8",
   "author": "Andrea Silvi",
   "type": "module",
   "main": "./dist/node/index.js",
   "browser": "./dist/web/index.js",
   "types": "./dist/@types/index.d.ts",
   "scripts": {
-    "test": "ts-mocha --timeout 60000 test/*.ts",
+    "test": "ts-mocha --timeout 60000 test/index.spec.ts",
     "build:prod": "webpack --mode production",
     "prepublish": "npm run build:prod",
     "publish:public": "npm publish --access public"
@@ -30,7 +30,12 @@
     "ipns": "^5.0.1",
     "node-forge": "^1.3.1",
     "stream-browserify": "^3.0.0",
-    "buffer": "^6.0.3"
+    "buffer": "^6.0.3",
+    "helia": "^1.3.1",
+    "@helia/interface": "^1.2.1",
+    "@helia/strings": "^1.0.0",
+    "@helia/ipns": "^1.1.3",
+    "@helia/unixfs": "^1.3.0"
   },
   "devDependencies": {
     "@types/chai": "^4.3.4",

@@ -64,18 +64,18 @@ export class IPDW {
     public async addMessageListener(type: 'PLAIN' | 'ENCRYPTED', nonce: string, listener: (msg: string) => void) {
         const ipfs = await IPFSManager.getInstance();
 
-        await ipfs.node.pubsub.subscribe(nonce, (msg) => listener(msg.data.toString()))
+        await ipfs.addPubSubListener(nonce, (msg) => listener(msg))
     }
 
     public async removeAllMessageListeners(): Promise<void> {
         const ipfs = await IPFSManager.getInstance();
-        const topics = await ipfs.node.pubsub.ls();
-        await Promise.all(topics.map(t => ipfs.node.pubsub.unsubscribe(t)));
+
+        await ipfs.removeAllPubSubListeners();
     }
 
     public async sendMessage(type: 'PLAIN' | 'ENCRYPTED', nonce: string, message: string) {
         const ipfs = await IPFSManager.getInstance();
 
-        await ipfs.node.pubsub.publish(nonce, Buffer.from(message, 'utf8'))
+        await ipfs.sendPubSubMessage(nonce, message);
     }
 }

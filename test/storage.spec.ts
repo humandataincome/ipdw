@@ -1,9 +1,9 @@
 import {FileSystemStorageProvider, IndexedDBStorageProvider, MemoryStorageProvider, StreamProvider} from "../src";
 
 import "fake-indexeddb/auto";
-import {Persistence} from "../src/core/persistence";
+import {Persistence} from "../src";
 
-describe("Simple expression tests", async () => {
+describe("Storage tests", async () => {
     it("Check MemoryStorageProvider", async () => {
         const storage = new MemoryStorageProvider();
 
