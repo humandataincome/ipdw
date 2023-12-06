@@ -80,4 +80,10 @@ describe("Storage tests", async () => {
         const data = await persistence.fetchOrGet("ipfs://" + cid, console.log);
         console.log(data);
     }).timeout(60000);
+
+    it("Check IPFS streamed storage", async () => {
+        const persistence = await Persistence.getInstance();
+        const data = await persistence.fetchOrGet("https://gateway.pinata.cloud/ipfs/QmecpDvGdWfcKw7BM4nxyEb7TB856sTY1MqY1dCR45rWjv", console.log);
+        console.log(data);
+    }).timeout(60000);
 });

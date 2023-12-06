@@ -5,16 +5,9 @@ import {CID} from 'multiformats/cid'
 
 import {createHelia} from 'helia'
 import {base64} from "multiformats/bases/base64"
-import {gossipsub} from '@chainsafe/libp2p-gossipsub'
-import {kadDHT} from '@libp2p/kad-dht'
-import {createLibp2p} from 'libp2p'
-import {ipns, IPNS, ipnsSelector, ipnsValidator} from '@helia/ipns'
-import {dht} from '@helia/ipns/routing'
+import {ipns, IPNS} from '@helia/ipns'
 import {Helia} from '@helia/interface';
 import {unixfs, UnixFS} from '@helia/unixfs';
-import {webSockets} from '@libp2p/websockets'
-
-import {noise} from '@chainsafe/libp2p-noise'
 
 
 export class IPFSManager {
@@ -64,7 +57,7 @@ export class IPFSManager {
                 unixfs(helia),
                 ipns(helia)
                 //ipns(helia, [ dht(helia),
-                    //pubsub(helia)
+                //pubsub(helia)
                 //])
             );
         }

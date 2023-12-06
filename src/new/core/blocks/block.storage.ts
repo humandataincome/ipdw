@@ -1,0 +1,54 @@
+import {StorageProvider} from "../../../core";
+import {TypedEventTarget, CustomEvent} from "../../../utils/event";
+import {BlockFactory} from "./block.factory";
+import {Buffer} from "buffer";
+
+export class BlockStorage {
+    private storageProvider: StorageProvider;
+    private blockFactory: BlockFactory;
+
+    public events: TypedEventTarget<{
+        insert: CustomEvent<{ index: number; value: Uint8Array }>;
+        delete: CustomEvent<{ index: number }>;
+    }> = new TypedEventTarget();
+
+    constructor(storageProvider: StorageProvider, blockFactory: BlockFactory) {
+        this.storageProvider = storageProvider;
+        this.blockFactory = blockFactory;
+    }
+
+    async get(index: number): Promise<Uint8Array | undefined> {
+        const got = await this.storageProvider.get(index.toString());
+        if (!got)
+            return undefined;
+        return this.blockFactory.decode(got);
+    }
+
+    async has(index: number): Promise<boolean> {
+        return index < await this.length() && (await this.storageProvider.get(index.toString())) !== undefined;
+    }
+
+    async set(index: number, value: Uint8Array): Promise<void> {
+        if (await this.has(index))
+            await this.delete(index);
+        await this.insert(index, value);
+    }
+
+    async insert(index: number, value: Uint8Array): Promise<void> {
+        await this.storageProvider.set(index.toString(), await this.blockFactory.encode(value));
+        this.events.dispatchTypedEvent('insert', new CustomEvent('insert', {detail: {index, value}}));
+    }
+
+    async delete(index: number): Promise<void> {
+        await this.storageProvider.set(index.toString(), undefined);
+        this.events.dispatchTypedEvent('delete', new CustomEvent('delete', {detail: {index}}));
+    }
+
+    async length(): Promise<number> {
+        return (await this.storageProvider.ls()).length;
+    }
+
+    async append(value: Uint8Array): Promise<void> {
+        await this.insert(await this.length(), value);
+    }
+}

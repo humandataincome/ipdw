@@ -7,11 +7,11 @@
   },
   "dependencies": {
     "ipdw": "file:../../",
-    "web3": "^4.0.1"
+    "web3": "^4.1.1"
   },
   "devDependencies": {
-    "@types/node": "^20.2.5",
-    "typescript": "^5.1.3",
+    "@types/node": "^20.5.6",
+    "typescript": "^5.2.2",
     "ts-node": "^10.9.1"
   }
 }
