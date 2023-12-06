@@ -43,7 +43,7 @@ export class Persistence {
             case "file:":
             case "http:":
             case "https:":
-                const res = await fetch(parsedUrl.toString(), {method: 'OPTIONS'});
+                const res = await fetch(parsedUrl.toString(), {method: 'HEAD'});
                 expectedSize = +res.headers.get("Content-Length")!
                 break;
             case "ipfs:":
