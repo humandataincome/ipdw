@@ -1,7 +1,6 @@
-import {FileSystemStorageProvider, IndexedDBStorageProvider, MemoryStorageProvider, StreamProvider} from "../src";
+import {FileSystemStorageProvider, IndexedDBStorageProvider, MemoryStorageProvider, Persistence, StreamProvider} from "../src";
 
 import "fake-indexeddb/auto";
-import {Persistence} from "../src";
 
 describe("Storage tests", async () => {
     it("Check MemoryStorageProvider", async () => {
@@ -78,6 +77,13 @@ describe("Storage tests", async () => {
         const cid = "QmecpDvGdWfcKw7BM4nxyEb7TB856sTY1MqY1dCR45rWjv";
         const persistence = await Persistence.getInstance();
         const data = await persistence.fetchOrGet("ipfs://" + cid, console.log);
+        console.log(data);
+    }).timeout(60000);
+
+    it("Check HTTPS streamed storage", async () => {
+        const url = "https://gateway.pinata.cloud/ipfs/QmecpDvGdWfcKw7BM4nxyEb7TB856sTY1MqY1dCR45rWjv";
+        const persistence = await Persistence.getInstance();
+        const data = await persistence.fetchOrGet(url, console.log);
         console.log(data);
     }).timeout(60000);
 });

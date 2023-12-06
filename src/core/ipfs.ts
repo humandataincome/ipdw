@@ -5,16 +5,10 @@ import {CID} from 'multiformats/cid'
 
 import {createHelia} from 'helia'
 import {base64} from "multiformats/bases/base64"
-import {gossipsub} from '@chainsafe/libp2p-gossipsub'
-import {kadDHT} from '@libp2p/kad-dht'
-import {createLibp2p} from 'libp2p'
-import {ipns, IPNS, ipnsSelector, ipnsValidator} from '@helia/ipns'
-import {dht} from '@helia/ipns/routing'
+import {ipns, IPNS} from '@helia/ipns'
+import {dht, pubsub} from '@helia/ipns/routing'
 import {Helia} from '@helia/interface';
 import {unixfs, UnixFS} from '@helia/unixfs';
-import {webSockets} from '@libp2p/websockets'
-
-import {noise} from '@chainsafe/libp2p-noise'
 
 
 export class IPFSManager {
@@ -35,37 +29,18 @@ export class IPFSManager {
     public static async getInstance(): Promise<IPFSManager> {
         if (!IPFSManager.instance) {
             console.log('STARTING')
-            /*
-            const libp2p = await createLibp2p({
-                dht: kadDHT({
-                    validators: {
-                        ipns: ipnsValidator
-                    },
-                    selectors: {
-                        ipns: ipnsSelector
-                    }
-                }),
-                pubsub: gossipsub(),
-                transports: [webSockets()],
-                connectionEncryption: [
-                    noise()
-                ],
-            })
-             */
-
-            // @ts-ignore
-            //const helia = await createHelia({libp2p})
-
             const helia = await createHelia();
 
             IPFSManager.instance = new IPFSManager(
                 helia,
                 strings(helia),
                 unixfs(helia),
-                ipns(helia)
-                //ipns(helia, [ dht(helia),
-                    //pubsub(helia)
-                //])
+                ipns(helia, {
+                    routers: [
+                        dht(helia),
+                        pubsub(helia)
+                    ]
+                })
             );
         }
 
@@ -90,7 +65,7 @@ export class IPFSManager {
             await this.core.libp2p.keychain.importKey(publicKeyHash, privateKey, '');
 
         const peerId = await this.core.libp2p.keychain.exportPeerId(publicKeyHash);
-        await this.names.publish(peerId, CID.parse(cid, base64.decoder))
+        await this.names.publish(peerId, CID.parse(cid, base64.decoder), {offline: true})
 
         return peerId.toString();
     }
