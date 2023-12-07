@@ -16,9 +16,9 @@ export class Persistence {
     public static async getInstance(basePath: string = ".persistence/"): Promise<Persistence> {
         if (!this.instance) {
             this.instance = new Persistence(
-                typeof window === 'undefined' ?
-                    new FileSystemStorageProvider(basePath) :
-                    await IndexedDBStorageProvider.Init(basePath));
+                typeof window === 'object' || typeof importScripts === 'function' ?
+                    await IndexedDBStorageProvider.Init(basePath) :
+                    new FileSystemStorageProvider(basePath));
         }
 
         return this.instance;
