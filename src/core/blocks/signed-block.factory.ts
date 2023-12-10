@@ -1,6 +1,6 @@
 import {Buffer} from "buffer";
 import crypto from "crypto";
-import {BlockFactory} from "./block.factory";
+import {BlockFactory} from "./";
 
 // SignedBlock: signature(64 Bytes Buffer) | payload(? Bytes Buffer)
 

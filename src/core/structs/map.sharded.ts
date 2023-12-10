@@ -1,4 +1,4 @@
-import {BlockStorage} from "../blocks/block.storage";
+import {BlockStorage} from "../";
 import {Buffer} from "buffer";
 
 export class MapSharded {
@@ -33,14 +33,13 @@ export class MapSharded {
         if (value) {
             this.underlying[key] = value;
             await this.blockStorage.append(await this.encode(key, value));
-        }
-        else if (key in this.underlying) {
+        } else if (key in this.underlying) {
             delete this.underlying[key];
             await this.blockStorage.delete(0);
         }
     }
 
-    private async decode(block: Uint8Array): Promise<{key: string, value: string} | undefined> {
+    private async decode(block: Uint8Array): Promise<{ key: string, value: string } | undefined> {
         const blockBuffer = Buffer.from(block);
 
         const keyLength = blockBuffer.readUInt32LE(0)

@@ -28,6 +28,7 @@ export interface TypedEventTarget<M extends ValueIsEvent<M>> {
     ) => void;
     dispatchEvent: (event: Event) => boolean;
 }
+
 export class TypedEventTarget<M extends ValueIsEvent<M>> extends EventTarget {
     public dispatchTypedEvent<T extends keyof M>(
         _type: T,

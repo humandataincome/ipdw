@@ -48,18 +48,18 @@ export class Relay {
         const provider1 = new Libp2pProvider(ydoc1, node1, topic)
         const provider2 = new Libp2pProvider(ydoc2, node2, topic)
 
-        setTimeout(()=> {
+        setTimeout(() => {
             ydoc1.getArray('myarray').insert(0, ['Hello doc2, you got this?'])
             console.log('ydoc1', ydoc1.getArray('myarray').get(0))
-        },1000)
+        }, 1000)
 
-        setTimeout(()=> {
+        setTimeout(() => {
             console.log('ydoc2', ydoc2.getArray('myarray').get(0))
-        },3000)
-
+        }, 3000)
 
 
     }
+
     async connectNodes(nodes: Libp2p[]) {
         const firstNode = nodes[0]
         for (let i = 1; i < nodes.length; i++) {

@@ -1,4 +1,4 @@
-import {StorageProvider} from "./index";
+import {StorageProvider} from "./";
 
 export class IndexedDBStorageProvider implements StorageProvider {
     private readonly database: IDBDatabase;

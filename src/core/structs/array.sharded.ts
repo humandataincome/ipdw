@@ -1,4 +1,4 @@
-import {BlockStorage} from "../blocks/block.storage";
+import {BlockStorage} from "../";
 import {Buffer} from "buffer";
 
 export class ArraySharded {

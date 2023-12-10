@@ -1,6 +1,6 @@
 import {Buffer} from "buffer";
 import crypto from "crypto";
-import {BlockFactory} from "./block.factory";
+import {BlockFactory} from "./";
 
 // EncryptedBlock: ivSalt(4 Bytes Buffer) | payload(? Bytes Buffer)
 

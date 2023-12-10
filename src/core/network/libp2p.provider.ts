@@ -1,27 +1,26 @@
 import * as Y from 'yjs'
-import type { Libp2p } from "@libp2p/interface";
-import type { Connection, Stream } from '@libp2p/interface/src/connection';
-import type { IncomingStreamData } from '@libp2p/interface/src/stream-handler';
-import type { PeerId } from '@libp2p/interface-peer-id';
-import type {PubSub} from "@libp2p/interface-pubsub";
-
+import type {Libp2p} from "@libp2p/interface";
+import type {Stream} from '@libp2p/interface/src/connection';
+import type {IncomingStreamData} from '@libp2p/interface/src/stream-handler';
+import {GossipSub} from "@chainsafe/libp2p-gossipsub";
+import {PeerId} from "@libp2p/interface/src/peer-id";
 
 
 function changesTopic(topic: string): string {
-    return `/ipdw/gossipPad/${topic}/changes/0.0.01`
+    return `/ipdw/${topic}/changes/1.0.0`
 }
 
 function stateVectorTopic(topic: string): string {
-    return `/ipdw/gossipPad/${topic}/stateVector/0.0.1`
+    return `/ipdw/${topic}/stateVector/1.0.0`
 }
 
 function syncProtocol(topic: string): string {
-    return `/ipdw/gossipPad/${topic}/sync/0.0.1`
+    return `/ipdw/${topic}/sync/1.0.0`
 }
 
 export class Libp2pProvider {
     ydoc: Y.Doc;
-    node: Libp2p<{pubsub: PubSub}>;
+    node: Libp2p<{ pubsub: GossipSub }>;
     peerID: string;
     topic: string
     stateVectors: { [key: string]: Uint8Array } = {};
@@ -31,7 +30,7 @@ export class Libp2pProvider {
 
     aggressivelyKeepPeersUpdated: boolean = true;
 
-    constructor(ydoc: Y.Doc, node: Libp2p<{pubsub: PubSub}>, topic: string) {
+    constructor(ydoc: Y.Doc, node: Libp2p<{ pubsub: GossipSub }>, topic: string) {
         this.ydoc = ydoc;
         this.node = node;
         this.topic = topic;
@@ -67,6 +66,14 @@ export class Libp2pProvider {
         this.node.unhandle(syncProtocol(this.topic)).then()
 
         this.initialSync = true;
+    }
+
+    storeStateVector(peerID: string, stateVector: Uint8Array) {
+        this.stateVectors[peerID] = stateVector;
+    }
+
+    fetchStateVector(peerID: string) {
+        return this.stateVectors[peerID];
     }
 
     // Not required, but nice if we can get synced against a peer sooner rather than latter
@@ -106,7 +113,7 @@ export class Libp2pProvider {
 
     private publishUpdate(updateData: Uint8Array) {
         console.log('updateData', updateData)
-        if (!this.node.isStarted()) {
+        if (this.node.status !== 'started') {
             return
         }
 
@@ -151,14 +158,6 @@ export class Libp2pProvider {
         this.stateVectors[this.peerID] = Y.encodeStateVector(this.ydoc)
     }
 
-    storeStateVector(peerID: string, stateVector: Uint8Array) {
-        this.stateVectors[peerID] = stateVector;
-    }
-
-    fetchStateVector(peerID: string) {
-        return this.stateVectors[peerID];
-    }
-
     private async runSyncProtocol(stream: Stream, remotePeer: PeerId, initiate: boolean) {
         if (initiate) {
             await stream.sink([
@@ -167,7 +166,7 @@ export class Libp2pProvider {
             ])
         }
 
-        const [{ value: stateVector }, { value: updateData }] = [
+        const [{value: stateVector}, {value: updateData}] = [
             await (stream.source as AsyncIterable<Iterable<Uint8Array>>)[Symbol.asyncIterator]().next(),
             await (stream.source as AsyncIterable<Iterable<Uint8Array>>)[Symbol.asyncIterator]().next()
         ]

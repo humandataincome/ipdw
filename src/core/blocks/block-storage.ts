@@ -1,16 +1,14 @@
-import {StorageProvider} from "../../../core";
-import {TypedEventTarget, CustomEvent} from "../../../utils/event";
-import {BlockFactory} from "./block.factory";
-import {Buffer} from "buffer";
+import {StorageProvider} from "../";
+import {CustomEvent, TypedEventTarget} from "../../utils";
+import {BlockFactory} from "./";
 
 export class BlockStorage {
-    private storageProvider: StorageProvider;
-    private blockFactory: BlockFactory;
-
     public events: TypedEventTarget<{
         insert: CustomEvent<{ index: number; value: Uint8Array }>;
         delete: CustomEvent<{ index: number }>;
     }> = new TypedEventTarget();
+    private storageProvider: StorageProvider;
+    private blockFactory: BlockFactory;
 
     constructor(storageProvider: StorageProvider, blockFactory: BlockFactory) {
         this.storageProvider = storageProvider;

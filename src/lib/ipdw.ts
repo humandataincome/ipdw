@@ -1,81 +1,60 @@
-import {Buffer} from "buffer";
-import {E2EManager, IPFSManager, StorageProvider, Vault} from "../core";
+import crypto from "crypto";
+import * as util from "util";
+import {BlockStorage, CombinedBlockFactory, EncryptedBlockFactory, MapSharded, SignedBlockFactory, StorageProvider} from "../core";
+
+const SEED_MESSAGE: string = `**Important Security Notice: Please read carefully before proceeding**
+
+Login to InterPlanetary Data Wallet - Version: 1.0.0 - Accessing Wallet Section: {{section}}
+
+By signing this message, you are granting access to your InterPlanetary Data Wallet section. Please take note of the following:
+1. **Verify URL:** Ensure that you're on a trusted website before signing this message. Phishing sites may attempt to deceive you into signing messages for malicious purposes.
+2. **Keep Private:** Do not share the content of this message with anyone. This message is unique to your account and should only be used for logging in to your designated wallet section.
+3. **No Expiry:** The resulting signature does not expire and will provide access to the specified wallet section indefinitely. Keep it secure.
+4. **Personal Responsibility:** You are solely responsible for any actions taken using your wallet after signing this message. Be cautious and only proceed if you understand the implications.
+
+By signing this message, you acknowledge that you have read and understood the above warnings. If you do not agree or are unsure about any aspect, DO NOT proceed with signing.`;
+
+const OWNERSHIP_MESSAGE: string = `InterPlanetary Data Wallet Address {{address}} is recognized under my ownership`;
+
+const SALT = Buffer.from('1Qmzz2vn');
 
 export class IPDW {
-    private readonly token: string;
-    private readonly privateKey: string;
-    private storage: StorageProvider;
+    public storage: MapSharded;
+    private seedSignature: string;
+    private ownershipSignature: string;
+    private blockStorage: BlockStorage;
 
-    constructor(token: string, storage: StorageProvider) {
-        this.token = token;
-        this.privateKey = E2EManager.generateKeyPair(this.token).privateKey;
-        this.storage = storage;
+    constructor(seedSignature: string, ownershipSignature: string, blockStorage: BlockStorage) {
+        this.seedSignature = seedSignature;
+        this.ownershipSignature = ownershipSignature;
+        this.blockStorage = blockStorage;
+        this.storage = new MapSharded(blockStorage);
+        //this.syncer = attach blockstorage to Y.array under libp2p
     }
 
-    public static async create(sign: (msg: string) => Promise<string>, nonce: string = 'Global', storage: StorageProvider): Promise<IPDW> {
-        // Lazy initialize IPFS node
-        return new IPDW(await sign(`Login to your InterPlanetary Data Wallet (${nonce})`), storage);
+    public static async create(signer: (msg: string) => Promise<string> | string, storageProvider: StorageProvider, section: string = 'Global'): Promise<IPDW> {
+        const seedSignature = await signer(SEED_MESSAGE.replace('{{section}}', section))
+        const keyBuffer = await util.promisify(crypto.pbkdf2)(seedSignature, SALT, 100100, 32, 'sha256');
+
+        keyBuffer[0] &= 248;
+        keyBuffer[31] &= 127;
+        keyBuffer[31] |= 64;
+
+        const privateKeyBuffer = Buffer.concat([Buffer.from('302e020100300506032b657004220420', 'hex'), keyBuffer]);
+        const privateKey = crypto.createPrivateKey({key: privateKeyBuffer, format: 'der', type: 'pkcs8'});
+        const publicKey = crypto.createPublicKey(privateKey);
+        const publicKeyBuffer = publicKey.export({format: 'der', type: 'spki'});
+        const ipdwAddress = publicKeyBuffer.toString('hex');
+
+        const ownershipSignature = await signer(OWNERSHIP_MESSAGE.replace('{{address}}', ipdwAddress));
+
+        const encryptedBlockFactory = new EncryptedBlockFactory(keyBuffer);
+        const signedBlockFactory = new SignedBlockFactory(publicKeyBuffer, privateKeyBuffer);
+
+        const privateBlockFactory = new CombinedBlockFactory([encryptedBlockFactory, signedBlockFactory]);
+        const blockStorage = new BlockStorage(storageProvider, privateBlockFactory);
+
+        return new IPDW(seedSignature, ownershipSignature, blockStorage);
     }
 
-    public async pull(): Promise<void> {
-        const ipfs = await IPFSManager.getInstance();
-        await this.storage.set('data', Buffer.from(await ipfs.readNamed(this.privateKey), 'base64'));
-    }
-
-    public async push(): Promise<void> {
-        const ipfs = await IPFSManager.getInstance();
-        await ipfs.writeNamed(Buffer.from((await this.storage.get('data'))!).toString('base64'), this.privateKey);
-    }
-
-    public async sync(): Promise<void> {
-        //TODO: update from remote is timestamp is more than local one
-    }
-
-    public async getString(type: 'PLAIN' | 'ENCRYPTED', nonce: string = 'Global'): Promise<string> {
-        return (await this.getData(type, nonce)).toString('utf-8');
-    }
-
-    public async setString(data: string, type: 'PLAIN' | 'ENCRYPTED', nonce: string = 'Global'): Promise<void> {
-        return await this.setData(Buffer.from(data, 'utf-8'), type, nonce);
-    }
-
-    public async getData(type: 'PLAIN' | 'ENCRYPTED', nonce: string = 'Global'): Promise<Buffer> {
-        const data = (await this.storage.get('data'))!;
-
-        switch (type) {
-            case 'PLAIN':
-                return Buffer.from(data);
-            case 'ENCRYPTED':
-                return await Vault.unlock(Buffer.from(data), `${this.token}${nonce}`);
-        }
-    }
-
-    public async setData(data: Buffer, type: 'PLAIN' | 'ENCRYPTED', nonce: string = 'Global'): Promise<void> {
-        switch (type) {
-            case 'PLAIN':
-                await this.storage.set('data', data);
-                break;
-            case 'ENCRYPTED':
-                await this.storage.set('data', await Vault.lock(data, `${this.token}${nonce}`));
-                break;
-        }
-    }
-
-    public async addMessageListener(type: 'PLAIN' | 'ENCRYPTED', nonce: string, listener: (msg: string) => void) {
-        const ipfs = await IPFSManager.getInstance();
-
-        await ipfs.addPubSubListener(nonce, (msg) => listener(msg))
-    }
-
-    public async removeAllMessageListeners(): Promise<void> {
-        const ipfs = await IPFSManager.getInstance();
-
-        await ipfs.removeAllPubSubListeners();
-    }
-
-    public async sendMessage(type: 'PLAIN' | 'ENCRYPTED', nonce: string, message: string) {
-        const ipfs = await IPFSManager.getInstance();
-
-        await ipfs.sendPubSubMessage(nonce, message);
-    }
 }

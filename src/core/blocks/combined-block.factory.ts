@@ -1,4 +1,4 @@
-import {BlockFactory} from "./block.factory";
+import {BlockFactory} from "./";
 
 export class CombinedBlockFactory implements BlockFactory {
     private blockFactories: Array<BlockFactory>;
