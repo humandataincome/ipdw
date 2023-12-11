@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import * as util from "util";
-import {BlockStorage, CombinedBlockFactory, EncryptedBlockFactory, MapSharded, SignedBlockFactory, StorageProvider} from "../core";
+import {BlockStorage, CombinedBlockFactory, EncryptedBlockFactory, MapSharded, P2PSyncProvider, SignedBlockFactory, StorageProvider} from "../core";
 
 const SEED_MESSAGE: string = `**Important Security Notice: Please read carefully before proceeding**
 
@@ -20,16 +20,9 @@ const SALT = Buffer.from('1Qmzz2vn');
 
 export class IPDW {
     public storage: MapSharded;
-    private seedSignature: string;
-    private ownershipSignature: string;
-    private blockStorage: BlockStorage;
 
-    constructor(seedSignature: string, ownershipSignature: string, blockStorage: BlockStorage) {
-        this.seedSignature = seedSignature;
-        this.ownershipSignature = ownershipSignature;
-        this.blockStorage = blockStorage;
+    constructor(blockStorage: BlockStorage) {
         this.storage = new MapSharded(blockStorage);
-        //this.syncer = attach blockstorage to Y.array under libp2p
     }
 
     public static async create(signer: (msg: string) => Promise<string> | string, storageProvider: StorageProvider, section: string = 'Global'): Promise<IPDW> {
@@ -54,7 +47,9 @@ export class IPDW {
         const privateBlockFactory = new CombinedBlockFactory([encryptedBlockFactory, signedBlockFactory]);
         const blockStorage = new BlockStorage(storageProvider, privateBlockFactory);
 
-        return new IPDW(seedSignature, ownershipSignature, blockStorage);
+        const syncProvider = await P2PSyncProvider.create(blockStorage, ipdwAddress);
+
+        return new IPDW(blockStorage);
     }
 
 }

@@ -4,6 +4,8 @@ import type {Stream} from '@libp2p/interface/src/connection';
 import type {IncomingStreamData} from '@libp2p/interface/src/stream-handler';
 import {GossipSub} from "@chainsafe/libp2p-gossipsub";
 import {PeerId} from "@libp2p/interface/src/peer-id";
+import {BlockStorage} from "../blocks";
+import createLibp2p from "./libp2p.factory";
 
 
 function changesTopic(topic: string): string {
@@ -18,7 +20,7 @@ function syncProtocol(topic: string): string {
     return `/ipdw/${topic}/sync/1.0.0`
 }
 
-export class Libp2pProvider {
+export class P2PSyncProvider {
     ydoc: Y.Doc;
     node: Libp2p<{ pubsub: GossipSub }>;
     peerID: string;
@@ -55,6 +57,17 @@ export class Libp2pProvider {
         node.handle(syncProtocol(topic), this.onSyncMsg.bind(this)).then();
 
         this.tryInitialSync(this.stateVectors[this.peerID], this).then();
+    }
+
+    public static async create(blockStorage: BlockStorage, topic: string): Promise<P2PSyncProvider> {
+        const libp2p = await createLibp2p();
+        const yDoc = new Y.Doc()
+
+        yDoc.getArray('blocks').insert(0, await blockStorage.toArray());
+        blockStorage.events.addEventListener('insert', e => yDoc.getArray('blocks').insert(e.detail!.index, [e.detail!.value]));
+        blockStorage.events.addEventListener('delete', e => yDoc.getArray('blocks').delete(e.detail!.index));
+
+        return new P2PSyncProvider(yDoc, libp2p, topic)
     }
 
     destroy() {
@@ -117,10 +130,10 @@ export class Libp2pProvider {
             return
         }
 
-        this.node.services.pubsub.publish(changesTopic(this.topic), updateData).then();
+        this.node.services.pubsub.publish(changesTopic(this.topic), updateData, {allowPublishToZeroPeers: true}).then();
         const stateV = Y.encodeStateVector(this.ydoc)
         this.stateVectors[this.peerID] = stateV;
-        this.node.services.pubsub.publish(stateVectorTopic(this.topic), stateV).then();
+        this.node.services.pubsub.publish(stateVectorTopic(this.topic), stateV, {allowPublishToZeroPeers: true}).then();
 
         // Publish awareness as well
     }

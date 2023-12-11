@@ -7,6 +7,7 @@ export class MapSharded {
 
     constructor(blockStorage: BlockStorage) {
         this.blockStorage = blockStorage;
+        //TODO: Initialize
         this.blockStorage.events.addEventListener('insert', async v => {
             if (!v.detail)
                 return;
