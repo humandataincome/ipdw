@@ -28,6 +28,13 @@ export default (env, argv) => ({
 
         resolve: {
             extensions: ['.ts', '.js', '.json'],
+            fallback: {
+                os: false,
+                path: false,
+                net: false,
+                module: false,
+                dgram: false
+            }
         },
 
         devServer: {

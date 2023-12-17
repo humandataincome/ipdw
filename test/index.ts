@@ -1,18 +1,25 @@
-import {BlockStorage, MemoryStorageProvider, P2PSyncProvider, PlainBlockFactory} from "../src";
+import {IPDW, MemoryStorageProvider} from "../src";
+import Web3 from "web3";
 
-async function main() {
-    /*
-    const privateKey = "0xeffc0f0bac08c2157c8bcabfbbe71df7c96b499defcfdae2210139418618d574";
-    const storageProvider = new FileSystemStorageProvider();
-    const ipdw = await IPDW.create((msg) => web3.eth.accounts.sign(msg, privateKey).signature, storageProvider);
-    await ipdw.storage.set('aaa', 'bbb');
-    console.log(await ipdw.storage.get('aaa'));
-     */
+async function startNode(): Promise<void> {
+    const web3 = new Web3(Web3.givenProvider || "https://bsc-dataseed.binance.org/");
 
-    const blockStorage = new BlockStorage(new MemoryStorageProvider(), new PlainBlockFactory());
-    await P2PSyncProvider.create(blockStorage, 'test1234');
+    const account = web3.eth.accounts.privateKeyToAccount("0xeffc0f0bac08c2157c8bcabfbbe71df7c96b499defcfdae2210139418618d574");
+    web3.eth.accounts.wallet.add(account);
+    web3.eth.defaultAccount = account.address;
 
-    await blockStorage.set(0, new Uint8Array([1, 3, 4]));
+    const ipdw = await IPDW.create(async (msg: string) => (await web3.eth.sign(msg, web3.eth.defaultAccount!) as any).signature, account.address, new MemoryStorageProvider(), 'Global');
+
+    setInterval(async () => {
+        const res = await ipdw.storage.get('test') || 'init';
+        console.log(res);
+        await ipdw.storage.set('test', res + (Math.random() + 1).toString(36).substring(2));
+    }, 1000);
+}
+
+async function main(): Promise<void> {
+    await startNode();
+    await startNode();
 }
 
 (async () => {

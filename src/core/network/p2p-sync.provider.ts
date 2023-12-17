@@ -29,8 +29,22 @@ export class P2PSyncProvider {
         const yDoc = new Y.Doc()
 
         yDoc.getArray('blocks').insert(0, await blockStorage.toArray());
-        blockStorage.events.addEventListener('insert', e => yDoc.getArray('blocks').insert(e.detail!.index, [e.detail!.value]));
-        blockStorage.events.addEventListener('delete', e => yDoc.getArray('blocks').delete(e.detail!.index));
+        let lock = false;
+        blockStorage.events.addEventListener('insert', e => {
+            if (!lock) yDoc.getArray('blocks').insert(e.detail!.index, [e.detail!.value])
+        });
+        blockStorage.events.addEventListener('delete', e => {
+            if (!lock) yDoc.getArray('blocks').delete(e.detail!.index)
+        });
+        yDoc.getArray('blocks').observe(async (e) => {
+            lock = true;
+            //TODO: Here I need to determine real index
+            for (const v of e.changes.deleted)
+                await blockStorage.delete(0);
+            for (const v of e.changes.added)
+                await blockStorage.set(0, v.content.getContent()[0] as Uint8Array)
+            lock = false;
+        });
 
         const res = new P2PSyncProvider(yDoc, libp2p, topic);
         if (autorun) await res.run();
@@ -52,7 +66,8 @@ export class P2PSyncProvider {
     private async onTopicSubscriptionChange(event: CustomEvent<SubscriptionChangeData>) {
         const subscribed = event.detail.subscriptions.filter(s => s.topic === this.topic && s.subscribe).length === 1;
         const peerIndex = this.peers.indexOf(event.detail.peerId);
-        if (!peerIndex && subscribed) {
+        if (peerIndex === -1 && subscribed) {
+            console.log("ipdw:peer:add", event.detail);
             //TODO: verify before pushing and syncing
             this.peers.push(event.detail.peerId);
             await this.runProtocol(event.detail.peerId);
@@ -68,12 +83,16 @@ export class P2PSyncProvider {
 
     private async runProtocol(peerId: PeerId): Promise<void> {
         const stream = await this.node.dialProtocol(peerId, this.protocol);
-        await stream.sink([Y.encodeStateVector(this.yDoc)]);
-        const stateRes = await stream.source.next();
-        if (!stateRes.done) {
-            const remoteStateVector = stateRes.value.subarray(0, stateRes.value.length);
-            await stream.sink([Y.encodeStateAsUpdate(this.yDoc, remoteStateVector)]);
-        }
+
+        const _this = this;
+        await stream.sink((async function* () {
+            yield Y.encodeStateVector(_this.yDoc);
+            const stateRes = await stream.source.next();
+            if (!stateRes.done) {
+                const remoteStateVector = stateRes.value.subarray(0, stateRes.value.length);
+                yield Y.encodeStateAsUpdate(_this.yDoc, remoteStateVector);
+            }
+        })())
     }
 
     private async onProtocolConnection(data: IncomingStreamData): Promise<void> {

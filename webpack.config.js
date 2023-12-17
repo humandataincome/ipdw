@@ -62,7 +62,11 @@ export default (env, argv) => ([
             fallback: {
                 crypto: 'crypto-browserify',
                 stream: 'stream-browserify',
-                fs: false
+                os: false,
+                path: false,
+                net: false,
+                module: false,
+                dgram: false
             }
         },
 
