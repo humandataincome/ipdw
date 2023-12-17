@@ -28,13 +28,10 @@ export default async function createLibp2p(): Promise<Libp2p.Libp2p<{ pubsub: Go
         console.log("peer:discovery", event.detail);
     })
 
-    await node.handle('/ipdw/1.0.0', ({stream, connection}) => {
-        console.log('handle /ipdw/1.0.0', stream);
-    })
     return node as any;
 }
 
-function createLibp2pWebOptions(): any {
+function createLibp2pWebOptions() {
     return {
         addresses: {
             listen: [

@@ -1,6 +1,6 @@
 {
   "name": "ipdw",
-  "version": "1.6.0",
+  "version": "2.0.0",
   "author": "Andrea Silvi",
   "type": "module",
   "main": "./dist/node/index.js",
@@ -8,10 +8,11 @@
   "types": "./dist/@types/index.d.ts",
   "scripts": {
     "test": "ts-mocha --timeout 60000 test/index.spec.ts",
+    "start:test": "NODE_ENV=main ts-node test/index.ts",
     "build:prod": "webpack --mode production",
-    "prepublish": "npm run build:prod",
-    "publish:public": "npm publish --access public",
-    "start:test": "NODE_ENV=main ts-node test/index.ts"
+    "build:prod:watch": "webpack --mode production --watch",
+    "prepublish:public": "npm run build:prod",
+    "publish:public": "npm publish --access public"
   },
   "keywords": [
     "IPDW"
@@ -29,16 +30,16 @@
     "crypto-browserify": "^3.12.0",
     "stream-browserify": "^3.0.0",
     "@chainsafe/libp2p-gossipsub": "^11.0.1",
-    "@chainsafe/libp2p-noise": "^14.0.0",
+    "@chainsafe/libp2p-noise": "^14.1.0",
     "@chainsafe/libp2p-yamux": "^6.0.1",
-    "@libp2p/circuit-relay-v2": "^1.0.6",
-    "@libp2p/dcutr": "^1.0.4",
-    "@libp2p/identify": "^1.0.5",
-    "@libp2p/mplex": "^10.0.6",
-    "@libp2p/webrtc": "^4.0.9",
-    "@libp2p/websockets": "^8.0.6",
+    "@libp2p/circuit-relay-v2": "^1.0.7",
+    "@libp2p/dcutr": "^1.0.5",
+    "@libp2p/identify": "^1.0.6",
+    "@libp2p/mplex": "^10.0.7",
+    "@libp2p/webrtc": "^4.0.10",
+    "@libp2p/websockets": "^8.0.7",
     "@multiformats/multiaddr": "^12.1.11",
-    "libp2p": "^1.0.9",
+    "libp2p": "^1.0.10",
     "yjs": "^13.6.10",
     "it-pipe": "^3.0.1"
   },

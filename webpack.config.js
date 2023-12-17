@@ -70,16 +70,13 @@ export default (env, argv) => ([
             new ProvidePlugin({
                 Buffer: ['buffer', 'Buffer'] // Fix for sub-dependencies that use Buffer not from buffer
             }),
-            new ProvidePlugin({
-                process: 'process/browser',
-            }),
         ]
     }),
 
     webpackMerge(commonsConfig, {
         target: 'node',
 
-        externals: [ nodeExternals({ importType: 'module' }) ],
+        externals: [nodeExternals({importType: 'module'})],
 
         experiments: {
             outputModule: true,

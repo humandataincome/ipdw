@@ -53,8 +53,6 @@ describe("Storage tests", async () => {
 
     it("Check StreamProvider", async () => {
         const storage = new MemoryStorageProvider();
-        //const storage = new FileSystemStorageProvider();
-        //const storage = await IndexedDBStorageProvider.Init();
         const stream = new StreamProvider(storage);
 
         let res;

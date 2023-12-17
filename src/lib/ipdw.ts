@@ -14,7 +14,11 @@ By signing this message, you are granting access to your InterPlanetary Data Wal
 
 By signing this message, you acknowledge that you have read and understood the above warnings. If you do not agree or are unsure about any aspect, DO NOT proceed with signing.`;
 
-const OWNERSHIP_MESSAGE: string = `InterPlanetary Data Wallet Address {{address}} is recognized under my ownership`;
+const OWNERSHIP_MESSAGE: string = `InterPlanetary Data Wallet Address: {{ipdwAddress}} 
+has the authorization to write as
+Ethereum Address: {{address}} 
+on its
+Section: {{section}}`;
 
 const SALT = Buffer.from('1Qmzz2vn');
 
@@ -25,8 +29,8 @@ export class IPDW {
         this.storage = new MapSharded(blockStorage);
     }
 
-    public static async create(signer: (msg: string) => Promise<string> | string, storageProvider: StorageProvider, section: string = 'Global'): Promise<IPDW> {
-        const seedSignature = await signer(SEED_MESSAGE.replace('{{section}}', section))
+    public static async create(signer: (msg: string) => Promise<string> | string, address: string, storageProvider: StorageProvider, section: string = 'Global'): Promise<IPDW> {
+        const seedSignature = await signer(SEED_MESSAGE.replace('{{section}}', section));
         const keyBuffer = await util.promisify(crypto.pbkdf2)(seedSignature, SALT, 100100, 32, 'sha256');
 
         keyBuffer[0] &= 248;
@@ -39,7 +43,7 @@ export class IPDW {
         const publicKeyBuffer = publicKey.export({format: 'der', type: 'spki'});
         const ipdwAddress = publicKeyBuffer.toString('hex');
 
-        const ownershipSignature = await signer(OWNERSHIP_MESSAGE.replace('{{address}}', ipdwAddress));
+        const ownershipSignature = await signer(OWNERSHIP_MESSAGE.replace('{{ipdwAddress}}', ipdwAddress).replace('{{section}}', section));
 
         const encryptedBlockFactory = new EncryptedBlockFactory(keyBuffer);
         const signedBlockFactory = new SignedBlockFactory(publicKeyBuffer, privateKeyBuffer);
