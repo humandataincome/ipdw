@@ -1,0 +1,34 @@
+{
+  "name": "ipdw-boostrap-node",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start:dev": "ts-node src/index.ts",
+    "start:prod": "node dist/index.js",
+    "build:prod": "tsc"
+  },
+  "dependencies": {
+    "@chainsafe/libp2p-noise": "^14.1.0",
+    "@chainsafe/libp2p-yamux": "^6.0.1",
+    "@libp2p/crypto": "^3.0.2",
+    "@libp2p/kad-dht": "^12.0.0",
+    "@libp2p/mplex": "^10.0.8",
+    "@libp2p/peer-id": "^4.0.2",
+    "@libp2p/tcp": "^9.0.8",
+    "@libp2p/websockets": "^8.0.8",
+    "libp2p": "^1.0.12",
+    "@libp2p/autonat": "^1.0.5",
+    "@libp2p/circuit-relay-v2": "^1.0.8",
+    "uint8arrays": "^5.0.1",
+    "@libp2p/webrtc": "^4.0.12",
+    "@libp2p/identify": "^1.0.7",
+    "@chainsafe/libp2p-gossipsub": "^11.0.1",
+    "@libp2p/upnp-nat": "^1.0.6",
+    "@libp2p/dcutr": "^1.0.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2"
+  }
+}
