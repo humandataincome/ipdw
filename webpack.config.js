@@ -62,11 +62,16 @@ export default (env, argv) => ([
             fallback: {
                 crypto: 'crypto-browserify',
                 stream: 'stream-browserify',
-                os: false,
+                os: 'os-browserify/browser',
+                timers: 'timers-browserify',
                 path: false,
                 net: false,
-                module: false,
-                dgram: false
+                fs: false,
+                dgram: false,
+                child_process: false,
+                assert: false,
+                http: false,
+                https: false
             }
         },
 
@@ -74,6 +79,9 @@ export default (env, argv) => ([
             new ProvidePlugin({
                 Buffer: ['buffer', 'Buffer'] // Fix for sub-dependencies that use Buffer not from buffer
             }),
+            new ProvidePlugin({
+                process: 'process/browser.js'
+            })
         ]
     }),
 

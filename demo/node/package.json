@@ -3,14 +3,16 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "ts-node src/index.ts"
+    "start:dev": "ts-node src/index.ts",
+    "start:prod": "node dist/index.js",
+    "build:prod": "tsc"
   },
   "dependencies": {
     "ipdw": "file:../../",
-    "web3": "^4.3.0"
+    "web3": "^4.4.0"
   },
   "devDependencies": {
-    "@types/node": "^20.10.4",
+    "@types/node": "^20.11.16",
     "typescript": "^5.3.3",
     "ts-node": "^10.9.2"
   }

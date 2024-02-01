@@ -29,11 +29,8 @@ export default (env, argv) => ({
         resolve: {
             extensions: ['.ts', '.js', '.json'],
             fallback: {
-                os: false,
-                path: false,
-                net: false,
-                module: false,
-                dgram: false
+                crypto: 'crypto-browserify',
+                stream: 'stream-browserify',
             }
         },
 
@@ -49,7 +46,7 @@ export default (env, argv) => ({
             new HtmlWebpackPlugin({
                 template: './src/index.html',
                 filename: 'index.html',
-            }),
+            })
         ],
 
         performance: {

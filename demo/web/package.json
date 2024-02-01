@@ -3,19 +3,19 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start:prod:watch": "webpack serve --target web --mode production",
+    "start:prod:watch": "webpack serve --target web --mode production --https",
     "build:prod": "webpack --target web --mode production"
   },
   "dependencies": {
     "ipdw": "file:../../",
-    "web3": "^4.3.0"
+    "web3": "^4.4.0"
   },
   "devDependencies": {
-    "html-loader": "^4.2.0",
-    "html-webpack-plugin": "^5.5.4",
+    "html-loader": "^5.0.0",
+    "html-webpack-plugin": "^5.6.0",
     "ts-loader": "^9.5.1",
     "typescript": "^5.3.3",
-    "webpack": "^5.89.0",
+    "webpack": "^5.90.1",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1",
     "ts-node": "^10.9.2"

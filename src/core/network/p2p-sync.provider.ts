@@ -1,7 +1,6 @@
 import * as Y from 'yjs'
-import type {Libp2p} from "@libp2p/interface";
+import type {Libp2p, PubSub} from "@libp2p/interface";
 import type {IncomingStreamData} from '@libp2p/interface/src/stream-handler';
-import {GossipSub} from "@chainsafe/libp2p-gossipsub";
 import {PeerId} from "@libp2p/interface/src/peer-id";
 import {BlockStorage} from "../blocks";
 import createLibp2p from "./libp2p.factory";
@@ -9,14 +8,14 @@ import {SubscriptionChangeData} from "@libp2p/interface/src/pubsub";
 
 export class P2PSyncProvider {
     private readonly yDoc: Y.Doc;
-    private node: Libp2p<{ pubsub: GossipSub }>;
+    private node: Libp2p<{ pubsub: PubSub }>;
 
     private readonly topic: string;
     private readonly protocol: string;
 
     private readonly peers: PeerId[];
 
-    constructor(yDoc: Y.Doc, node: Libp2p<{ pubsub: GossipSub }>, roomId: string) {
+    constructor(yDoc: Y.Doc, node: Libp2p<{ pubsub: PubSub }>, roomId: string) {
         this.yDoc = yDoc;
         this.node = node;
         this.topic = `/ipdw/discover/${roomId}/1.0.0`;
@@ -64,6 +63,7 @@ export class P2PSyncProvider {
     }
 
     private async onTopicSubscriptionChange(event: CustomEvent<SubscriptionChangeData>) {
+        console.log("subscription:change", event.detail);
         const subscribed = event.detail.subscriptions.filter(s => s.topic === this.topic && s.subscribe).length === 1;
         const peerIndex = this.peers.indexOf(event.detail.peerId);
         if (peerIndex === -1 && subscribed) {

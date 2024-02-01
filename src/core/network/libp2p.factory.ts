@@ -2,39 +2,46 @@ import * as Libp2p from 'libp2p'
 import {noise} from '@chainsafe/libp2p-noise'
 import {yamux} from "@chainsafe/libp2p-yamux";
 import {mplex} from "@libp2p/mplex";
-import {webRTC} from "@libp2p/webrtc";
+import {webRTC, webRTCDirect} from "@libp2p/webrtc";
 import {webSockets} from "@libp2p/websockets";
 import * as filters from "@libp2p/websockets/filters";
-import {GossipSub, gossipsub} from '@chainsafe/libp2p-gossipsub'
+import {gossipsub} from '@chainsafe/libp2p-gossipsub'
 import {dcutr} from '@libp2p/dcutr'
 import {identify} from '@libp2p/identify'
-import {circuitRelayServer, circuitRelayTransport} from "@libp2p/circuit-relay-v2";
+import {circuitRelayTransport} from "@libp2p/circuit-relay-v2";
 import {tcp} from "@libp2p/tcp";
-import {pubsubPeerDiscovery} from '@libp2p/pubsub-peer-discovery';
-import {mdns} from '@libp2p/mdns';
+import {bootstrap} from '@libp2p/bootstrap'
+import {webTransport} from '@libp2p/webtransport'
+import type {PubSub} from '@libp2p/interface'
+import {uPnPNAT} from '@libp2p/upnp-nat'
+import {autoNAT} from '@libp2p/autonat'
+import {kadDHT, removePublicAddressesMapper} from '@libp2p/kad-dht'
+import {ping} from '@libp2p/ping'
 
-export default async function createLibp2p(): Promise<Libp2p.Libp2p<{ pubsub: GossipSub }>> {
+let nodeId: string;
+
+export default async function createLibp2p(): Promise<Libp2p.Libp2p<{ pubsub: PubSub }>> {
     const node = await Libp2p.createLibp2p(typeof window === 'object' || typeof importScripts === 'function' ? createLibp2pWebOptions() : createLibp2pNodeOptions());
 
     node.addEventListener("connection:open", (event) => {
-        //console.log("connection:open", node.peerId, event.detail);
+        console.log("connection:open", node.peerId, event.detail);
     })
     node.addEventListener("connection:close", (event) => {
-        //console.log("connection:close", node.peerId, event.detail);
+        console.log("connection:close", node.peerId, event.detail);
     })
     node.addEventListener("self:peer:update", (event) => {
-        //console.log("self:peer:update", node.peerId, event.detail);
+        console.log("self:peer:update", node.peerId, event.detail);
     })
     node.addEventListener("peer:discovery", (event) => {
-        //console.log("peer:discovery", node.peerId, event.detail);
-        node.dial(event.detail.id).then();
+        console.log("peer:discovery", node.peerId, event.detail);
     })
+    console.log('started', node.peerId, node.getMultiaddrs());
 
     return node as any;
 }
 
 function createLibp2pWebOptions() {
-    console.log('Configuring p2p: Web')
+    console.log('Configuring p2p: Web');
     return {
         addresses: {
             listen: [
@@ -42,13 +49,15 @@ function createLibp2pWebOptions() {
             ]
         },
         transports: [
-            webSockets({
-                filter: filters.all
-            }),
-            webRTC(),
             circuitRelayTransport({
                 discoverRelays: 1
-            })
+            }),
+            webRTC(),
+            webRTCDirect(),
+            webSockets({
+                filter: filters.wss
+            }),
+            webTransport(),
         ],
         connectionEncryption: [noise()],
         streamMuxers: [yamux(), mplex()],
@@ -58,62 +67,82 @@ function createLibp2pWebOptions() {
             }
         },
         peerDiscovery: [
-            //TODO: Should set some boostrap nodes
-            pubsubPeerDiscovery({
-                topics: [
-                    `ipdw._peer-discovery._p2p._pubsub`,
-                    //'_peer-discovery._p2p._pubsub' // Include if you want to participate in the global space
+            bootstrap({
+                list: [
+                    '/dns4/bootstrap.ipdw.tech/tcp/4002/wss/p2p/12D3KooWFMZzQ58LCRvnsu6747nbKqzLU6TamaTBYYzdasLGAbKQ'
                 ]
             }),
-            mdns()
         ],
         services: {
             identify: identify(),
+            dht: kadDHT({
+                protocol: '/ipdw/dht/1.0.0',
+                peerInfoMapper: removePublicAddressesMapper,
+                clientMode: true
+            }),
             pubsub: gossipsub(),
-            dcutr: dcutr()
+            autoNAT: autoNAT(),
+            dcutr: dcutr(),
+            ping: ping()
         },
         connectionManager: {
-            minConnections: 0
+            minConnections: 1
         }
     };
 }
 
 function createLibp2pNodeOptions() {
-    console.log('Configuring p2p: Node')
+    console.log('Configuring p2p: Node');
+
     return {
         addresses: {
-            listen: ['/ip4/0.0.0.0/tcp/0/ws', '/ip4/0.0.0.0/tcp/0']
+            listen: [
+                '/ip4/0.0.0.0/tcp/0',
+                '/ip4/0.0.0.0/tcp/0/ws',
+                '/webrtc'
+            ]
         },
         transports: [
+            circuitRelayTransport({
+                discoverRelays: 1
+            }),
+            tcp(),
+            webRTC(),
+            webRTCDirect(),
             webSockets({
                 filter: filters.all
             }),
-            tcp()
         ],
         connectionEncryption: [noise()],
         streamMuxers: [yamux(), mplex()],
+        connectionGater: {
+            denyDialMultiaddr: () => {
+                return false
+            }
+        },
         peerDiscovery: [
-            //TODO: Should set some boostrap nodes
-            pubsubPeerDiscovery({
-                topics: [
-                    `ipdw._peer-discovery._p2p._pubsub`,
-                    //'_peer-discovery._p2p._pubsub' // Include if you want to participate in the global space
+            //mdns(),
+            bootstrap({
+                list: [
+                    '/dns4/bootstrap.ipdw.tech/tcp/4001/p2p/12D3KooWFMZzQ58LCRvnsu6747nbKqzLU6TamaTBYYzdasLGAbKQ'
                 ]
             }),
-            mdns()
         ],
         services: {
             identify: identify(),
-            relay: circuitRelayServer({
-                reservations: {
-                    maxReservations: Infinity
-                }
+            dht: kadDHT({
+                protocol: '/ipdw/dht/1.0.0',
+                peerInfoMapper: removePublicAddressesMapper,
+                clientMode: true
             }),
-            pubsub: gossipsub({fallbackToFloodsub: true, floodPublish: true, emitSelf: true}),
-            dcutr: dcutr()
+            pubsub: gossipsub(),
+            autoNAT: autoNAT(),
+            upnp: uPnPNAT(),
+            dcutr: dcutr(),
+            ping: ping()
         },
         connectionManager: {
-            minConnections: 0
+            minConnections: 1
         }
     };
 }

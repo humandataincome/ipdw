@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import * as util from "util";
-import {BlockStorage, CombinedBlockFactory, EncryptedBlockFactory, MapSharded, P2PSyncProvider, SignedBlockFactory, StorageProvider} from "../core";
+import {BlockStorage, CombinedBlockFactory, EncryptedBlockFactory, MapSharded, P2PSyncProvider, StorageProvider} from "../core";
 
 const SEED_MESSAGE: string = `**Important Security Notice: Please read carefully before proceeding**
 
@@ -38,17 +38,18 @@ export class IPDW {
         keyBuffer[31] |= 64;
 
         const privateKeyBuffer = Buffer.concat([Buffer.from('302e020100300506032b657004220420', 'hex'), keyBuffer]);
-        const privateKey = crypto.createPrivateKey({key: privateKeyBuffer, format: 'der', type: 'pkcs8'});
-        const publicKey = crypto.createPublicKey(privateKey);
-        const publicKeyBuffer = publicKey.export({format: 'der', type: 'spki'});
-        const ipdwAddress = publicKeyBuffer.toString('hex');
+        //const privateKey = crypto.createPrivateKey({key: privateKeyBuffer, format: 'der', type: 'pkcs8'});
+        //const publicKey = crypto.createPublicKey(privateKey);
+        //const publicKeyBuffer = publicKey.export({format: 'der', type: 'spki'});
+        //const ipdwAddress = publicKeyBuffer.toString('hex');
+        const ipdwAddress = 'aaa';
 
         const ownershipSignature = await signer(OWNERSHIP_MESSAGE.replace('{{ipdwAddress}}', ipdwAddress).replace('{{section}}', section));
 
         const encryptedBlockFactory = new EncryptedBlockFactory(keyBuffer);
-        const signedBlockFactory = new SignedBlockFactory(publicKeyBuffer, privateKeyBuffer);
+        //const signedBlockFactory = new SignedBlockFactory(publicKeyBuffer, privateKeyBuffer);
 
-        const privateBlockFactory = new CombinedBlockFactory([encryptedBlockFactory, signedBlockFactory]);
+        const privateBlockFactory = new CombinedBlockFactory([encryptedBlockFactory]);
         const blockStorage = new BlockStorage(storageProvider, privateBlockFactory);
 
         const syncProvider = await P2PSyncProvider.create(blockStorage, ipdwAddress);
