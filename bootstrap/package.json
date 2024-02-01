@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "start:gen": "ts-node src/index.ts",
     "start:dev": "ts-node src/index.ts CAESQO8swgDBS6fc3/8o27ErvWERJG4e9+Fgts0YFgC665eWUkjOdH5aVa0bF0BqfrlVAVJwLydZMCdBKB4NqUajwis= /etc/ipdw/certificates/",
     "start:prod": "node dist/index.js",
     "build:prod": "tsc"

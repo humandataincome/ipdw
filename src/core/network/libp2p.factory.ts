@@ -69,7 +69,7 @@ function createLibp2pWebOptions() {
         peerDiscovery: [
             bootstrap({
                 list: [
-                    '/dns4/bootstrap.ipdw.tech/tcp/4002/wss/p2p/12D3KooWFMZzQ58LCRvnsu6747nbKqzLU6TamaTBYYzdasLGAbKQ'
+                    '/dns4/bootstrap.ipdw.tech/tcp/4002/wss/p2p/12D3KooWCctszqqsrdcmuh151GTsKAHTaCg8Jor9mUbTHjkEaA7S'
                 ]
             }),
         ],
@@ -124,7 +124,7 @@ function createLibp2pNodeOptions() {
             //mdns(),
             bootstrap({
                 list: [
-                    '/dns4/bootstrap.ipdw.tech/tcp/4001/p2p/12D3KooWFMZzQ58LCRvnsu6747nbKqzLU6TamaTBYYzdasLGAbKQ'
+                    '/dns4/bootstrap.ipdw.tech/tcp/4001/p2p/12D3KooWCctszqqsrdcmuh151GTsKAHTaCg8Jor9mUbTHjkEaA7S'
                 ]
             }),
         ],

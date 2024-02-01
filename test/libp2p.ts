@@ -49,7 +49,7 @@ const createNode = async () => {
         peerDiscovery: [
             bootstrap({
                 list: [
-                    '/dns4/bootstrap.ipdw.tech/tcp/4001/p2p/12D3KooWFMZzQ58LCRvnsu6747nbKqzLU6TamaTBYYzdasLGAbKQ'
+                    '/dns4/bootstrap.ipdw.tech/tcp/4001/p2p/12D3KooWCctszqqsrdcmuh151GTsKAHTaCg8Jor9mUbTHjkEaA7S'
                 ]
             }),
         ],
