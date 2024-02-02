@@ -26,14 +26,6 @@ export default (env, argv) => ({
             clean: true
         },
 
-        resolve: {
-            extensions: ['.ts', '.js', '.json'],
-            fallback: {
-                crypto: 'crypto-browserify',
-                stream: 'stream-browserify',
-            }
-        },
-
         devServer: {
             open: ['/index.html'],
             watchFiles: ['src/*'],
