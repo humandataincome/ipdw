@@ -13,7 +13,7 @@ import {tcp} from "@libp2p/tcp";
 import {bootstrap} from '@libp2p/bootstrap'
 import {webTransport} from '@libp2p/webtransport'
 import type {PubSub} from '@libp2p/interface'
-import {uPnPNAT} from '@libp2p/upnp-nat'
+//import {uPnPNAT} from '@libp2p/upnp-nat'
 import {autoNAT} from '@libp2p/autonat'
 import {kadDHT, removePublicAddressesMapper} from '@libp2p/kad-dht'
 import {ping} from '@libp2p/ping'
@@ -69,6 +69,7 @@ function createLibp2pWebOptions() {
         peerDiscovery: [
             bootstrap({
                 list: [
+                    //'/ip4/127.0.0.1/tcp/4002/ws/p2p/12D3KooWFMZzQ58LCRvnsu6747nbKqzLU6TamaTBYYzdasLGAbKQ',
                     '/dns4/bootstrap.ipdw.tech/tcp/4002/wss/p2p/12D3KooWCctszqqsrdcmuh151GTsKAHTaCg8Jor9mUbTHjkEaA7S'
                 ]
             }),
@@ -93,7 +94,6 @@ function createLibp2pWebOptions() {
 
 function createLibp2pNodeOptions() {
     console.log('Configuring p2p: Node');
-
     return {
         addresses: {
             listen: [
@@ -124,6 +124,7 @@ function createLibp2pNodeOptions() {
             //mdns(),
             bootstrap({
                 list: [
+                    //'/ip4/127.0.0.1/tcp/4001/p2p/12D3KooWFMZzQ58LCRvnsu6747nbKqzLU6TamaTBYYzdasLGAbKQ',
                     '/dns4/bootstrap.ipdw.tech/tcp/4001/p2p/12D3KooWCctszqqsrdcmuh151GTsKAHTaCg8Jor9mUbTHjkEaA7S'
                 ]
             }),
@@ -137,7 +138,7 @@ function createLibp2pNodeOptions() {
             }),
             pubsub: gossipsub(),
             autoNAT: autoNAT(),
-            upnp: uPnPNAT(),
+            //upnp: uPnPNAT(),
             dcutr: dcutr(),
             ping: ping()
         },

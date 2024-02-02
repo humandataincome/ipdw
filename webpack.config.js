@@ -10,6 +10,7 @@ const {ProvidePlugin} = pkg;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+
 const commonsConfig = {
     context: __dirname,
 
@@ -63,15 +64,9 @@ export default (env, argv) => ([
                 crypto: 'crypto-browserify',
                 stream: 'stream-browserify',
                 os: 'os-browserify/browser',
-                timers: 'timers-browserify',
-                path: false,
                 net: false,
                 fs: false,
-                dgram: false,
-                child_process: false,
-                assert: false,
-                http: false,
-                https: false
+                path: false
             }
         },
 
@@ -79,9 +74,7 @@ export default (env, argv) => ([
             new ProvidePlugin({
                 Buffer: ['buffer', 'Buffer'] // Fix for sub-dependencies that use Buffer not from buffer
             }),
-            new ProvidePlugin({
-                process: 'process/browser.js'
-            })
+            new ProvidePlugin({process: 'process/browser.js'})
         ]
     }),
 

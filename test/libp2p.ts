@@ -5,9 +5,8 @@ import {identify} from '@libp2p/identify'
 import {mplex} from '@libp2p/mplex'
 import {tcp} from '@libp2p/tcp'
 import {createLibp2p} from 'libp2p'
-import {kadDHT, removePublicAddressesMapper} from "@libp2p/kad-dht";
+import {EventTypes, kadDHT, removePublicAddressesMapper} from "@libp2p/kad-dht";
 import {CID} from "multiformats/cid";
-import {EventTypes} from "@libp2p/kad-dht";
 import * as json from "multiformats/codecs/json";
 import {sha256} from "multiformats/hashes/sha2";
 import {webSockets} from "@libp2p/websockets";

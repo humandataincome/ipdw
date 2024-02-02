@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "start:gen": "ts-node src/index.ts",
-    "start:dev": "ts-node src/index.ts CAESQO8swgDBS6fc3/8o27ErvWERJG4e9+Fgts0YFgC665eWUkjOdH5aVa0bF0BqfrlVAVJwLydZMCdBKB4NqUajwis= /etc/ipdw/certificates/",
+    "start:dev": "ts-node src/index.ts CAESQO8swgDBS6fc3/8o27ErvWERJG4e9+Fgts0YFgC665eWUkjOdH5aVa0bF0BqfrlVAVJwLydZMCdBKB4NqUajwis=",
     "start:prod": "node dist/index.js",
     "build:prod": "tsc"
   },
@@ -29,7 +29,7 @@
     "libp2p": "^1.2.1"
   },
   "devDependencies": {
-    "@types/node": "^20.11.13",
+    "@types/node": "^20.11.16",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   }
