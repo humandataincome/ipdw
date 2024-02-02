@@ -63,10 +63,12 @@ export default (env, argv) => ([
             fallback: {
                 crypto: 'crypto-browserify',
                 stream: 'stream-browserify',
-                os: 'os-browserify/browser',
-                net: false,
                 fs: false,
-                path: false
+            },
+            alias: {
+                '@libp2p/upnp-nat': false,
+                '@libp2p/tcp': false,
+                '@libp2p/mdns': false
             }
         },
 
@@ -85,6 +87,12 @@ export default (env, argv) => ([
 
         experiments: {
             outputModule: true,
+        },
+
+        resolve: {
+            alias: {
+                '@libp2p/webtransport': false
+            }
         },
 
         output: {

@@ -1,24 +1,25 @@
-import * as Libp2p from 'libp2p'
-import {noise} from '@chainsafe/libp2p-noise'
+import * as Libp2p from 'libp2p';
+import {noise} from '@chainsafe/libp2p-noise';
 import {yamux} from "@chainsafe/libp2p-yamux";
 import {mplex} from "@libp2p/mplex";
 import {webRTC, webRTCDirect} from "@libp2p/webrtc";
 import {webSockets} from "@libp2p/websockets";
 import * as filters from "@libp2p/websockets/filters";
-import {gossipsub} from '@chainsafe/libp2p-gossipsub'
-import {dcutr} from '@libp2p/dcutr'
-import {identify} from '@libp2p/identify'
+import {gossipsub} from '@chainsafe/libp2p-gossipsub';
+import {dcutr} from '@libp2p/dcutr';
+import {identify} from '@libp2p/identify';
 import {circuitRelayTransport} from "@libp2p/circuit-relay-v2";
-import {tcp} from "@libp2p/tcp";
-import {bootstrap} from '@libp2p/bootstrap'
-import {webTransport} from '@libp2p/webtransport'
-import type {PubSub} from '@libp2p/interface'
-//import {uPnPNAT} from '@libp2p/upnp-nat'
-import {autoNAT} from '@libp2p/autonat'
-import {kadDHT, removePublicAddressesMapper} from '@libp2p/kad-dht'
-import {ping} from '@libp2p/ping'
+import {bootstrap} from '@libp2p/bootstrap';
+import type {PubSub} from '@libp2p/interface';
+import {autoNAT} from '@libp2p/autonat';
+import {kadDHT, removePublicAddressesMapper} from '@libp2p/kad-dht';
+import {ping} from '@libp2p/ping';
 
-let nodeId: string;
+import {webTransport} from '@libp2p/webtransport';
+
+import {tcp} from "@libp2p/tcp";
+import {uPnPNAT} from '@libp2p/upnp-nat';
+import {mdns} from "@libp2p/mdns";
 
 export default async function createLibp2p(): Promise<Libp2p.Libp2p<{ pubsub: PubSub }>> {
     const node = await Libp2p.createLibp2p(typeof window === 'object' || typeof importScripts === 'function' ? createLibp2pWebOptions() : createLibp2pNodeOptions());
@@ -121,7 +122,7 @@ function createLibp2pNodeOptions() {
             }
         },
         peerDiscovery: [
-            //mdns(),
+            mdns(),
             bootstrap({
                 list: [
                     //'/ip4/127.0.0.1/tcp/4001/p2p/12D3KooWFMZzQ58LCRvnsu6747nbKqzLU6TamaTBYYzdasLGAbKQ',
@@ -138,7 +139,7 @@ function createLibp2pNodeOptions() {
             }),
             pubsub: gossipsub(),
             autoNAT: autoNAT(),
-            //upnp: uPnPNAT(),
+            upnp: uPnPNAT(),
             dcutr: dcutr(),
             ping: ping()
         },
