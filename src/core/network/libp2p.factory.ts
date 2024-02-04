@@ -12,16 +12,16 @@ import {circuitRelayTransport} from "@libp2p/circuit-relay-v2";
 import {bootstrap} from '@libp2p/bootstrap';
 import type {PubSub} from '@libp2p/interface';
 import {autoNAT} from '@libp2p/autonat';
-import {kadDHT, removePublicAddressesMapper} from '@libp2p/kad-dht';
+import {KadDHT, kadDHT, removePublicAddressesMapper} from '@libp2p/kad-dht';
 import {ping} from '@libp2p/ping';
 
 import {webTransport} from '@libp2p/webtransport';
 
 import {tcp} from "@libp2p/tcp";
 import {uPnPNAT} from '@libp2p/upnp-nat';
-import {mdns} from "@libp2p/mdns";
+//import {mdns} from "@libp2p/mdns";
 
-export default async function createLibp2p(): Promise<Libp2p.Libp2p<{ pubsub: PubSub }>> {
+export default async function createLibp2p(): Promise<Libp2p.Libp2p<{ pubsub: PubSub, dht: KadDHT }>> {
     const node = await Libp2p.createLibp2p(typeof window === 'object' || typeof importScripts === 'function' ? createLibp2pWebOptions() : createLibp2pNodeOptions());
 
     node.addEventListener("connection:open", (event) => {
@@ -38,7 +38,7 @@ export default async function createLibp2p(): Promise<Libp2p.Libp2p<{ pubsub: Pu
     })
     console.log('started', node.peerId, node.getMultiaddrs());
 
-    return node as any;
+    return node;
 }
 
 function createLibp2pWebOptions() {
@@ -62,11 +62,6 @@ function createLibp2pWebOptions() {
         ],
         connectionEncryption: [noise()],
         streamMuxers: [yamux(), mplex()],
-        connectionGater: {
-            denyDialMultiaddr: () => {
-                return false
-            }
-        },
         peerDiscovery: [
             bootstrap({
                 list: [
@@ -116,13 +111,8 @@ function createLibp2pNodeOptions() {
         ],
         connectionEncryption: [noise()],
         streamMuxers: [yamux(), mplex()],
-        connectionGater: {
-            denyDialMultiaddr: () => {
-                return false
-            }
-        },
         peerDiscovery: [
-            mdns(),
+            //mdns(),
             bootstrap({
                 list: [
                     //'/ip4/127.0.0.1/tcp/4001/p2p/12D3KooWFMZzQ58LCRvnsu6747nbKqzLU6TamaTBYYzdasLGAbKQ',

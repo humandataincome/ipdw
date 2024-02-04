@@ -5,17 +5,21 @@ import {PeerId} from "@libp2p/interface/src/peer-id";
 import {BlockStorage} from "../blocks";
 import createLibp2p from "./libp2p.factory";
 import {SubscriptionChangeData} from "@libp2p/interface/src/pubsub";
+import {KadDHT} from "@libp2p/kad-dht";
+import * as json from "multiformats/codecs/json";
+import {sha256} from "multiformats/hashes/sha2";
+import {CID} from "multiformats/cid";
 
 export class P2PSyncProvider {
     private readonly yDoc: Y.Doc;
-    private node: Libp2p<{ pubsub: PubSub }>;
+    private node: Libp2p<{ pubsub: PubSub, dht: KadDHT }>;
 
     private readonly topic: string;
     private readonly protocol: string;
 
     private readonly peers: PeerId[];
 
-    constructor(yDoc: Y.Doc, node: Libp2p<{ pubsub: PubSub }>, roomId: string) {
+    constructor(yDoc: Y.Doc, node: Libp2p<{ pubsub: PubSub, dht: KadDHT }>, roomId: string) {
         this.yDoc = yDoc;
         this.node = node;
         this.topic = `/ipdw/discover/${roomId}/1.0.0`;
@@ -53,8 +57,55 @@ export class P2PSyncProvider {
     public async run(): Promise<void> {
         this.yDoc.on('update', this.onDocumentUpdate.bind(this));
         await this.node.handle(this.protocol, this.onProtocolConnection.bind(this))
-        this.node.services.pubsub.addEventListener('subscription-change', this.onTopicSubscriptionChange.bind(this));
-        this.node.services.pubsub.subscribe(this.topic);
+
+        const cid = CID.create(1, json.code, await sha256.digest(json.encode({topic: this.topic})));
+        const node = this.node;
+
+        async function provideLoop() {
+            try {
+                for await (const event of node.services.dht.provide(cid)) {
+                    //console.log(this.node, 'provide', event)
+                }
+                await provideLoop();
+            } catch (e) {
+                //console.log(e);
+                await provideLoop();
+            }
+        }
+
+        const _this = this;
+
+        async function findProvidersLoop() {
+            try {
+                for await (const event of node.services.dht.findProviders(cid)) {
+                    if (event.name === 'PROVIDER' && event.providers.length > 0) {
+                        console.log(node.peerId, 'findProviders', event)
+                        for (const peer of event.providers) {
+                            const peerIndex = _this.peers.indexOf(peer.id);
+                            if (peerIndex === -1 && !peer.id.equals(node.peerId)) {
+                                console.log("ipdw:peer:add", _this.node.peerId, peer);
+                                //TODO: verify before pushing and syncing
+
+                                _this.peers.push(peer.id);
+                                await _this.runProtocol(peer.id);
+                            }
+                        }
+
+                    }
+
+                }
+                await findProvidersLoop();
+            } catch (e) {
+                console.log(e);
+                await findProvidersLoop();
+            }
+        }
+
+        provideLoop().then()
+        findProvidersLoop().then()
+
+        //this.node.services.pubsub.addEventListener('subscription-change', this.onTopicSubscriptionChange.bind(this));
+        //this.node.services.pubsub.subscribe(this.topic);
     }
 
     public async destroy(): Promise<void> {
@@ -82,17 +133,21 @@ export class P2PSyncProvider {
     }
 
     private async runProtocol(peerId: PeerId): Promise<void> {
-        const stream = await this.node.dialProtocol(peerId, this.protocol);
+        try {
+            const stream = await this.node.dialProtocol(peerId, this.protocol);
 
-        const _this = this;
-        await stream.sink((async function* () {
-            yield Y.encodeStateVector(_this.yDoc);
-            const stateRes = await stream.source.next();
-            if (!stateRes.done) {
-                const remoteStateVector = stateRes.value.subarray(0, stateRes.value.length);
-                yield Y.encodeStateAsUpdate(_this.yDoc, remoteStateVector);
-            }
-        })())
+            const _this = this;
+            await stream.sink((async function* () {
+                yield Y.encodeStateVector(_this.yDoc);
+                const stateRes = await stream.source.next();
+                if (!stateRes.done) {
+                    const remoteStateVector = stateRes.value.subarray(0, stateRes.value.length);
+                    yield Y.encodeStateAsUpdate(_this.yDoc, remoteStateVector);
+                }
+            })())
+        } catch (e) {
+
+        }
     }
 
     private async onProtocolConnection(data: IncomingStreamData): Promise<void> {
