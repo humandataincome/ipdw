@@ -8,12 +8,11 @@
     "build:prod": "tsc"
   },
   "dependencies": {
-    "ipdw": "file:../../",
-    "web3": "^4.4.0"
+    "ipdw": "file:../../"
   },
   "devDependencies": {
-    "@types/node": "^20.11.16",
-    "typescript": "^5.3.3",
+    "@types/node": "^20.12.3",
+    "typescript": "^5.4.3",
     "ts-node": "^10.9.2"
   }
 }

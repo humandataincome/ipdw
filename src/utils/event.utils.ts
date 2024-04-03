@@ -42,7 +42,7 @@ interface CustomEventInit<T = any> extends EventInit {
     detail?: T;
 }
 
-export class CustomEvent<T> extends Event {
+export class TypedCustomEvent<T> extends Event {
     readonly #detail;
 
     constructor(type: string, eventInitDict?: CustomEventInit<T>) {

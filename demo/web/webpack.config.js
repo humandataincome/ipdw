@@ -10,7 +10,7 @@ export default (env, argv) => ({
         context: __dirname,
 
         entry: {
-            index: './src/index.ts',
+            index: './src/index.test.ts',
         },
 
         module: {

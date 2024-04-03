@@ -1,12 +1,13 @@
-import {BlockStorage, CombinedBlockFactory, EncryptedBlockFactory, FileSystemStorageProvider, MapSharded, MemoryStorageProvider, PlainBlockFactory, SignedBlockFactory} from "../src";
+import {BlockStorage, CombinedBlockFactory, CryptoUtils, EncryptedBlockFactory, FileSystemStorageProvider, MapSharded, MemoryStorageProvider, PlainBlockFactory, SignedBlockFactory} from "../src";
 
 import "fake-indexeddb/auto";
 
 describe("Blocks tests", async () => {
     it("Check block", async () => {
-        const keyBuffer = Buffer.from([]);
-        const publicKeyBuffer = Buffer.from([]);
-        const privateKeyBuffer = Buffer.from([]);
+        const master = Buffer.from("supersecret", "utf8");
+        const salt = Buffer.from("6GvSeDY1", "utf8");
+        const keyBuffer = await CryptoUtils.DeriveKey(master, salt);
+        const [privateKeyBuffer, publicKeyBuffer] = await CryptoUtils.DeriveKeyPair(master, salt);
 
         const storageProvider = new MemoryStorageProvider();
 

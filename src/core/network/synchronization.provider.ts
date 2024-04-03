@@ -6,11 +6,16 @@ import {BlockStorage} from "../blocks";
 import createLibp2p from "./libp2p.factory";
 import {SubscriptionChangeData} from "@libp2p/interface/src/pubsub";
 import {KadDHT} from "@libp2p/kad-dht";
-import * as json from "multiformats/codecs/json";
-import {sha256} from "multiformats/hashes/sha2";
-import {CID} from "multiformats/cid";
+import {TypedCustomEvent, TypedEventTarget} from "../../utils";
 
-export class P2PSyncProvider {
+export class SynchronizationProvider {
+    public events: TypedEventTarget<{
+        "peer:add": TypedCustomEvent<{ peerId: PeerId }>;
+        "peer:remove": TypedCustomEvent<{ peerId: PeerId }>;
+        "peer:syncing": TypedCustomEvent<{ peerId: PeerId }>;
+        "peer:synced": TypedCustomEvent<{ peerId: PeerId }>;
+    }> = new TypedEventTarget();
+
     private readonly yDoc: Y.Doc;
     private node: Libp2p<{ pubsub: PubSub, dht: KadDHT }>;
 
@@ -27,7 +32,7 @@ export class P2PSyncProvider {
         this.peers = [];
     }
 
-    public static async create(blockStorage: BlockStorage, topic: string, autorun: boolean = true): Promise<P2PSyncProvider> {
+    public static async create(blockStorage: BlockStorage, topic: string, autorun: boolean = true): Promise<SynchronizationProvider> {
         const libp2p = await createLibp2p();
         const yDoc = new Y.Doc()
 
@@ -49,7 +54,7 @@ export class P2PSyncProvider {
             lock = false;
         });
 
-        const res = new P2PSyncProvider(yDoc, libp2p, topic);
+        const res = new SynchronizationProvider(yDoc, libp2p, topic);
         if (autorun) await res.run();
         return res;
     }
@@ -58,6 +63,7 @@ export class P2PSyncProvider {
         this.yDoc.on('update', this.onDocumentUpdate.bind(this));
         await this.node.handle(this.protocol, this.onProtocolConnection.bind(this))
 
+        /*
         const cid = CID.create(1, json.code, await sha256.digest(json.encode({topic: this.topic})));
         const node = this.node;
 
@@ -103,9 +109,10 @@ export class P2PSyncProvider {
 
         provideLoop().then()
         findProvidersLoop().then()
+        */
 
-        //this.node.services.pubsub.addEventListener('subscription-change', this.onTopicSubscriptionChange.bind(this));
-        //this.node.services.pubsub.subscribe(this.topic);
+        this.node.services.pubsub.addEventListener('subscription-change', this.onTopicSubscriptionChange.bind(this));
+        this.node.services.pubsub.subscribe(this.topic);
     }
 
     public async destroy(): Promise<void> {

@@ -1,11 +1,11 @@
 import {StorageProvider} from "../";
-import {CustomEvent, TypedEventTarget} from "../../utils";
+import {TypedCustomEvent, TypedEventTarget} from "../../utils";
 import {BlockFactory} from "./";
 
 export class BlockStorage {
     public events: TypedEventTarget<{
-        insert: CustomEvent<{ index: number; value: Uint8Array }>;
-        delete: CustomEvent<{ index: number }>;
+        insert: TypedCustomEvent<{ index: number; value: Uint8Array }>;
+        delete: TypedCustomEvent<{ index: number }>;
     }> = new TypedEventTarget();
     private storageProvider: StorageProvider;
     private blockFactory: BlockFactory;
@@ -34,12 +34,12 @@ export class BlockStorage {
 
     async insert(index: number, value: Uint8Array): Promise<void> {
         await this.storageProvider.set(index.toString(), await this.blockFactory.encode(value));
-        this.events.dispatchTypedEvent('insert', new CustomEvent('insert', {detail: {index, value}}));
+        this.events.dispatchTypedEvent('insert', new TypedCustomEvent('insert', {detail: {index, value}}));
     }
 
     async delete(index: number): Promise<void> {
         await this.storageProvider.set(index.toString(), undefined);
-        this.events.dispatchTypedEvent('delete', new CustomEvent('delete', {detail: {index}}));
+        this.events.dispatchTypedEvent('delete', new TypedCustomEvent('delete', {detail: {index}}));
     }
 
     async length(): Promise<number> {

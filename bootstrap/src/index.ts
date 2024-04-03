@@ -72,38 +72,25 @@ async function main(): Promise<void> {
             tcp(),
             webRTC(),
             webRTCDirect(),
-            webSockets({filter: filters.all, server}),
-            webTransport(),
+            webSockets({websocket: {rejectUnauthorized: false}, server}),
         ],
         connectionEncryption: [noise()],
         streamMuxers: [yamux(), mplex()],
-        connectionGater: {
-            denyDialMultiaddr: () => {
-                return false
-            }
-        },
         services: {
             identify: identify(),
             dht: kadDHT({
                 protocol: '/ipdw/dht/1.0.0',
-                peerInfoMapper: removePublicAddressesMapper,
-                clientMode: false
             }),
-            pubsub: gossipsub(),
+            pubsub: gossipsub({emitSelf: true, canRelayMessage: true}),
             autoNAT: autoNAT(),
             relay: circuitRelayServer({
                 advertise: true,
-                reservations: {
-                    maxReservations: Infinity
-                }
             }),
             ping: ping(),
             upnp: uPnPNAT(),
             dcutr: dcutr(),
         }
     });
-
-    await node.services.dht.setMode('server');
 
     console.info("libp2p is running");
     console.info("PeerId", node.peerId);

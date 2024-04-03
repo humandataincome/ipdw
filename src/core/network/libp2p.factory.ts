@@ -19,6 +19,7 @@ import {webTransport} from '@libp2p/webtransport';
 
 import {tcp} from "@libp2p/tcp";
 import {uPnPNAT} from '@libp2p/upnp-nat';
+import {mdns} from "@libp2p/mdns";
 //import {mdns} from "@libp2p/mdns";
 
 export default async function createLibp2p(): Promise<Libp2p.Libp2p<{ pubsub: PubSub, dht: KadDHT }>> {
@@ -46,7 +47,8 @@ function createLibp2pWebOptions() {
     return {
         addresses: {
             listen: [
-                '/webrtc'
+                '/webrtc',
+                "/wss", "/ws"
             ]
         },
         transports: [
@@ -56,7 +58,7 @@ function createLibp2pWebOptions() {
             webRTC(),
             webRTCDirect(),
             webSockets({
-                filter: filters.wss
+                filter: filters.all
             }),
             webTransport(),
         ],
@@ -84,7 +86,8 @@ function createLibp2pWebOptions() {
         },
         connectionManager: {
             minConnections: 1
-        }
+        },
+        connectionGater: {denyDialMultiaddr: async () => false},
     };
 }
 
@@ -112,7 +115,7 @@ function createLibp2pNodeOptions() {
         connectionEncryption: [noise()],
         streamMuxers: [yamux(), mplex()],
         peerDiscovery: [
-            //mdns(),
+            mdns(),
             bootstrap({
                 list: [
                     //'/ip4/127.0.0.1/tcp/4001/p2p/12D3KooWFMZzQ58LCRvnsu6747nbKqzLU6TamaTBYYzdasLGAbKQ',
