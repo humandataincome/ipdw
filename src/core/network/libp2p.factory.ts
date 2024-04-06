@@ -14,13 +14,10 @@ import type {PubSub} from '@libp2p/interface';
 import {autoNAT} from '@libp2p/autonat';
 import {KadDHT, kadDHT, removePublicAddressesMapper} from '@libp2p/kad-dht';
 import {ping} from '@libp2p/ping';
-
 import {webTransport} from '@libp2p/webtransport';
-
 import {tcp} from "@libp2p/tcp";
 import {uPnPNAT} from '@libp2p/upnp-nat';
 import {mdns} from "@libp2p/mdns";
-//import {mdns} from "@libp2p/mdns";
 
 export default async function createLibp2p(): Promise<Libp2p.Libp2p<{ pubsub: PubSub, dht: KadDHT }>> {
     const node = await Libp2p.createLibp2p(typeof window === 'object' || typeof importScripts === 'function' ? createLibp2pWebOptions() : createLibp2pNodeOptions());
@@ -37,13 +34,13 @@ export default async function createLibp2p(): Promise<Libp2p.Libp2p<{ pubsub: Pu
     node.addEventListener("peer:discovery", (event) => {
         console.log("peer:discovery", node.peerId, event.detail);
     })
-    console.log('started', node.peerId, node.getMultiaddrs());
+    console.log('p2p:started', node.peerId, node.getMultiaddrs());
 
     return node;
 }
 
 function createLibp2pWebOptions() {
-    console.log('Configuring p2p: Web');
+    console.log('p2p:configuring:web');
     return {
         addresses: {
             listen: [
@@ -92,7 +89,7 @@ function createLibp2pWebOptions() {
 }
 
 function createLibp2pNodeOptions() {
-    console.log('Configuring p2p: Node');
+    console.log('p2p:configuring:node');
     return {
         addresses: {
             listen: [

@@ -3,21 +3,19 @@ import {CryptoUtils} from "../utils";
 import {Buffer} from "buffer";
 
 
-const SALT = Buffer.from('1Qmzz2vn', 'utf8');
-
 export class IPDW {
     public data: MapSharded;
     public syncProvider: SynchronizationProvider;
 
-    constructor(blockStorage: BlockStorage, syncProvider: SynchronizationProvider) {
-        this.data = new MapSharded(blockStorage);
+    constructor(data: MapSharded, syncProvider: SynchronizationProvider) {
+        this.data = data;
         this.syncProvider = syncProvider;
     }
 
-    public static async create(seed: string, storageProvider: StorageProvider): Promise<IPDW> {
-        const keyBuffer = await CryptoUtils.DeriveKey(Buffer.from(seed, 'utf8'), SALT);
+    public static async create(seed: string, storageProvider: StorageProvider, salt: Buffer = Buffer.from('1Qmzz2vn', 'utf8')): Promise<IPDW> {
+        const keyBuffer = await CryptoUtils.DeriveKey(Buffer.from(seed, 'utf8'), salt);
 
-        const [privateKeyBuffer, publicKeyBuffer] = await CryptoUtils.DeriveKeyPair(keyBuffer, SALT);
+        const [privateKeyBuffer, publicKeyBuffer] = await CryptoUtils.DeriveKeyPair(keyBuffer, salt);
         const address = publicKeyBuffer.toString('hex'); // Can use derivation paths like m/44’/60’/0’/0/0
 
         const encryptedBlockFactory = new EncryptedBlockFactory(keyBuffer);
@@ -26,9 +24,10 @@ export class IPDW {
         const privateBlockFactory = new CombinedBlockFactory([encryptedBlockFactory, signedBlockFactory]);
         const blockStorage = new BlockStorage(storageProvider, privateBlockFactory);
 
+        const data = await MapSharded.create(blockStorage);
         const syncProvider = await SynchronizationProvider.create(blockStorage, address);
 
-        return new IPDW(blockStorage, syncProvider);
+        return new IPDW(data, syncProvider);
     }
 
 }

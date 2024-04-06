@@ -1,6 +1,7 @@
 import {BlockStorage} from "../";
 import {Buffer} from "buffer";
 
+//TODO: FINISH
 class StringSharded {
     private blockStorage: BlockStorage;
 

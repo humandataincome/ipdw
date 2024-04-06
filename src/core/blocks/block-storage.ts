@@ -7,6 +7,7 @@ export class BlockStorage {
         insert: TypedCustomEvent<{ index: number; value: Uint8Array }>;
         delete: TypedCustomEvent<{ index: number }>;
     }> = new TypedEventTarget();
+
     private storageProvider: StorageProvider;
     private blockFactory: BlockFactory;
 

@@ -1,7 +1,7 @@
 import {noise} from "@chainsafe/libp2p-noise";
 import {yamux} from "@chainsafe/libp2p-yamux";
 import {generateKeyPair, marshalPrivateKey, unmarshalPrivateKey} from "@libp2p/crypto/keys";
-import {kadDHT, removePublicAddressesMapper} from "@libp2p/kad-dht";
+import {kadDHT} from "@libp2p/kad-dht";
 import {mplex} from "@libp2p/mplex";
 import {peerIdFromKeys} from "@libp2p/peer-id";
 import {tcp} from "@libp2p/tcp";
@@ -17,8 +17,6 @@ import {gossipsub} from "@chainsafe/libp2p-gossipsub";
 import {uPnPNAT} from "@libp2p/upnp-nat";
 import {dcutr} from "@libp2p/dcutr";
 import {ping} from "@libp2p/ping";
-import {webTransport} from "@libp2p/webtransport";
-import * as filters from '@libp2p/websockets/filters'
 import * as fs from "fs";
 import * as https from "https";
 
@@ -92,9 +90,7 @@ async function main(): Promise<void> {
         }
     });
 
-    console.info("libp2p is running");
-    console.info("PeerId", node.peerId);
-    console.info("MultiAddress", node.getMultiaddrs());
+    console.info("p2p:started", node.peerId, node.getMultiaddrs());
 
     node.addEventListener('connection:open', (e) => {
         console.log('connection:open', e, e.detail)
