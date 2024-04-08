@@ -14,16 +14,21 @@ export class MapSharded {
                 return;
 
             const res = await MapSharded.decode(v.detail.value);
-            if (!res || await this.get(res.key) === res.value)
+            if (!res)
                 return;
 
-            await this.set(res.key, res.value);
+            const index = this.keys.indexOf(res.key);
+
+            this.keys.splice(v.detail.index, 0, res.key);
+
+            if (index !== -1)
+                await this.blockStorage.delete(index);
         });
 
         this.blockStorage.events.addEventListener('delete', async v => {
             if (!v.detail)
                 return;
-            await this.set(v.detail.index.toString(), undefined);
+            this.keys.splice(v.detail.index, 1);
         });
     }
 
@@ -65,8 +70,10 @@ export class MapSharded {
         const index = this.keys.indexOf(key);
         if (index !== -1) {
             const block = await this.blockStorage.get(index);
-            const res = await MapSharded.decode(block!);
-            return res?.value;
+            if (block) {
+                const res = await MapSharded.decode(block!);
+                return res?.value;
+            }
         }
         return undefined;
     }

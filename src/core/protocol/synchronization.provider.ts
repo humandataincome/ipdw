@@ -24,7 +24,6 @@ export class SynchronizationProvider {
 
     private blockStorage: BlockStorage;
     private readonly crdtDoc: Y.Doc;
-    private crdtPropagate: boolean = true;
 
     constructor(blockStorage: BlockStorage, node: Libp2p<{ pubsub: PubSub, dht: KadDHT }>, roomId: string) {
         this.node = node;
@@ -39,50 +38,47 @@ export class SynchronizationProvider {
         //TODO: HERE FIX
         this.crdtDoc.getArray('blocks').insert(0, await this.blockStorage.toArray());
 
+        let crdtLock = false;
+
         this.blockStorage.events.addEventListener('insert', async e => {
-            if (this.crdtPropagate) {
-                this.crdtPropagate = false;
+            if (!crdtLock) {
                 console.log('block:insert', this.node.peerId, e.detail);
                 this.crdtDoc.getArray('blocks').insert(e.detail!.index, [e.detail!.value]);
-                this.crdtPropagate = true;
-
-                for (const peerId of this.peers)
-                    await this.runProtocol(peerId);
             }
         });
         this.blockStorage.events.addEventListener('delete', async e => {
-            if (this.crdtPropagate) {
-                this.crdtPropagate = false;
+            if (!crdtLock) {
                 console.log('block:delete', this.node.peerId, e.detail);
                 this.crdtDoc.getArray('blocks').delete(e.detail!.index);
-                this.crdtPropagate = true;
-
-                for (const peerId of this.peers)
-                    await this.runProtocol(peerId);
             }
         });
 
         this.crdtDoc.getArray('blocks').observe(async (e) => {
-            if (this.crdtPropagate) {
-                this.crdtPropagate = false;
-                for (const v of e.changes.delta) {
-                    let index = v.retain || 0;
-                    if (v.delete) {
-                        console.log('crdt:delete', this.node.peerId, v.delete);
+            crdtLock = true;
+
+            for (const v of e.changes.delta) {
+                let index = v.retain || 0;
+                if (v.delete) {
+                    console.log('crdt:delete', this.node.peerId, index, v.delete);
+                    for (let i = 0; i < v.delete; i++) {
                         await this.blockStorage.delete(index);
-                    } else if (v.insert) {
-                        console.log('crdt:insert', this.node.peerId, v.insert);
-                        for (const inserted of v.insert) {
-                            await this.blockStorage.insert(index++, inserted);
-                        }
+                    }
+                } else if (v.insert) {
+                    console.log('crdt:insert', this.node.peerId, index, v.insert);
+                    for (const inserted of v.insert) {
+                        await this.blockStorage.insert(index++, inserted);
                     }
                 }
-                this.crdtPropagate = true;
-
-                for (const peerId of this.peers)
-                    await this.runProtocol(peerId);
             }
+
+            crdtLock = false;
         });
+
+        this.crdtDoc.on('update', async () => {
+            for (const peerId of this.peers)
+                await this.runProtocol(peerId);
+        });
+
 
         await this.node.handle(this.protocolName, this.onProtocolConnection.bind(this))
 
