@@ -1,4 +1,4 @@
-import {BlockStorage, CombinedBlockFactory, EncryptedBlockFactory, MapSharded, SignedBlockFactory, StorageProvider, SynchronizationProvider} from "../core";
+import {BlockStorage, CombinedBlockFactory, EncryptedBlockFactory, Libp2pFactory, MapSharded, SignedBlockFactory, StorageProvider, SynchronizationProvider} from "../core";
 import {CryptoUtils} from "../utils";
 import {Buffer} from "buffer";
 
@@ -25,7 +25,10 @@ export class IPDW {
         const blockStorage = new BlockStorage(storageProvider, privateBlockFactory);
 
         const data = await MapSharded.create(blockStorage);
-        const syncProvider = await SynchronizationProvider.create(blockStorage, address);
+        const node = await Libp2pFactory.create();
+        const syncProvider = new SynchronizationProvider(blockStorage, node, address);
+
+        await syncProvider.start();
 
         return new IPDW(data, syncProvider);
     }

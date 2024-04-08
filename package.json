@@ -7,9 +7,13 @@
   "browser": "./dist/web/index.js",
   "types": "./dist/@types/index.d.ts",
   "scripts": {
-    "test": "ts-mocha --timeout 60000 test/index.spec.ts",
+    "test:blocks": "ts-mocha --timeout 60000 test/blocks.spec.ts",
+    "test:storage": "ts-mocha --timeout 60000 test/storage.spec.ts",
+
     "start:test:main": "NODE_ENV=main ts-node test/index.test.ts",
-    "start:test:libp2p": "NODE_ENV=main ts-node test/libp2ptest.ts",
+    "start:test:libp2p": "NODE_ENV=main ts-node test/libp2p.test.ts",
+    "start:test:sync": "NODE_ENV=main ts-node test/sync.test.ts",
+    
     "build:prod": "webpack --mode production",
     "build:dev:watch": "webpack --mode development --watch",
     "build:prod:watch": "webpack --mode production --watch",

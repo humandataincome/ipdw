@@ -51,7 +51,7 @@ export class BlockStorage {
         await this.insert(await this.length(), value);
     }
 
-    async toArray(): Promise<Array<Uint8Array | undefined>> {
-        return Promise.all([...Array(await this.length()).keys()].map(this.get.bind(this)))
+    async toArray(): Promise<Array<Uint8Array>> {
+        return Promise.all([...Array(await this.length()).keys()].map(async i => (await this.get(i))!))
     }
 }

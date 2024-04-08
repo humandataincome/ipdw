@@ -3,7 +3,6 @@ import type {Libp2p, PubSub} from "@libp2p/interface";
 import type {IncomingStreamData} from '@libp2p/interface/src/stream-handler';
 import {PeerId} from "@libp2p/interface/src/peer-id";
 import {BlockStorage} from "../blocks";
-import createLibp2p from "./libp2p.factory";
 import {SubscriptionChangeData} from "@libp2p/interface/src/pubsub";
 import {KadDHT} from "@libp2p/kad-dht";
 import {CryptoUtils, TypedCustomEvent, TypedEventTarget} from "../../utils";
@@ -25,7 +24,7 @@ export class SynchronizationProvider {
 
     private blockStorage: BlockStorage;
     private readonly crdtDoc: Y.Doc;
-    private crdtPropagate: boolean = true; //TODO: LOOK HERE
+    private crdtPropagate: boolean = true;
 
     constructor(blockStorage: BlockStorage, node: Libp2p<{ pubsub: PubSub, dht: KadDHT }>, roomId: string) {
         this.node = node;
@@ -36,64 +35,88 @@ export class SynchronizationProvider {
         this.crdtDoc = new Y.Doc();
     }
 
-    public static async create(blockStorage: BlockStorage, topic: string, autorun: boolean = true): Promise<SynchronizationProvider> {
-        const libp2p = await createLibp2p();
-
-        const res = new SynchronizationProvider(blockStorage, libp2p, topic);
-        if (autorun) await res.run();
-        return res;
-    }
-
-    public async run(): Promise<void> {
+    public async start(): Promise<void> {
         //TODO: HERE FIX
         this.crdtDoc.getArray('blocks').insert(0, await this.blockStorage.toArray());
 
-        this.blockStorage.events.addEventListener('insert', e => {
-            this.crdtDoc.getArray('blocks').insert(e.detail!.index, [e.detail!.value])
+        this.blockStorage.events.addEventListener('insert', async e => {
+            if (this.crdtPropagate) {
+                this.crdtPropagate = false;
+                console.log('block:insert', this.node.peerId, e.detail);
+                this.crdtDoc.getArray('blocks').insert(e.detail!.index, [e.detail!.value]);
+                this.crdtPropagate = true;
+
+                for (const peerId of this.peers)
+                    await this.runProtocol(peerId);
+            }
         });
-        this.blockStorage.events.addEventListener('delete', e => {
-            this.crdtDoc.getArray('blocks').delete(e.detail!.index)
+        this.blockStorage.events.addEventListener('delete', async e => {
+            if (this.crdtPropagate) {
+                this.crdtPropagate = false;
+                console.log('block:delete', this.node.peerId, e.detail);
+                this.crdtDoc.getArray('blocks').delete(e.detail!.index);
+                this.crdtPropagate = true;
+
+                for (const peerId of this.peers)
+                    await this.runProtocol(peerId);
+            }
         });
 
         this.crdtDoc.getArray('blocks').observe(async (e) => {
-            console.log(JSON.stringify(e));
-            //TODO: Here I need to determine real index
-            for (const v of e.changes.deleted)
-                await this.blockStorage.delete(0);
-            for (const v of e.changes.added)
-                await this.blockStorage.set(0, v.content.getContent()[0] as Uint8Array)
-        });
+            if (this.crdtPropagate) {
+                this.crdtPropagate = false;
+                for (const v of e.changes.delta) {
+                    let index = v.retain || 0;
+                    if (v.delete) {
+                        console.log('crdt:delete', this.node.peerId, v.delete);
+                        await this.blockStorage.delete(index);
+                    } else if (v.insert) {
+                        console.log('crdt:insert', this.node.peerId, v.insert);
+                        for (const inserted of v.insert) {
+                            await this.blockStorage.insert(index++, inserted);
+                        }
+                    }
+                }
+                this.crdtPropagate = true;
 
-        this.crdtDoc.on('update', async () => {
-            if (this.crdtPropagate)
                 for (const peerId of this.peers)
                     await this.runProtocol(peerId);
+            }
         });
+
         await this.node.handle(this.protocolName, this.onProtocolConnection.bind(this))
 
         this.node.services.pubsub.addEventListener('subscription-change', this.onTopicSubscriptionChange.bind(this));
         this.node.services.pubsub.subscribe(this.discoverTopic);
     }
 
-    public async destroy(): Promise<void> {
-        this.node.services.pubsub.unsubscribe(this.discoverTopic);
+    public async stop(): Promise<void> {
+        //this.blockStorage.events.removeEventListener('insert', null) //TODO: here remove real references
+        //this.blockStorage.events.removeEventListener('delete', null) //TODO: here remove real references
+        //this.crdtDoc.getArray('blocks').unobserve(null) //TODO: here remove real references
+
         await this.node.unhandle(this.protocolName);
+
+        this.node.services.pubsub.removeEventListener('subscription-change', this.onTopicSubscriptionChange.bind(this))
+        this.node.services.pubsub.unsubscribe(this.discoverTopic);
+
+        this.crdtDoc.getArray('blocks').delete(0, this.crdtDoc.getArray('blocks').length);
     }
 
     private async onTopicSubscriptionChange(event: CustomEvent<SubscriptionChangeData>) {
-        console.log("subscription:change", event.detail);
+        console.log("subscription:change", this.node.peerId, event.detail);
         const subscribed = event.detail.subscriptions.filter(s => s.topic === this.discoverTopic && s.subscribe).length === 1;
         const peerIndex = this.peers.indexOf(event.detail.peerId);
         if (peerIndex === -1 && subscribed) {
             if (await this.verifyAccess(event.detail.peerId)) {
-                console.log("ipdw:peer:add", event.detail);
+                console.log("ipdw:peer:add", this.node.peerId, event.detail);
 
                 this.events.dispatchTypedEvent('peer:add', new TypedCustomEvent('peer:add', {detail: {peerId: event.detail.peerId}}));
                 this.peers.push(event.detail.peerId);
                 await this.runProtocol(event.detail.peerId);
             }
         } else {
-            console.log("ipdw:peer:remove", event.detail);
+            console.log("ipdw:peer:remove", this.node.peerId, event.detail);
 
             this.events.dispatchTypedEvent('peer:remove', new TypedCustomEvent('peer:add', {detail: {peerId: event.detail.peerId}}));
             this.peers.splice(peerIndex, 1);
@@ -122,7 +145,7 @@ export class SynchronizationProvider {
                 }
             })())
         } catch (e) {
-            console.log('Failed to dial protocol on peer', peerId);
+            console.log('Failed to dial protocol on peer', peerId, e);
         }
 
         this.events.dispatchTypedEvent('peer:synced', new TypedCustomEvent('peer:synced', {detail: {peerId}}));

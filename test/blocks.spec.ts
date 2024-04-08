@@ -1,4 +1,4 @@
-import {BlockStorage, CombinedBlockFactory, CryptoUtils, EncryptedBlockFactory, FileSystemStorageProvider, MapSharded, MemoryStorageProvider, PlainBlockFactory, SignedBlockFactory} from "../src";
+import {BlockStorage, CombinedBlockFactory, CryptoUtils, EncryptedBlockFactory, MapSharded, MemoryStorageProvider, PlainBlockFactory, SignedBlockFactory} from "../src";
 
 import "fake-indexeddb/auto";
 
@@ -35,14 +35,14 @@ describe("Blocks tests", async () => {
     });
 
     it("Check events with map sharded", async () => {
-        const storageProvider = new FileSystemStorageProvider();
+        const storageProvider = new MemoryStorageProvider();
         const plainBlockFactory = new PlainBlockFactory();
         const blockStorage = new BlockStorage(storageProvider, plainBlockFactory);
 
         blockStorage.events.addEventListener('insert', e => console.log('insert', e.detail!.index, e.detail!.value));
         blockStorage.events.addEventListener('delete', e => console.log('delete', e.detail!.index));
 
-        const mapSharded = new MapSharded(blockStorage);
+        const mapSharded = await MapSharded.create(blockStorage);
         await mapSharded.set('test', '12345');
     });
 });

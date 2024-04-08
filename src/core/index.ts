@@ -1,4 +1,4 @@
 export * from "./blocks"
-export * from "./network"
+export * from "./protocol"
 export * from "./storage"
 export * from "./structs"
