@@ -19,7 +19,7 @@ export class IPDW {
         const address = publicKeyBuffer.toString('hex'); // Can use derivation paths like m/44’/60’/0’/0/0
 
         const encryptedBlockFactory = new EncryptedBlockFactory(keyBuffer);
-        const signedBlockFactory = new SignedBlockFactory(publicKeyBuffer, privateKeyBuffer);
+        const signedBlockFactory = await SignedBlockFactory.create(publicKeyBuffer, privateKeyBuffer);
 
         const privateBlockFactory = new CombinedBlockFactory([encryptedBlockFactory, signedBlockFactory]);
         const blockStorage = new BlockStorage(storageProvider, privateBlockFactory);

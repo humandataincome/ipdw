@@ -19,6 +19,7 @@ export class MapSharded {
 
             const index = this.keys.indexOf(res.key);
 
+            //TODO Suspect here that I'm adding and therefore it is not the same. THe purpose is to force to have an unique key
             this.keys.splice(v.detail.index, 0, res.key);
 
             if (index !== -1)

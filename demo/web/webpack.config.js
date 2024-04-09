@@ -10,7 +10,7 @@ export default (env, argv) => ({
         context: __dirname,
 
         entry: {
-            index: './src/index.test.ts',
+            index: './src/index.ts',
         },
 
         module: {
@@ -27,6 +27,7 @@ export default (env, argv) => ({
         },
 
         devServer: {
+            server: 'https',
             open: ['/index.html'],
             watchFiles: ['src/*'],
             static: {
