@@ -7,6 +7,10 @@ import {IPDW, MemoryStorageProvider} from "ipdw";
 async function main(): Promise<void> {
     const ipdw = await IPDW.create('0xb577c4367d79f1a7a0c8353f7937d601758d92c35df958781d72d70f9177e52f', new MemoryStorageProvider());
 
+    console.log = function (...e) {
+        document.write(e.join(' '), '</br>')
+    }
+
     setInterval(async () => {
         const res = await ipdw.data.get('test') || 'init';
         console.log('test', ipdw.syncProvider.node.peerId, res);

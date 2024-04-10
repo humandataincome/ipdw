@@ -1,47 +1,36 @@
 import util from "util";
 import crypto from "crypto";
 import {Buffer} from "buffer";
+import elliptic from "elliptic";
 
+const ec = new elliptic.ec('secp256k1');
 
 export class CryptoUtils {
     public static async DeriveKey(seed: Buffer, salt: Buffer): Promise<Buffer> {
         return await util.promisify(crypto.pbkdf2)(seed, salt, 100100, 32, 'sha256');
     }
 
+    public static async GetKeyPair(privateKey: Buffer): Promise<[Buffer, Buffer]> {
+        const keyPair = ec.keyFromPrivate(privateKey);
+        return [Buffer.from(keyPair.getPrivate('hex'), 'hex'), Buffer.from(keyPair.getPublic('hex'), 'hex')];
+    }
+
     public static async DeriveKeyPair(seed: Buffer, salt: Buffer): Promise<[Buffer, Buffer]> {
         const keyBuffer = await util.promisify(crypto.pbkdf2)(seed, salt, 100100, 32, 'sha256');
 
-        keyBuffer[0] &= 248;
-        keyBuffer[31] &= 127;
-        keyBuffer[31] |= 64;
-        const privateKeyBuffer = Buffer.concat([Buffer.from('302e020100300506032b657004220420', 'hex'), keyBuffer]);
-
-        let publicKeyBuffer: Buffer;
-        if (typeof window === 'object' || typeof importScripts === 'function') {
-            // If is web use window.crypto.subtle because crypto-browserify doesn't support those methods
-            const privateKey = await window.crypto.subtle.importKey("pkcs8", this.BufferToArrayBuffer(privateKeyBuffer), {name: "Ed25519"}, true, ['sign']);
-            const intermediateJwkKey = await window.crypto.subtle.exportKey("jwk", privateKey);
-            delete intermediateJwkKey.d;
-            intermediateJwkKey.key_ops = ["verify"];
-            const publicKey = await window.crypto.subtle.importKey("jwk", intermediateJwkKey, {name: 'Ed25519'}, true, ['verify']);
-            publicKeyBuffer = Buffer.from(await window.crypto.subtle.exportKey("spki", publicKey));
-
-        } else {
-            const privateKey = crypto.createPrivateKey({key: privateKeyBuffer, format: 'der', type: 'pkcs8'});
-            const publicKey = crypto.createPublicKey(privateKey);
-            publicKeyBuffer = publicKey.export({format: 'der', type: 'spki'});
-        }
-
-        return [privateKeyBuffer, publicKeyBuffer];
+        return this.GetKeyPair(keyBuffer);
     }
 
-    public static BufferToArrayBuffer(buffer: Buffer): ArrayBuffer {
-        const arrayBuffer = new ArrayBuffer(buffer.length);
-        const view = new Uint8Array(arrayBuffer);
-        for (let i = 0; i < buffer.length; ++i) {
-            view[i] = buffer[i];
-        }
-        return arrayBuffer;
+    public static async Verify(publicKey: Buffer, signature: Buffer, payload: Buffer): Promise<boolean> {
+        const hash = crypto.createHash('sha256').update(payload).digest();
+        const key = ec.keyFromPublic(publicKey.toString('hex'), 'hex');
+        return key.verify(hash, signature);
+    }
+
+    public static async Sign(privateKey: Buffer, payload: Buffer): Promise<Buffer> {
+        const hash = crypto.createHash('sha256').update(payload).digest();
+        const key = ec.keyFromPrivate(privateKey.toString('hex'), 'hex');
+        return Buffer.from(key.sign(hash).toDER());
     }
 
     public static Uint8ArrayEquals(a: Uint8Array, b: Uint8Array): boolean {

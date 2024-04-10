@@ -13,20 +13,21 @@ export class IPDW {
     }
 
     public static async create(seed: string, storageProvider: StorageProvider, salt: Buffer = Buffer.from('1Qmzz2vn', 'utf8')): Promise<IPDW> {
-        const keyBuffer = await CryptoUtils.DeriveKey(Buffer.from(seed, 'utf8'), salt);
+        //const [privateKeyBuffer, publicKeyBuffer] = await CryptoUtils.GetKeyPair(Buffer.from(seed, 'utf8')); // If seed is a private key
+        const [privateKeyBuffer, publicKeyBuffer] = await CryptoUtils.DeriveKeyPair(Buffer.from(seed, 'utf8'), salt);
+        const publicKey = publicKeyBuffer.toString('hex');
 
-        const [privateKeyBuffer, publicKeyBuffer] = await CryptoUtils.DeriveKeyPair(keyBuffer, salt);
-        const address = publicKeyBuffer.toString('hex'); // Can use derivation paths like m/44’/60’/0’/0/0
+        const keyBuffer = await CryptoUtils.DeriveKey(privateKeyBuffer, salt);
 
         const encryptedBlockFactory = new EncryptedBlockFactory(keyBuffer);
-        const signedBlockFactory = await SignedBlockFactory.create(publicKeyBuffer, privateKeyBuffer);
+        const signedBlockFactory = new SignedBlockFactory(publicKeyBuffer, privateKeyBuffer);
 
         const privateBlockFactory = new CombinedBlockFactory([encryptedBlockFactory, signedBlockFactory]);
         const blockStorage = new BlockStorage(storageProvider, privateBlockFactory);
 
         const data = await MapSharded.create(blockStorage);
         const node = await Libp2pFactory.create();
-        const syncProvider = new SynchronizationProvider(blockStorage, node, address);
+        const syncProvider = new SynchronizationProvider(blockStorage, node, publicKey);
 
         await syncProvider.start();
 

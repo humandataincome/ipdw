@@ -24,16 +24,16 @@ export class Libp2pFactory {
         const node = await Libp2p.createLibp2p(typeof window === 'object' || typeof importScripts === 'function' ? this.libp2pWebOptions() : this.libp2pNodeOptions());
 
         node.addEventListener("connection:open", (event) => {
-            console.log("connection:open", node.peerId, event.detail);
+            console.log("connection:open", node.peerId, event.detail.remoteAddr);
         })
         node.addEventListener("connection:close", (event) => {
-            console.log("connection:close", node.peerId, event.detail);
+            console.log("connection:close", node.peerId, event.detail.remoteAddr);
         })
         node.addEventListener("self:peer:update", (event) => {
             console.log("self:peer:update", node.peerId, event.detail);
         })
         node.addEventListener("peer:discovery", (event) => {
-            console.log("peer:discovery", node.peerId, event.detail);
+            console.log("peer:discovery", node.peerId, event.detail, event.detail.id, event.detail.multiaddrs);
         })
         console.log('p2p:started', node.peerId, node.getMultiaddrs());
 

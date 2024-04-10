@@ -25,7 +25,9 @@ export class EncryptedBlockFactory implements BlockFactory {
     }
 
     async encode(value: Uint8Array): Promise<Uint8Array> {
-        const ivSalt = crypto.randomBytes(4);
+        //const ivSalt = crypto.createHash('sha256').update(this.key).update(value).digest().subarray(0, 4); // Deterministic, use for testing
+        const ivSalt = crypto.randomBytes(4); // Random, use for production
+
         const iv = crypto.createHash('sha256').update(this.key).update(ivSalt.toString()).digest().subarray(16);
 
         const cipher = crypto.createCipheriv('aes-256-cbc', this.key, iv);

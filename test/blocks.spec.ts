@@ -6,13 +6,19 @@ describe("Blocks tests", async () => {
     it("Check block", async () => {
         const master = Buffer.from("supersecret", "utf8");
         const salt = Buffer.from("6GvSeDY1", "utf8");
+
         const keyBuffer = await CryptoUtils.DeriveKey(master, salt);
+        console.log('keyBuffer', keyBuffer.toString('hex'));
+
         const [privateKeyBuffer, publicKeyBuffer] = await CryptoUtils.DeriveKeyPair(master, salt);
+
+        console.log('privateKey', privateKeyBuffer.toString('hex'));
+        console.log('publicKey', publicKeyBuffer.toString('hex'));
 
         const storageProvider = new MemoryStorageProvider();
 
         const encryptedBlockFactory = new EncryptedBlockFactory(keyBuffer);
-        const signedBlockFactory = await SignedBlockFactory.create(publicKeyBuffer, privateKeyBuffer);
+        const signedBlockFactory = new SignedBlockFactory(publicKeyBuffer, privateKeyBuffer);
 
         const privateBlockFactory = new CombinedBlockFactory([encryptedBlockFactory, signedBlockFactory]);
         const blockStorage = new BlockStorage(storageProvider, privateBlockFactory);
