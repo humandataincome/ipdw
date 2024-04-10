@@ -86,7 +86,6 @@ export class Libp2pFactory {
             connectionManager: {
                 minConnections: 1
             },
-            connectionGater: {denyDialMultiaddr: async () => false},
         };
     }
 

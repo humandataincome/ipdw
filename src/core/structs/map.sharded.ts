@@ -14,16 +14,21 @@ export class MapSharded {
                 return;
 
             const res = await MapSharded.decode(v.detail.value);
-            if (!res)
+            if (!res) {
+                //If block failed to parse purge the block downstream
                 return;
+            }
 
             const index = this.keys.indexOf(res.key);
 
-            //TODO Suspect here that I'm adding and therefore it is not the same. THe purpose is to force to have an unique key
             this.keys.splice(v.detail.index, 0, res.key);
 
-            if (index !== -1)
-                await this.blockStorage.delete(index);
+            if (index !== -1) {
+                //If key is found, and could be shifted
+                const prevIndex = index >= v.detail.index ? index + 1 : index;
+                await this.blockStorage.delete(prevIndex);
+            }
+
         });
 
         this.blockStorage.events.addEventListener('delete', async v => {
@@ -84,15 +89,12 @@ export class MapSharded {
 
         if (value) {
             if (index !== -1) {
-                this.keys[index] = value;
                 await this.blockStorage.set(index, await MapSharded.encode(key, value));
             } else {
-                this.keys.push(key);
                 await this.blockStorage.append(await MapSharded.encode(key, value));
             }
         } else {
             if (index !== -1) {
-                this.keys.splice(index, 1);
                 await this.blockStorage.delete(index);
             }
         }

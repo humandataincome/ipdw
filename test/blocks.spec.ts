@@ -12,7 +12,7 @@ describe("Blocks tests", async () => {
         const storageProvider = new MemoryStorageProvider();
 
         const encryptedBlockFactory = new EncryptedBlockFactory(keyBuffer);
-        const signedBlockFactory = new SignedBlockFactory(publicKeyBuffer, privateKeyBuffer);
+        const signedBlockFactory = await SignedBlockFactory.create(publicKeyBuffer, privateKeyBuffer);
 
         const privateBlockFactory = new CombinedBlockFactory([encryptedBlockFactory, signedBlockFactory]);
         const blockStorage = new BlockStorage(storageProvider, privateBlockFactory);

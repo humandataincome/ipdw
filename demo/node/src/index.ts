@@ -10,7 +10,7 @@ async function main(): Promise<void> {
 
     setInterval(async () => {
         const res = await ipdw.data.get('test') || 'init';
-        console.log(res);
+        console.log('test', ipdw.syncProvider.node.peerId, res);
         await ipdw.data.set('test', res + (Math.random() + 1).toString(36).substring(2));
     }, 1000);
 }

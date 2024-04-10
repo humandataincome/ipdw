@@ -8,7 +8,7 @@ export class BlockStorage {
         delete: TypedCustomEvent<{ index: number }>;
     }> = new TypedEventTarget();
 
-    private storageProvider: StorageProvider;
+    public storageProvider: StorageProvider;
     private blockFactory: BlockFactory;
 
     constructor(storageProvider: StorageProvider, blockFactory: BlockFactory) {
@@ -34,12 +34,20 @@ export class BlockStorage {
     }
 
     async insert(index: number, value: Uint8Array): Promise<void> {
+        for (let i = await this.length(); i >= index; i--) { // Shift right
+            await this.storageProvider.set((i + 1).toString(), await this.storageProvider.get(i.toString()));
+        }
         await this.storageProvider.set(index.toString(), await this.blockFactory.encode(value));
+
         this.events.dispatchTypedEvent('insert', new TypedCustomEvent('insert', {detail: {index, value}}));
     }
 
     async delete(index: number): Promise<void> {
-        await this.storageProvider.set(index.toString(), undefined);
+        for (let i = index; i < await this.length() - 1; i++) { // Shift left
+            await this.storageProvider.set(i.toString(), await this.storageProvider.get((i + 1).toString()));
+        }
+        await this.storageProvider.set((await this.length() - 1).toString(), undefined);
+
         this.events.dispatchTypedEvent('delete', new TypedCustomEvent('delete', {detail: {index}}));
     }
 

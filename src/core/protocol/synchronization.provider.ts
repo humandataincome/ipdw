@@ -15,7 +15,7 @@ export class SynchronizationProvider {
         "peer:synced": TypedCustomEvent<{ peerId: PeerId }>;
     }> = new TypedEventTarget();
 
-    private node: Libp2p<{ pubsub: PubSub, dht: KadDHT }>;
+    public node: Libp2p<{ pubsub: PubSub, dht: KadDHT }>;
 
     private readonly discoverTopic: string;
     private readonly protocolName: string;
@@ -35,43 +35,50 @@ export class SynchronizationProvider {
     }
 
     public async start(): Promise<void> {
-        //TODO: HERE FIX
         this.crdtDoc.getArray('blocks').insert(0, await this.blockStorage.toArray());
 
         let crdtLock = false;
+        let storageLock = false;
 
         this.blockStorage.events.addEventListener('insert', async e => {
             if (!crdtLock) {
-                console.log('block:insert', this.node.peerId, e.detail);
+                storageLock = true;
+                //console.log('block:insert', this.node.peerId, e.detail);
                 this.crdtDoc.getArray('blocks').insert(e.detail!.index, [e.detail!.value]);
+                storageLock = false;
             }
         });
         this.blockStorage.events.addEventListener('delete', async e => {
             if (!crdtLock) {
-                console.log('block:delete', this.node.peerId, e.detail);
+                storageLock = true;
+                //console.log('block:delete', this.node.peerId, e.detail);
                 this.crdtDoc.getArray('blocks').delete(e.detail!.index);
+                storageLock = false;
             }
         });
 
         this.crdtDoc.getArray('blocks').observe(async (e) => {
-            crdtLock = true;
+            if (!storageLock) {
+                crdtLock = true;
 
-            for (const v of e.changes.delta) {
-                let index = v.retain || 0;
-                if (v.delete) {
-                    console.log('crdt:delete', this.node.peerId, index, v.delete);
-                    for (let i = 0; i < v.delete; i++) {
-                        await this.blockStorage.delete(index);
-                    }
-                } else if (v.insert) {
-                    console.log('crdt:insert', this.node.peerId, index, v.insert);
-                    for (const inserted of v.insert) {
-                        await this.blockStorage.insert(index++, inserted);
+                for (const v of e.changes.delta.reverse()) {
+                    let index = v.retain || 0;
+                    if (v.delete) {
+                        //console.log('crdt:delete', this.node.peerId, index, v.delete);
+                        for (let i = 0; i < v.delete; i++) {
+                            await this.blockStorage.delete(index);
+                        }
+                    } else if (v.insert) {
+                        //console.log('crdt:insert', this.node.peerId, index, v.insert);
+                        for (const inserted of v.insert) {
+                            await this.blockStorage.insert(index++, inserted);
+                        }
                     }
                 }
+
+                crdtLock = false;
             }
 
-            crdtLock = false;
         });
 
         this.crdtDoc.on('update', async () => {
