@@ -18,8 +18,22 @@
     "prepublish:public": "npm run build:prod",
     "publish:public": "npm publish --access public"
   },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "keywords": [
-    "IPDW"
+    "ipdw",
+    "crdt",
+    "local-first",
+    "database",
+    "web3",
+    "decentralized",
+    "distributed",
+    "helia",
+    "ipfs",
+    "libp2p",
+    "p2p",
+    "peer-to-peer"
   ],
   "repository": {
     "type": "git",

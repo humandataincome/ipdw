@@ -1,80 +1,80 @@
 # ipdw (InterPlanetary Data Wallet)
 
-PDW is a repository for storing personal or user data within a safe and distributed storage. 
-It enables you to build a real decentralized network (Web 4.0) without needing to be online. 
+<img src="assets/logo.svg" width="256" alt="logo"/>
+
+[![npm (scoped)](https://img.shields.io/npm/v/ipdw)](https://www.npmjs.com/package/ipdw) [![node-current (scoped)](https://img.shields.io/node/v/idpw)](https://www.npmjs.com/package/ipdw)
+
+IPDW is a repository for storing personal or user data within a safe and distributed storage.
+It enables you to build a real decentralized network (Web 4.0) without needing to be online.
 You can take advantage of P2P interactions, database-less backends, verified identities, and much more.
 
 ## Features
 
-- Store personal or user data within a safe and distributed storage
-- Build a decentralized network (Web 4.0) without needing to be online
-- Enjoy P2P interactions
-- Utilize database-less backends
-- Verify identities
+- Store unstructured data
+- Authenticate with web3 keys
+- Enjoy p2p interactions
+- Deploy database-less apps
+- Unlimited scalability
+- Conflict-free
 - And much more!
 
-## Key Pair
+## Decentralized authentication
 
 Everyone has a key pair, consisting of a public key and a private key, which can be saved in different formats (such as the BIP39 standard for mnemonic phrases-based deterministic key generation).
 
 In Web 3.0 applications, your wallet address (derived from the public key) can be recognized, allowing you to act on the distributed ledger (the storage) as a well-identified identity.
-
-## Decentralization and Security
-
-The blockchains have different replicated and redundant ledgers and consensus algorithms, with a competition underway to find the best algorithm for increased throughput, security, and more.
-
-Thanks to applications like Metamask/Trust, Web 3.0 users are now familiar with private key usage and management. These applications have simplified the user experience, making it easy for users to manage keys and sign messages using RSA.
-
-Private keys and public keys are nearly invulnerable to attacks from computers, except for social/phishing and similar attacks. "Humans are always the vulnerable element in the chain," so it's important to always be cautious.
-
-## Data Wallet
-
-The InterPlanetary Data Wallet is a sophisticated mechanism for storing all kinds of data that works offline and only partially exposes the data during a transaction. The data is encrypted, so it can be safely shared without knowing the passphrase.
-
-The wallet can be synced between all your devices using P2P communication strategies like IPFS and IPNS, and is always offline until a transaction occurs.
 
 ## Getting Started
 
 To get started with IPDW, you will need to follow these steps:
 
 Clone the repository:
-```bash
-$ git clone https://github.com/ansi-code/ipdw.git
-```
 
-Install the required dependencies:
 ```bash
-$ npm install
+$ npm install ipdw
 ```
 
 Start using IPDW.
+
 ```js
-const web3 = new Web3(Web3.givenProvider || "https://bsc-dataseed.binance.org/");
+import {IPDW, MemoryStorageProvider} from "ipdw";
 
-const account = web3.eth.accounts.privateKeyToAccount("0xeffc0f0bac08c2157c8bcabfbbe71df7c96b499defcfdae2210139418618d574");
-web3.eth.accounts.wallet.add(account);
-web3.eth.defaultAccount = account.address;
-console.log(account.address);
+// On device 1
+(async function () {
+    const ipdw = await IPDW.create('b577c4367d79f1a7a0c8353f7937d601758d92c35df958781d72d70f9177e52f', new MemoryStorageProvider());
 
-const ipdw = await IPDW.create(async (msg) => await web3.eth.sign(msg, web3.eth.defaultAccount || 0), 'Global', new MemoryStorageProvider());
+    await ipdw.data.set('test1', 'hello');
 
-const data = {hello: "world"};
+    const value1 = await ipdw.data.get('test1');
+    console.log('test1 value:', value1);
+    // test1 value: hello
 
-console.log('PUSHING LOCAL DATA TO REMOTE', data);
-const dataBuffer = Buffer.from(JSON.stringify(data), 'utf8');
-await ipdw.setData(dataBuffer, 'ENCRYPTED');
-await ipdw.push();
-console.log('PUSHED LOCAL DATA TO REMOTE');
+    // Run "device 2" and if reachable it will be discovered and synced
+    const value2 = await ipdw.data.get('test2');
+    console.log('test2 value:', value1);
+    // test2 value: world
+})();
 
-console.log('PULLING REMOTE DATA TO LOCAL');
-await ipdw.pull();
-const gotDataBuffer = await ipdw.getData('ENCRYPTED')
-const gotData = JSON.parse(gotDataBuffer.toString('utf8'));
-console.log('PULLED REMOTE DATA TO LOCAL', gotData);
-
-await ipdw.addMessageListener('PLAIN', 'bla bla', console.log);
-await ipdw.sendMessage('PLAIN', 'bla bla', 'Hello World');
+// On device 2
+(async function () {
+    const ipdw = await IPDW.create('b577c4367d79f1a7a0c8353f7937d601758d92c35df958781d72d70f9177e52f', new MemoryStorageProvider());
+    await ipdw.data.set('test2', 'world');
+})();
 ```
+
+## Data Wallet Principles
+
+The InterPlanetary Data Wallet is a sophisticated mechanism for storing all kinds of data that works offline and only partially exposes the data during a transaction. The data is encrypted, so it can be safely shared without knowing the passphrase.
+
+The wallet can be synced between all your devices using P2P communication strategies like IPFS and IPNS, and is always offline until a transaction occurs.
+
+## Security and Design
+
+The blockchains have different replicated and redundant ledgers and consensus algorithms, with a competition underway to find the best algorithm for increased throughput, security, and more.
+
+Thanks to applications like Metamask/Trust, Web 3.0 users are now familiar with private key usage and management. These applications have simplified the user experience, making it easy for users to manage keys and sign messages using RSA.
+
+Private keys and public keys are nearly invulnerable to attacks from computers, except for social/phishing and similar attacks. "Humans are always the vulnerable element in the chain," so it's important to always be cautious.
 
 ## Contributing
 
