@@ -1,32 +1,32 @@
 import * as Y from 'yjs'
-import type {Libp2p, PubSub} from "@libp2p/interface";
+import type {Libp2p, PeerInfo, PubSub} from "@libp2p/interface";
 import type {IncomingStreamData} from '@libp2p/interface/src/stream-handler';
 import {PeerId} from "@libp2p/interface/src/peer-id";
 import {BlockStorage} from "../blocks";
 import {SubscriptionChangeData} from "@libp2p/interface/src/pubsub";
 import {KadDHT} from "@libp2p/kad-dht";
 import {CryptoUtils, TypedCustomEvent, TypedEventTarget} from "../../utils";
+import {PubsubSwarmsubService} from "./pubsub-swarmsub.service";
 
 export class SynchronizationProvider {
     public events: TypedEventTarget<{
         "peer:add": TypedCustomEvent<{ peerId: PeerId }>;
         "peer:remove": TypedCustomEvent<{ peerId: PeerId }>;
-        "peer:syncing": TypedCustomEvent<{ peerId: PeerId }>;
-        "peer:synced": TypedCustomEvent<{ peerId: PeerId }>;
+        "peer:syncing": TypedCustomEvent<{ peerId: PeerId, type: 'IN' | 'OUT' }>;
+        "peer:synced": TypedCustomEvent<{ peerId: PeerId, type: 'IN' | 'OUT' }>;
     }> = new TypedEventTarget();
 
     public node: Libp2p<{ pubsub: PubSub, dht: KadDHT }>;
-
+    public swarm: PubsubSwarmsubService;
+    public readonly peers: PeerId[];
     private readonly discoverTopic: string;
     private readonly protocolName: string;
-
-    private readonly peers: PeerId[];
-
     private blockStorage: BlockStorage;
     private readonly crdtDoc: Y.Doc;
 
     constructor(blockStorage: BlockStorage, node: Libp2p<{ pubsub: PubSub, dht: KadDHT }>, roomId: string) {
         this.node = node;
+        this.swarm = new PubsubSwarmsubService(this.node);
         this.discoverTopic = `/ipdw/discover/1.0.0/${roomId}`;
         this.protocolName = `/ipdw/sync/1.0.0/${roomId}`;
         this.peers = [];
@@ -89,8 +89,13 @@ export class SynchronizationProvider {
 
         await this.node.handle(this.protocolName, this.onProtocolConnection.bind(this))
 
+        this.node.services.pubsub.getSubscribers(this.discoverTopic).forEach(this.onTopicSubscribedPeer.bind(this));
         this.node.services.pubsub.addEventListener('subscription-change', this.onTopicSubscriptionChange.bind(this));
         this.node.services.pubsub.subscribe(this.discoverTopic);
+        //this.node.services.pubsub.publish(this.discoverTopic, new TextEncoder().encode('connected')).then();
+
+        await this.swarm.subscribe(this.discoverTopic);
+        await this.swarm.setSubscriptionListener(this.discoverTopic, async (p: PeerInfo) => this.node.dial(p.id));
     }
 
     public async stop(): Promise<void> {
@@ -111,18 +116,22 @@ export class SynchronizationProvider {
         const subscribed = event.detail.subscriptions.filter(s => s.topic === this.discoverTopic && s.subscribe).length === 1;
         const peerIndex = this.peers.indexOf(event.detail.peerId);
         if (peerIndex === -1 && subscribed) {
-            if (await this.verifyAccess(event.detail.peerId)) {
-                console.log("ipdw:peer:add", this.node.peerId, event.detail);
-
-                this.events.dispatchTypedEvent('peer:add', new TypedCustomEvent('peer:add', {detail: {peerId: event.detail.peerId}}));
-                this.peers.push(event.detail.peerId);
-                await this.runProtocol(event.detail.peerId);
-            }
-        } else {
+            await this.onTopicSubscribedPeer(event.detail.peerId);
+        } else if (peerIndex !== -1 && !subscribed) {
             console.log("ipdw:peer:remove", this.node.peerId, event.detail);
 
-            this.events.dispatchTypedEvent('peer:remove', new TypedCustomEvent('peer:add', {detail: {peerId: event.detail.peerId}}));
+            this.events.dispatchTypedEvent('peer:remove', new TypedCustomEvent('peer:remove', {detail: {peerId: event.detail.peerId}}));
             this.peers.splice(peerIndex, 1);
+        }
+    }
+
+    private async onTopicSubscribedPeer(peerId: PeerId) {
+        if (await this.verifyAccess(peerId)) {
+            console.log("ipdw:peer:add", this.node.peerId);
+
+            this.events.dispatchTypedEvent('peer:add', new TypedCustomEvent('peer:add', {detail: {peerId: peerId}}));
+            this.peers.push(peerId);
+            await this.runProtocol(peerId);
         }
     }
 
@@ -132,9 +141,9 @@ export class SynchronizationProvider {
     }
 
     private async runProtocol(peerId: PeerId): Promise<void> {
-        this.events.dispatchTypedEvent('peer:syncing', new TypedCustomEvent('peer:syncing', {detail: {peerId}}));
-
         try {
+            this.events.dispatchTypedEvent('peer:syncing', new TypedCustomEvent('peer:syncing', {detail: {peerId, type: 'OUT' as 'OUT'}}));
+
             const stream = await this.node.dialProtocol(peerId, this.protocolName);
 
             const _this = this;
@@ -147,35 +156,48 @@ export class SynchronizationProvider {
                     yield Y.encodeStateAsUpdate(_this.crdtDoc, remoteStateVector);
                 }
             })())
+            this.events.dispatchTypedEvent('peer:synced', new TypedCustomEvent('peer:synced', {detail: {peerId, type: 'OUT' as 'OUT'}}));
         } catch (e) {
-            console.log('Failed to dial protocol on peer', peerId, e);
-        }
+            console.log('Dial failed on peer', peerId, e);
 
-        this.events.dispatchTypedEvent('peer:synced', new TypedCustomEvent('peer:synced', {detail: {peerId}}));
+            console.log("ipdw:peer:remove", this.node.peerId, peerId);
+
+            this.events.dispatchTypedEvent('peer:remove', new TypedCustomEvent('peer:remove', {detail: {peerId: peerId}}));
+            this.peers.splice(this.peers.indexOf(peerId), 1);
+        }
     }
 
     private async onProtocolConnection(data: IncomingStreamData): Promise<void> {
-        this.events.dispatchTypedEvent('peer:syncing', new TypedCustomEvent('peer:syncing', {detail: {peerId: data.connection.remotePeer}}));
+        try {
+            this.events.dispatchTypedEvent('peer:syncing', new TypedCustomEvent('peer:syncing', {detail: {peerId: data.connection.remotePeer, type: 'IN' as 'IN'}}));
 
-        const stream = data.stream;
-        const stateRes = await stream.source.next();
+            const stream = data.stream;
+            const stateRes = await stream.source.next();
 
-        if (!stateRes.done) {
-            const remoteStateVector = stateRes.value.subarray(0, stateRes.value.length);
+            if (!stateRes.done) {
+                const remoteStateVector = stateRes.value.subarray(0, stateRes.value.length);
 
-            if (!CryptoUtils.Uint8ArrayEquals(remoteStateVector, Y.encodeStateVector(this.crdtDoc))) {
-                await stream.sink([Y.encodeStateVector(this.crdtDoc)]);
-                const updateRes = await stream.source.next();
+                if (!CryptoUtils.Uint8ArrayEquals(remoteStateVector, Y.encodeStateVector(this.crdtDoc))) {
+                    await stream.sink([Y.encodeStateVector(this.crdtDoc)]);
+                    const updateRes = await stream.source.next();
 
-                if (!updateRes.done) {
-                    const remoteUpdateVector = updateRes.value.subarray(0, updateRes.value.length);
-                    Y.applyUpdate(this.crdtDoc, remoteUpdateVector);
-                    await stream.close();
+                    if (!updateRes.done) {
+                        const remoteUpdateVector = updateRes.value.subarray(0, updateRes.value.length);
+                        Y.applyUpdate(this.crdtDoc, remoteUpdateVector);
+                        await stream.close();
+                    }
                 }
             }
-        }
 
-        this.events.dispatchTypedEvent('peer:synced', new TypedCustomEvent('peer:synced', {detail: {peerId: data.connection.remotePeer}}));
+            this.events.dispatchTypedEvent('peer:synced', new TypedCustomEvent('peer:synced', {detail: {peerId: data.connection.remotePeer, type: 'IN' as 'IN'}}));
+        } catch (e) {
+            console.log('Connection failed on peer', data.connection.remotePeer, e);
+
+            console.log("ipdw:peer:remove", this.node.peerId, data.connection.remotePeer);
+
+            this.events.dispatchTypedEvent('peer:remove', new TypedCustomEvent('peer:remove', {detail: {peerId: data.connection.remotePeer}}));
+            this.peers.splice(this.peers.indexOf(data.connection.remotePeer), 1);
+        }
     }
 
 }

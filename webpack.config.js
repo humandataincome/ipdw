@@ -68,7 +68,8 @@ export default (env, argv) => ([
             alias: {
                 '@libp2p/upnp-nat': false,
                 '@libp2p/tcp': false,
-                '@libp2p/mdns': false
+                '@libp2p/mdns': false,
+                'datastore-fs': false
             }
         },
 
@@ -91,7 +92,8 @@ export default (env, argv) => ([
 
         resolve: {
             alias: {
-                '@libp2p/webtransport': false
+                '@libp2p/webtransport': false,
+                'datastore-idb': false
             }
         },
 

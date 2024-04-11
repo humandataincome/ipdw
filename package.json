@@ -10,7 +10,7 @@
     "test:blocks": "ts-mocha --timeout 60000 test/blocks.spec.ts",
     "test:storage": "ts-mocha --timeout 60000 test/storage.spec.ts",
     "start:test:main": "NODE_ENV=main ts-node test/index.test.ts",
-    "start:test:libp2p": "NODE_ENV=main ts-node test/libp2p.test.ts",
+    "start:test:swarm": "NODE_ENV=main ts-node test/swarm.test.ts",
     "start:test:sync": "NODE_ENV=main ts-node test/sync.test.ts",
     "start:test:crypto": "NODE_ENV=main ts-node test/crypto.test.ts",
     "build:prod": "webpack --mode production",
@@ -58,7 +58,9 @@
     "process": "^0.11.10",
     "stream-browserify": "^3.0.0",
     "timers-browserify": "^2.0.12",
-    "yjs": "^13.6.14"
+    "yjs": "^13.6.14",
+    "datastore-fs": "^9.1.8",
+    "datastore-idb": "^2.1.9"
   },
   "devDependencies": {
     "@types/chai": "^4.3.14",

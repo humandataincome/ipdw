@@ -12,29 +12,37 @@ import {circuitRelayTransport} from "@libp2p/circuit-relay-v2";
 import {bootstrap} from '@libp2p/bootstrap';
 import type {PubSub} from '@libp2p/interface';
 import {autoNAT} from '@libp2p/autonat';
-import {KadDHT, kadDHT, removePublicAddressesMapper} from '@libp2p/kad-dht';
+import {KadDHT, kadDHT} from '@libp2p/kad-dht';
 import {ping} from '@libp2p/ping';
 import {webTransport} from '@libp2p/webtransport';
 import {tcp} from "@libp2p/tcp";
 import {uPnPNAT} from '@libp2p/upnp-nat';
+import {floodsub} from "@libp2p/floodsub";
+import {IDBDatastore} from 'datastore-idb'
 import {mdns} from "@libp2p/mdns";
+import {FsDatastore} from "datastore-fs";
 
 export class Libp2pFactory {
     public static async create(): Promise<Libp2p.Libp2p<{ pubsub: PubSub, dht: KadDHT }>> {
         const node = await Libp2p.createLibp2p(typeof window === 'object' || typeof importScripts === 'function' ? this.libp2pWebOptions() : this.libp2pNodeOptions());
 
+        await node.services.dht.setMode('server');
+
         node.addEventListener("connection:open", (event) => {
             console.log("connection:open", node.peerId, event.detail.remoteAddr);
-        })
+        });
         node.addEventListener("connection:close", (event) => {
             console.log("connection:close", node.peerId, event.detail.remoteAddr);
-        })
-        node.addEventListener("self:peer:update", (event) => {
-            console.log("self:peer:update", node.peerId, event.detail);
-        })
+        });
+        node.addEventListener("peer:update", (event) => {
+            console.log("peer:update", node.peerId, event.detail.peer.id, event.detail.peer.addresses);
+        });
         node.addEventListener("peer:discovery", (event) => {
             console.log("peer:discovery", node.peerId, event.detail, event.detail.id, event.detail.multiaddrs);
-        })
+        });
+        node.addEventListener("peer:connect", (event) => {
+            console.log("peer:connect", node.peerId, event.detail);
+        });
         console.log('p2p:started', node.peerId, node.getMultiaddrs());
 
         return node;
@@ -43,6 +51,7 @@ export class Libp2pFactory {
     private static libp2pWebOptions() {
         console.log('p2p:configuring:web');
         return {
+            datastore: new IDBDatastore('.datastore'),
             addresses: {
                 listen: [
                     '/webrtc',
@@ -75,8 +84,7 @@ export class Libp2pFactory {
                 identify: identify(),
                 dht: kadDHT({
                     protocol: '/ipdw/dht/1.0.0',
-                    peerInfoMapper: removePublicAddressesMapper,
-                    clientMode: true
+                    clientMode: false
                 }),
                 pubsub: gossipsub(),
                 autoNAT: autoNAT(),
@@ -92,6 +100,7 @@ export class Libp2pFactory {
     private static libp2pNodeOptions() {
         console.log('p2p:configuring:node');
         return {
+            datastore: new FsDatastore('.datastore'),
             addresses: {
                 listen: [
                     '/ip4/0.0.0.0/tcp/0',
@@ -125,10 +134,9 @@ export class Libp2pFactory {
                 identify: identify(),
                 dht: kadDHT({
                     protocol: '/ipdw/dht/1.0.0',
-                    peerInfoMapper: removePublicAddressesMapper,
-                    clientMode: true
+                    clientMode: false
                 }),
-                pubsub: gossipsub(),
+                pubsub: floodsub(),
                 autoNAT: autoNAT(),
                 upnp: uPnPNAT(),
                 dcutr: dcutr(),
@@ -136,7 +144,7 @@ export class Libp2pFactory {
             },
             connectionManager: {
                 minConnections: 1
-            }
+            },
         };
     }
 }

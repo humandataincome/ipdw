@@ -54,3 +54,4 @@ test.ipdw
 ipfs-ipdw*
 .storage
 .persistence
+.datastore

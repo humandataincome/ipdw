@@ -19,6 +19,7 @@ import {dcutr} from "@libp2p/dcutr";
 import {ping} from "@libp2p/ping";
 import * as fs from "fs";
 import * as https from "https";
+import { FsDatastore } from 'datastore-fs';
 
 
 async function main(): Promise<void> {
@@ -55,6 +56,7 @@ async function main(): Promise<void> {
     }
 
     const node = await createLibp2p({
+        datastore: new FsDatastore('.datastore'),
         peerId,
         addresses: {
             listen: [
@@ -78,8 +80,9 @@ async function main(): Promise<void> {
             identify: identify(),
             dht: kadDHT({
                 protocol: '/ipdw/dht/1.0.0',
+                clientMode: false
             }),
-            pubsub: gossipsub({emitSelf: true, canRelayMessage: true}),
+            pubsub: gossipsub({fallbackToFloodsub: true}),
             autoNAT: autoNAT(),
             relay: circuitRelayServer({
                 advertise: true,
@@ -90,17 +93,24 @@ async function main(): Promise<void> {
         }
     });
 
-    console.info("p2p:started", node.peerId, node.getMultiaddrs());
+    await node.services.dht.setMode('server');
 
-    node.addEventListener('connection:open', (e) => {
-        console.log('connection:open', e, e.detail)
+    node.addEventListener("connection:open", (event) => {
+        console.log("connection:open", node.peerId, event.detail.remoteAddr);
     });
-    node.addEventListener('connection:close', (e) => {
-        console.log('connection:close', e, e.detail)
+    node.addEventListener("connection:close", (event) => {
+        console.log("connection:close", node.peerId, event.detail.remoteAddr);
     });
-    node.addEventListener('self:peer:update', (e) => {
-        console.log('self:peer:update', e, e.detail)
+    node.addEventListener("peer:update", (event) => {
+        console.log("peer:update", node.peerId, event.detail.peer.id, event.detail.peer.addresses);
     });
+    node.addEventListener("peer:discovery", (event) => {
+        console.log("peer:discovery", node.peerId, event.detail, event.detail.id, event.detail.multiaddrs);
+    });
+    node.addEventListener("peer:connect", (event) => {
+        console.log("peer:connect", node.peerId, event.detail);
+    });
+    console.log('p2p:started', node.peerId, node.getMultiaddrs());
 }
 
 
