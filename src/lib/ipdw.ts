@@ -12,9 +12,8 @@ export class IPDW {
         this.syncProvider = syncProvider;
     }
 
-    public static async create(seed: string, storageProvider: StorageProvider, salt: Buffer = Buffer.from('1Qmzz2vn', 'utf8')): Promise<IPDW> {
-        //const [privateKeyBuffer, publicKeyBuffer] = await CryptoUtils.GetKeyPair(Buffer.from(seed, 'utf8')); // If seed is a private key
-        const [privateKeyBuffer, publicKeyBuffer] = await CryptoUtils.DeriveKeyPair(Buffer.from(seed, 'utf8'), salt);
+    public static async create(privateKey: string, storageProvider: StorageProvider, salt: Buffer = Buffer.from('1Qmzz2vn', 'utf8')): Promise<IPDW> {
+        const [privateKeyBuffer, publicKeyBuffer] = await CryptoUtils.GetKeyPair(Buffer.from(privateKey, 'hex'));
         const publicKey = publicKeyBuffer.toString('hex');
 
         const keyBuffer = await CryptoUtils.DeriveKey(privateKeyBuffer, salt);

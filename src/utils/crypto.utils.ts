@@ -17,7 +17,6 @@ export class CryptoUtils {
 
     public static async DeriveKeyPair(seed: Buffer, salt: Buffer): Promise<[Buffer, Buffer]> {
         const keyBuffer = await util.promisify(crypto.pbkdf2)(seed, salt, 100100, 32, 'sha256');
-
         return this.GetKeyPair(keyBuffer);
     }
 

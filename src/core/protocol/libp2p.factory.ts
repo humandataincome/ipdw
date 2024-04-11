@@ -19,13 +19,13 @@ import {tcp} from "@libp2p/tcp";
 import {uPnPNAT} from '@libp2p/upnp-nat';
 import {floodsub} from "@libp2p/floodsub";
 import {IDBDatastore} from 'datastore-idb'
-import {pubsubPeerDiscovery} from '@libp2p/pubsub-peer-discovery';
 import {FsDatastore} from "datastore-fs";
 import {mdns} from "@libp2p/mdns";
+import {pubsubPeerDiscovery} from "@libp2p/pubsub-peer-discovery";
 
 export class Libp2pFactory {
     public static async create(): Promise<Libp2p.Libp2p<{ pubsub: PubSub, dht: KadDHT }>> {
-        const node = await Libp2p.createLibp2p(typeof window === 'object' || typeof importScripts === 'function' ? this.libp2pWebOptions() : this.libp2pNodeOptions());
+        const node = await Libp2p.createLibp2p(typeof window === 'object' || typeof importScripts === 'function' ? await this.libp2pWebOptions() : this.libp2pNodeOptions());
         await node.services.dht.setMode('server');
 
         node.addEventListener("connection:open", (event) => {
@@ -49,10 +49,14 @@ export class Libp2pFactory {
         return node;
     }
 
-    private static libp2pWebOptions() {
+    private static async libp2pWebOptions() {
         console.log('p2p:configuring:web');
         return {
-            datastore: new IDBDatastore('.datastore'), // Disable for local testing
+            datastore: await (async () => {
+                const d = new IDBDatastore('.datastore');
+                await d.open();
+                return d;
+            })(), // Disable for local testing
             addresses: {
                 listen: [
                     '/webrtc',
