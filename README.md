@@ -40,7 +40,7 @@ Start using IPDW.
 import {IPDW, MemoryStorageProvider} from "ipdw";
 
 // On device 1
-(async function () {
+(async function() {
     const ipdw = await IPDW.create('b577c4367d79f1a7a0c8353f7937d601758d92c35df958781d72d70f9177e52f', new MemoryStorageProvider());
 
     await ipdw.data.set('test1', 'hello');
@@ -51,12 +51,12 @@ import {IPDW, MemoryStorageProvider} from "ipdw";
 
     // Run "device 2" and if reachable it will be discovered and synced
     const value2 = await ipdw.data.get('test2');
-    console.log('test2 value:', value1);
+    console.log('test2 value:', value2);
     // test2 value: world
 })();
 
 // On device 2
-(async function () {
+(async function() {
     const ipdw = await IPDW.create('b577c4367d79f1a7a0c8353f7937d601758d92c35df958781d72d70f9177e52f', new MemoryStorageProvider());
     await ipdw.data.set('test2', 'world');
 })();
