@@ -6,7 +6,7 @@ import {BlockStorage} from "../blocks";
 import {SubscriptionChangeData} from "@libp2p/interface/src/pubsub";
 import {KadDHT} from "@libp2p/kad-dht";
 import {CryptoUtils, TypedCustomEvent, TypedEventTarget} from "../../utils";
-import {PubsubSwarmsubService} from "./pubsub-swarmsub.service";
+import {SwarmsubService} from "./swarmsub.service";
 
 export class SynchronizationProvider {
     public events: TypedEventTarget<{
@@ -17,7 +17,7 @@ export class SynchronizationProvider {
     }> = new TypedEventTarget();
 
     public node: Libp2p<{ pubsub: PubSub, dht: KadDHT }>;
-    public swarm: PubsubSwarmsubService;
+    public swarm: SwarmsubService;
     public readonly peers: PeerId[];
     private readonly discoverTopic: string;
     private readonly protocolName: string;
@@ -26,7 +26,7 @@ export class SynchronizationProvider {
 
     constructor(blockStorage: BlockStorage, node: Libp2p<{ pubsub: PubSub, dht: KadDHT }>, roomId: string) {
         this.node = node;
-        this.swarm = new PubsubSwarmsubService(this.node);
+        this.swarm = new SwarmsubService(this.node);
         this.discoverTopic = `/ipdw/discover/1.0.0/${roomId}`;
         this.protocolName = `/ipdw/sync/1.0.0/${roomId}`;
         this.peers = [];
@@ -86,16 +86,20 @@ export class SynchronizationProvider {
                 await this.runProtocol(peerId);
         });
 
-
+        // Handle the crdt sync protocol
         await this.node.handle(this.protocolName, this.onProtocolConnection.bind(this))
 
+        // For connected peers find those really interested in topic and evaluate
         this.node.services.pubsub.getSubscribers(this.discoverTopic).forEach(this.onTopicSubscribedPeer.bind(this));
         this.node.services.pubsub.addEventListener('subscription-change', this.onTopicSubscriptionChange.bind(this));
         this.node.services.pubsub.subscribe(this.discoverTopic);
-        //this.node.services.pubsub.publish(this.discoverTopic, new TextEncoder().encode('connected')).then();
+        //this.node.services.pubsub.publish(this.discoverTopic, new TextEncoder().encode('syn')).then();
 
+        // Use swarm to find peer candidates and try connection to them
+        (await this.swarm.getSubscribers(this.discoverTopic)).forEach((p: PeerId) => this.node.dial(p).then());
+        await this.swarm.setSubscriptionListener(this.discoverTopic, (p: PeerInfo) => this.node.dial(p.id).then());
         await this.swarm.subscribe(this.discoverTopic);
-        await this.swarm.setSubscriptionListener(this.discoverTopic, async (p: PeerInfo) => this.node.dial(p.id));
+
     }
 
     public async stop(): Promise<void> {
@@ -107,6 +111,9 @@ export class SynchronizationProvider {
 
         this.node.services.pubsub.removeEventListener('subscription-change', this.onTopicSubscriptionChange.bind(this))
         this.node.services.pubsub.unsubscribe(this.discoverTopic);
+
+        await this.swarm.removeSubscriptionListener(this.discoverTopic);
+        await this.swarm.unsubscribe(this.discoverTopic);
 
         this.crdtDoc.getArray('blocks').delete(0, this.crdtDoc.getArray('blocks').length);
     }

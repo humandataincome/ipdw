@@ -19,7 +19,7 @@ import {dcutr} from "@libp2p/dcutr";
 import {ping} from "@libp2p/ping";
 import * as fs from "fs";
 import * as https from "https";
-import { FsDatastore } from 'datastore-fs';
+import {pubsubPeerDiscovery} from "@libp2p/pubsub-peer-discovery";
 
 
 async function main(): Promise<void> {
@@ -56,7 +56,7 @@ async function main(): Promise<void> {
     }
 
     const node = await createLibp2p({
-        datastore: new FsDatastore('.datastore'),
+        //datastore: new FsDatastore('.datastore'),
         peerId,
         addresses: {
             listen: [
@@ -76,13 +76,18 @@ async function main(): Promise<void> {
         ],
         connectionEncryption: [noise()],
         streamMuxers: [yamux(), mplex()],
+        peerDiscovery: [
+            pubsubPeerDiscovery({topics: ['_peer-discovery._ipdw._pubsub']}),
+        ],
         services: {
             identify: identify(),
             dht: kadDHT({
                 protocol: '/ipdw/dht/1.0.0',
-                clientMode: false
+                clientMode: false,
+                kBucketSize: 1024,
+                pingTimeout: 3000
             }),
-            pubsub: gossipsub({fallbackToFloodsub: true}),
+            pubsub: gossipsub({fallbackToFloodsub: true, canRelayMessage: true, doPX: true}),
             autoNAT: autoNAT(),
             relay: circuitRelayServer({
                 advertise: true,
@@ -102,7 +107,7 @@ async function main(): Promise<void> {
         console.log("connection:close", node.peerId, event.detail.remoteAddr);
     });
     node.addEventListener("peer:update", (event) => {
-        console.log("peer:update", node.peerId, event.detail.peer.id, event.detail.peer.addresses);
+        //console.log("peer:update", node.peerId, event.detail.peer.id, event.detail.peer.addresses);
     });
     node.addEventListener("peer:discovery", (event) => {
         console.log("peer:discovery", node.peerId, event.detail, event.detail.id, event.detail.multiaddrs);

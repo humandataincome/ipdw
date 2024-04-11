@@ -1,15 +1,15 @@
-import {Libp2pFactory, PubsubSwarmsubService} from "../src";
+import {Libp2pFactory, SwarmsubService} from "../src";
 
 
 async function runNode1() {
     const node = await Libp2pFactory.create();
-    const swarm = new PubsubSwarmsubService(node);
+    const swarm = new SwarmsubService(node);
     await swarm.subscribe('ipdw-test-1');
 }
 
 async function runNode2() {
     const node = await Libp2pFactory.create();
-    const swarm = new PubsubSwarmsubService(node);
+    const swarm = new SwarmsubService(node);
     await swarm.setSubscriptionListener('ipdw-test-1', async (p) => console.log(p));
 }
 
