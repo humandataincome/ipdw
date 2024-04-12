@@ -81,7 +81,7 @@ The wallet can be synced between all your devices using P2P communication strate
 
 The blockchains have different replicated and redundant ledgers and consensus algorithms, with a competition underway to find the best algorithm for increased throughput, security, and more.
 
-Thanks to applications like Metamask/Trust, Web 3.0 users are now familiar with private key usage and management. These applications have simplified the user experience, making it easy for users to manage keys and sign messages using RSA.
+Thanks to applications like Metamask/Trust, Web 3.0 users are now familiar with private key usage and management. These applications have simplified the user experience, making it easy for users to manage keys and sign messages using ECDSA.
 
 Private keys and public keys are nearly invulnerable to attacks from computers, except for social/phishing and similar attacks. "Humans are always the vulnerable element in the chain," so it's important to always be cautious.
 
