@@ -1,4 +1,4 @@
-import {StorageProvider} from "./index";
+import {StorageProvider} from "./";
 import fs from "fs";
 
 export class FileSystemStorageProvider implements StorageProvider {

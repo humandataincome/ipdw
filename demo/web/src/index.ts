@@ -1,40 +1,23 @@
 /*
-Wallet(test) - Address: 0xb9470887f963694195053Da319e17dd44CCfFC46 - Private key: 0xeffc0f0bac08c2157c8bcabfbbe71df7c96b499defcfdae2210139418618d574
-URL(test) - https://ipfs.io/ipfs/QmNRCQWfgze6AbBCaT1rkrkV5tJ2aP4oTNPb5JZcXYywve or https://gateway.pinata.cloud/ipfs/QmW7fmJG5i3S6K6EPBPYYqkzkn2G1mNz8MEBiDGEFhPrKv
+Wallet(IPDW TEST) - Address: 0xB5ea1eC38f0547004d5841a2FB5F33Ee07113Bcf - Private key: 0xb577c4367d79f1a7a0c8353f7937d601758d92c35df958781d72d70f9177e52f
  */
 
-import Web3 from "web3";
 import {IPDW, MemoryStorageProvider} from "ipdw";
-import {Buffer} from "buffer"; //PAY ATTENTION TO USE THIS OR USE "PROVIDE PLUGIN" IN WEBPACK
 
-async function main() {
-    const web3 = new Web3(Web3.givenProvider || "https://bsc-dataseed.binance.org/");
+async function main(): Promise<void> {
+    const orig_console_log = console.log;
+    console.log = function (...e) {
+        document.write(e.map(v => JSON.stringify(v)).join(' '), '</br>');
+        orig_console_log(...e);
+    }
 
-    const account = web3.eth.accounts.privateKeyToAccount("0xeffc0f0bac08c2157c8bcabfbbe71df7c96b499defcfdae2210139418618d574");
-    web3.eth.accounts.wallet.add(account);
-    web3.eth.defaultAccount = account.address;
-    console.log(account.address);
+    const ipdw = await IPDW.create('b577c4367d79f1a7a0c8353f7937d601758d92c35df958781d72d70f9177e52f', new MemoryStorageProvider());
 
-
-    const ipdw = await IPDW.create(async (msg: string) => (await web3.eth.sign('aasdasds', web3.eth.defaultAccount!) as any).signature, 'Global', new MemoryStorageProvider());
-
-    const data = {hello: "world"};
-
-    console.log('PUSHING LOCAL DATA TO REMOTE', data);
-    const dataBuffer = Buffer.from(JSON.stringify(data), 'utf8');
-    await ipdw.setData(dataBuffer, 'ENCRYPTED');
-    await ipdw.push();
-    console.log('PUSHED LOCAL DATA TO REMOTE');
-
-    console.log('PULLING REMOTE DATA TO LOCAL');
-    await ipdw.pull();
-    const gotDataBuffer = await ipdw.getData('ENCRYPTED')
-    const gotData = JSON.parse(gotDataBuffer.toString('utf8'));
-    console.log('PULLED REMOTE DATA TO LOCAL', gotData);
-
-    await ipdw.addMessageListener('PLAIN', 'bla bla', console.log);
-
-    await ipdw.sendMessage('PLAIN', 'bla bla', 'Hello World');
+    setInterval(async () => {
+        const res = await ipdw.data.get('test') || 'init';
+        console.log('test', ipdw.syncProvider.node.peerId, res);
+        await ipdw.data.set('test', res + (Math.random() + 1).toString(36).substring(2));
+    }, 1000);
 }
 
 (async () => {

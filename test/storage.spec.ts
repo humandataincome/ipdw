@@ -1,4 +1,4 @@
-import {FileSystemStorageProvider, IndexedDBStorageProvider, MemoryStorageProvider, Persistence, StreamProvider} from "../src";
+import {FileSystemStorageProvider, IndexedDBStorageProvider, MemoryStorageProvider, StreamProvider} from "../src";
 
 import "fake-indexeddb/auto";
 
@@ -53,8 +53,6 @@ describe("Storage tests", async () => {
 
     it("Check StreamProvider", async () => {
         const storage = new MemoryStorageProvider();
-        //const storage = new FileSystemStorageProvider();
-        //const storage = await IndexedDBStorageProvider.Init();
         const stream = new StreamProvider(storage);
 
         let res;
@@ -72,18 +70,4 @@ describe("Storage tests", async () => {
             console.log('chunk:', new TextDecoder().decode(chunk.value));
         }
     });
-
-    it("Check IPFS streamed storage", async () => {
-        const cid = "QmecpDvGdWfcKw7BM4nxyEb7TB856sTY1MqY1dCR45rWjv";
-        const persistence = await Persistence.getInstance();
-        const data = await persistence.fetchOrGet("ipfs://" + cid, console.log);
-        console.log(data);
-    }).timeout(60000);
-
-    it("Check HTTPS streamed storage", async () => {
-        const url = "https://gateway.pinata.cloud/ipfs/QmecpDvGdWfcKw7BM4nxyEb7TB856sTY1MqY1dCR45rWjv";
-        const persistence = await Persistence.getInstance();
-        const data = await persistence.fetchOrGet(url, console.log);
-        console.log(data);
-    }).timeout(60000);
 });

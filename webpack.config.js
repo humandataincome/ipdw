@@ -10,6 +10,7 @@ const {ProvidePlugin} = pkg;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+
 const commonsConfig = {
     context: __dirname,
 
@@ -62,7 +63,13 @@ export default (env, argv) => ([
             fallback: {
                 crypto: 'crypto-browserify',
                 stream: 'stream-browserify',
-                fs: false
+                fs: false,
+            },
+            alias: {
+                '@libp2p/upnp-nat': false,
+                '@libp2p/tcp': false,
+                '@libp2p/mdns': false,
+                'datastore-fs': false
             }
         },
 
@@ -70,19 +77,24 @@ export default (env, argv) => ([
             new ProvidePlugin({
                 Buffer: ['buffer', 'Buffer'] // Fix for sub-dependencies that use Buffer not from buffer
             }),
-            new ProvidePlugin({
-                process: 'process/browser',
-            }),
+            new ProvidePlugin({process: 'process/browser.js'})
         ]
     }),
 
     webpackMerge(commonsConfig, {
         target: 'node',
 
-        externals: [ nodeExternals({ importType: 'module' }) ],
+        externals: [nodeExternals({importType: 'module'})],
 
         experiments: {
             outputModule: true,
+        },
+
+        resolve: {
+            alias: {
+                '@libp2p/webtransport': false,
+                'datastore-idb': false
+            }
         },
 
         output: {

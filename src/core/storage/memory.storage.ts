@@ -1,4 +1,4 @@
-import {StorageProvider} from "./index";
+import {StorageProvider} from "./";
 
 export class MemoryStorageProvider implements StorageProvider {
     private storage: Map<string, Uint8Array>;

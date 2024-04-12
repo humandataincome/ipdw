@@ -1,6 +1,11 @@
 {
-  "include": ["src"],
-  "exclude": ["node_modules", "dist"],
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
   "compilerOptions": {
     "module": "es2022",
     "target": "es2022",
@@ -10,6 +15,7 @@
     "strict": true,
     "esModuleInterop": true,
     "baseUrl": ".",
+    "skipLibCheck": true
   },
   "ts-node": {
     "esm": true,
