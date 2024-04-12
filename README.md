@@ -4,9 +4,10 @@
 
 [![npm (scoped)](https://img.shields.io/npm/v/ipdw)](https://www.npmjs.com/package/ipdw) [![node-current (scoped)](https://img.shields.io/node/v/idpw)](https://www.npmjs.com/package/ipdw)
 
-IPDW is a repository for storing personal or user data within a safe and distributed storage.
-It enables you to build a real decentralized network (Web 4.0) without needing to be online.
-You can take advantage of P2P interactions, database-less backends, verified identities, and much more.
+InterPlanetary Data Wallet (IPDW): store users data within a secure distributed storage.
+It enables to build a real decentralised network (Web 0) without the need of centralized database.
+You can take advantage of P2P interactions, database-less, conflict-free replication, and much more.
+The main idea is to shard data structures in blocks and to propagate them encrypted and signed.
 
 ## Features
 
@@ -28,19 +29,27 @@ In Web 3.0 applications, your wallet address (derived from the public key) can b
 
 To get started with IPDW, you will need to follow these steps:
 
-Clone the repository:
+Install the package:
 
 ```bash
 $ npm install ipdw
 ```
 
-Start using IPDW.
+Instantiate ipdw with this interface:
+
+```
+public static async create(privateKey: string, storageProvider: StorageProvider, salt?: Buffer): Promise<IPDW>
+```
+
+Then access to "data", which is a sharded map where you can get and set in a key-value style.
+
+The full example with auto synchronization between devices:
 
 ```js
 import {IPDW, MemoryStorageProvider} from "ipdw";
 
 // On device 1
-(async function() {
+(async function () {
     const ipdw = await IPDW.create('b577c4367d79f1a7a0c8353f7937d601758d92c35df958781d72d70f9177e52f', new MemoryStorageProvider());
 
     await ipdw.data.set('test1', 'hello');
@@ -56,7 +65,7 @@ import {IPDW, MemoryStorageProvider} from "ipdw";
 })();
 
 // On device 2
-(async function() {
+(async function () {
     const ipdw = await IPDW.create('b577c4367d79f1a7a0c8353f7937d601758d92c35df958781d72d70f9177e52f', new MemoryStorageProvider());
     await ipdw.data.set('test2', 'world');
 })();
