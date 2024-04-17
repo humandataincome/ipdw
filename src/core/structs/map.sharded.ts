@@ -99,4 +99,8 @@ export class MapSharded {
             }
         }
     }
+
+    public async ls(): Promise<string[]> {
+        return this.keys;
+    }
 }
