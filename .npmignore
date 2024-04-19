@@ -10,8 +10,8 @@ webpack.config.js
 
 test
 demo
-scripts
-docker
+assets
+boostrap
 
 test.ipdw
 ipfs-ipdw*

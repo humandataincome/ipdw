@@ -1,6 +1,6 @@
 {
   "name": "ipdw",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "author": "Andrea Silvi",
   "type": "module",
   "main": "./dist/node/index.js",
@@ -15,7 +15,6 @@
     "start:test:crypto": "NODE_ENV=main ts-node test/crypto.test.ts",
     "build:prod": "webpack --mode production",
     "build:dev:watch": "webpack --mode development --watch",
-    "prepublish:public": "npm run build:prod",
     "publish:public": "npm publish --access public"
   },
   "engines": {

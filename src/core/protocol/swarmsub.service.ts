@@ -67,6 +67,14 @@ export class SwarmsubService {
 
         this.listeners[cid.toString()] = listener;
 
+        // Show logs and also hook sendrequest function
+        // Ideally send dht query always to bootstrap
+        // The main suspect is that in the actual state dht is not resilient
+        // It is somehow bypassing bootstrap because the actual peer discovered unavailable peers
+        // Also arbitrer could be the suspect in kbucket, but I think no
+        // We need also to purge last seen contacts
+        // Or create a swarm dht service with similar logic from scratch
+
         (async () => {
             while (this.listeners[cid.toString()]) {
                 try {

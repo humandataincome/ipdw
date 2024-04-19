@@ -100,6 +100,7 @@ export class SynchronizationProvider {
         await this.swarm.setSubscriptionListener(this.discoverTopic, (p: PeerInfo) => this.node.dial(p.id).then());
         await this.swarm.subscribe(this.discoverTopic);
 
+        // Why bootstrap node does not propagate subscription?
     }
 
     public async stop(): Promise<void> {
