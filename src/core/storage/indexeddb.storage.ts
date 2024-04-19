@@ -46,7 +46,8 @@ export class IndexedDBStorageProvider implements StorageProvider {
     }
 
     public async get(key: string): Promise<Uint8Array | undefined> {
-        return new Uint8Array((await IndexedDBStorageProvider.IDBRequestPromisify(this.database.transaction(this.basePath, "readonly").objectStore(this.basePath).get(key))).value);
+        const res = await IndexedDBStorageProvider.IDBRequestPromisify(this.database.transaction(this.basePath, "readonly").objectStore(this.basePath).get(key));
+        return res ? new Uint8Array(res.value) : undefined;
     }
 
     public async ls(): Promise<string[]> {
