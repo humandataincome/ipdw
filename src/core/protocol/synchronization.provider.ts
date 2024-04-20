@@ -93,7 +93,8 @@ export class SynchronizationProvider {
         this.node.services.pubsub.getSubscribers(this.discoverTopic).forEach(this.onTopicSubscribedPeer.bind(this));
         this.node.services.pubsub.addEventListener('subscription-change', this.onTopicSubscriptionChange.bind(this));
         this.node.services.pubsub.subscribe(this.discoverTopic);
-        //this.node.services.pubsub.publish(this.discoverTopic, new TextEncoder().encode('syn')).then();
+        //this.node.services.pubsub.addEventListener('message', console.log);
+        //setInterval(() => this.node.services.pubsub.publish(this.discoverTopic, new TextEncoder().encode('syn')).then(), 1000)
 
         // Use swarm to find peer candidates and try connection to them
         (await this.swarm.getSubscribers(this.discoverTopic)).forEach((p: PeerId) => this.node.dial(p).then());

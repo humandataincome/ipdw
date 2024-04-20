@@ -80,7 +80,7 @@ async function main(): Promise<void> {
             pubsubPeerDiscovery({topics: ['_peer-discovery._ipdw._pubsub']}),
         ],
         services: {
-            identify: identify(),
+            identify: identify({protocolPrefix: 'ipdw'}),
             dht: kadDHT({
                 protocol: '/ipdw/dht/1.0.0',
                 clientMode: false,
@@ -92,7 +92,7 @@ async function main(): Promise<void> {
             relay: circuitRelayServer({
                 advertise: true,
             }),
-            ping: ping(),
+            ping: ping({protocolPrefix: 'ipdw'}),
             upnp: uPnPNAT(),
             dcutr: dcutr(),
         }

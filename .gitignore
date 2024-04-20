@@ -55,3 +55,4 @@ ipfs-ipdw*
 .storage
 .persistence
 .datastore
+.metastore

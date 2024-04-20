@@ -1,6 +1,6 @@
 {
   "name": "ipdw",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "author": "Andrea Silvi",
   "type": "module",
   "main": "./dist/node/index.js",
@@ -9,8 +9,8 @@
   "scripts": {
     "test:blocks": "ts-mocha --timeout 60000 test/blocks.spec.ts",
     "test:storage": "ts-mocha --timeout 60000 test/storage.spec.ts",
-    "start:test:main": "NODE_ENV=main ts-node test/index.test.ts",
-    "start:test:swarm": "NODE_ENV=main DEBUG=libp2p ts-node test/swarm.test.ts",
+    "start:test:main": "NODE_ENV=main DEBUG=libp2p:* ts-node test/index.test.ts",
+    "start:test:swarm": "NODE_ENV=main DEBUG=libp2p:* ts-node test/swarm.test.ts",
     "start:test:sync": "NODE_ENV=main ts-node test/sync.test.ts",
     "start:test:crypto": "NODE_ENV=main ts-node test/crypto.test.ts",
     "build:prod": "webpack --mode production",

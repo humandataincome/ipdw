@@ -17,15 +17,36 @@ import {ping} from '@libp2p/ping';
 import {webTransport} from '@libp2p/webtransport';
 import {tcp} from "@libp2p/tcp";
 import {uPnPNAT} from '@libp2p/upnp-nat';
-import {floodsub} from "@libp2p/floodsub";
 import {IDBDatastore} from 'datastore-idb'
 import {FsDatastore} from "datastore-fs";
-import {mdns} from "@libp2p/mdns";
 import {pubsubPeerDiscovery} from "@libp2p/pubsub-peer-discovery";
+import {createEd25519PeerId, createFromProtobuf, exportToProtobuf} from '@libp2p/peer-id-factory';
+import {Key} from 'interface-datastore';
+import {mdns} from "@libp2p/mdns";
+
 
 export class Libp2pFactory {
     public static async create(): Promise<Libp2p.Libp2p<{ pubsub: PubSub, dht: KadDHT }>> {
-        const node = await Libp2p.createLibp2p(typeof window === 'object' || typeof importScripts === 'function' ? await this.libp2pWebOptions() : this.libp2pNodeOptions());
+        let metastore;
+        if (typeof window === 'object' || typeof importScripts === 'function') {
+            metastore = new IDBDatastore('.metastore');
+            await metastore.open();
+        } else {
+            metastore = new FsDatastore('.metastore');
+        }
+
+        if (!await metastore.has(new Key('/peerId'))) {
+            const peerId = await createEd25519PeerId();
+            const peerIdPB = exportToProtobuf(peerId);
+            await metastore.put(new Key('/peerId'), peerIdPB);
+        }
+
+        const peerIdPB = await metastore.get(new Key('/peerId'));
+        const peerId = await createFromProtobuf(peerIdPB);
+
+        const nodeOptions = typeof window === 'object' || typeof importScripts === 'function' ? await this.libp2pWebOptions() : this.libp2pNodeOptions();
+
+        const node = await Libp2p.createLibp2p({peerId, ...nodeOptions});
         await node.services.dht.setMode('server');
 
         node.addEventListener("connection:open", (event) => {
@@ -87,21 +108,20 @@ export class Libp2pFactory {
                 }),
             ],
             services: {
-                identify: identify(),
+                identify: identify({protocolPrefix: 'ipdw'}),
                 dht: kadDHT({
                     protocol: '/ipdw/dht/1.0.0',
                     clientMode: false,
                     kBucketSize: 256,
-                    //peerInfoMapper: removePublicAddressesMapper // Enable for local testing
                     pingTimeout: 3000
                 }),
-                pubsub: gossipsub(),
+                pubsub: gossipsub({allowPublishToZeroTopicPeers: true}),
                 autoNAT: autoNAT(),
                 dcutr: dcutr(),
-                ping: ping()
+                ping: ping({protocolPrefix: 'ipdw'})
             },
             connectionManager: {
-                minConnections: 5
+                minConnections: 1
             },
         };
     }
@@ -141,22 +161,21 @@ export class Libp2pFactory {
                 }),
             ],
             services: {
-                identify: identify(),
+                identify: identify({protocolPrefix: 'ipdw'}),
                 dht: kadDHT({
                     protocol: '/ipdw/dht/1.0.0',
                     clientMode: false,
                     kBucketSize: 256,
-                    //peerInfoMapper: removePublicAddressesMapper // Enable for local testing
                     pingTimeout: 3000
                 }),
-                pubsub: floodsub(),
+                pubsub: gossipsub({allowPublishToZeroTopicPeers: true}),
                 autoNAT: autoNAT(),
                 upnp: uPnPNAT(),
                 dcutr: dcutr(),
-                ping: ping()
+                ping: ping({protocolPrefix: 'ipdw'})
             },
             connectionManager: {
-                minConnections: 5
+                minConnections: 1
             },
         };
     }
