@@ -98,6 +98,7 @@ export class SwarmsubService {
 
             //This should be removed on unsubscribe
             this.node.addEventListener('connection:open', async (event) => {
+                if (event.detail.transient) return;
                 const fetchedSubscribers = await this.fetchSubscribers(event.detail.remotePeer, topic);
                 for (const fetchedSubscriber of fetchedSubscribers) {
                     if (!fetchedSubscriber.equals(this.node.peerId) && this.subscribers[cid.toString()].findIndex(p => p.equals(fetchedSubscriber)) === -1) {
