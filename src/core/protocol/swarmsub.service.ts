@@ -37,6 +37,7 @@ export class SwarmsubService {
 
         this.subscriptions[cid.toString()] = true;
 
+        /*
         (async () => {
             while (this.subscriptions[cid.toString()]) {
                 try {
@@ -46,7 +47,6 @@ export class SwarmsubService {
                         if (!this.subscriptions[cid.toString()])
                             break;
                     }
-
                 } catch (e) {
                     //console.log('swarm:provide:error', e);
                 }
@@ -54,8 +54,8 @@ export class SwarmsubService {
                     await new Promise(r => setTimeout(r, 30 * 1000)); // Refresh TTL in DHT
             }
         })().then();
+         */
     }
-
 
     public async unsubscribe(topic: string): Promise<void> {
         const cid = CID.create(1, raw.code, await sha256.digest(raw.encode(new TextEncoder().encode(topic))));
@@ -74,7 +74,6 @@ export class SwarmsubService {
             return [];
 
         const peersRecordEnvelopesData = ArrayUtils.Uint8ArrayUnmarshal(peersFetchData);
-
 
         let peers: PeerId[] = [];
         for (const pred of peersRecordEnvelopesData) {

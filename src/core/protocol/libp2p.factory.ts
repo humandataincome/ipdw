@@ -26,6 +26,7 @@ import {Fetch, fetch} from "@libp2p/fetch";
 import {PeerRecord, RecordEnvelope} from "@libp2p/peer-record";
 import {ArrayUtils} from "../../utils";
 import {mdns} from "@libp2p/mdns";
+import * as libp2pInfo from 'libp2p/version';
 
 
 export class Libp2pFactory {
@@ -87,16 +88,16 @@ export class Libp2pFactory {
     private static async libp2pWebOptions() {
         console.log('p2p:configuring:web');
         return {
+            /*
             datastore: await (async () => {
                 const d = new IDBDatastore('.datastore');
                 await d.open();
                 return d;
             })(), // Disable for local testing
+             */
             addresses: {
                 listen: [
                     '/webrtc',
-                    "/wss",
-                    "/ws"
                 ]
             },
             transports: [
@@ -122,7 +123,10 @@ export class Libp2pFactory {
                 }),
             ],
             services: {
-                identify: identify({protocolPrefix: 'ipdw'}),
+                identify: identify({
+                    protocolPrefix: 'ipdw',
+                    agentVersion: `ipdw/client/1.0.0 ${libp2pInfo.name}/${libp2pInfo.version} UserAgent=${globalThis.navigator.userAgent}`
+                }),
                 dht: kadDHT({
                     protocol: '/ipdw/dht/1.0.0',
                     clientMode: false,
@@ -136,7 +140,7 @@ export class Libp2pFactory {
                 fetch: fetch({protocolPrefix: 'ipdw'})
             },
             connectionManager: {
-                minConnections: 5
+                minConnections: 1
             },
         };
     }
@@ -144,15 +148,19 @@ export class Libp2pFactory {
     private static async libp2pNodeOptions() {
         console.log('p2p:configuring:node');
         return {
+            /*
             datastore: await (async () => {
                 const d = new FsDatastore('.datastore');
                 await d.open();
                 return d;
             })(), // Disable for local testing
+             */
             addresses: {
                 listen: [
                     '/ip4/0.0.0.0/tcp/0',
                     '/ip4/0.0.0.0/tcp/0/ws',
+                    '/ip6/::/tcp/0',
+                    '/ip6/::/tcp/0/ws',
                     '/webrtc'
                 ]
             },
@@ -180,7 +188,10 @@ export class Libp2pFactory {
                 }),
             ],
             services: {
-                identify: identify({protocolPrefix: 'ipdw'}),
+                identify: identify({
+                    protocolPrefix: 'ipdw',
+                    agentVersion: `ipdw/client/1.0.0 ${libp2pInfo.name}/${libp2pInfo.version} UserAgent=node-${process.versions.node}`
+                }),
                 dht: kadDHT({
                     protocol: '/ipdw/dht/1.0.0',
                     clientMode: false,
@@ -195,7 +206,7 @@ export class Libp2pFactory {
                 fetch: fetch({protocolPrefix: 'ipdw'})
             },
             connectionManager: {
-                minConnections: 5
+                minConnections: 1
             },
         };
     }

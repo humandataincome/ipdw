@@ -93,6 +93,9 @@ async function main(): Promise<void> {
             autoNAT: autoNAT(),
             relay: circuitRelayServer({
                 advertise: true,
+                reservations: {
+                    maxReservations: Infinity
+                }
             }),
             ping: ping({protocolPrefix: 'ipdw'}),
             upnp: uPnPNAT(),
