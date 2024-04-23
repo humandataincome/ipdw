@@ -20,6 +20,8 @@ import {ping} from "@libp2p/ping";
 import * as fs from "fs";
 import * as https from "https";
 import {pubsubPeerDiscovery} from "@libp2p/pubsub-peer-discovery";
+import {PeerRecord, RecordEnvelope} from "@libp2p/peer-record";
+import {fetch} from "@libp2p/fetch";
 
 
 async function main(): Promise<void> {
@@ -85,7 +87,7 @@ async function main(): Promise<void> {
                 protocol: '/ipdw/dht/1.0.0',
                 clientMode: false,
                 kBucketSize: 1024,
-                pingTimeout: 3000
+                pingTimeout: 10000
             }),
             pubsub: gossipsub({fallbackToFloodsub: true, canRelayMessage: true, doPX: true}),
             autoNAT: autoNAT(),
@@ -95,10 +97,22 @@ async function main(): Promise<void> {
             ping: ping({protocolPrefix: 'ipdw'}),
             upnp: uPnPNAT(),
             dcutr: dcutr(),
-        }
+            fetch: fetch({protocolPrefix: 'ipdw'})
+        },
+        connectionManager: {
+            minConnections: 0
+        },
     });
 
     await node.services.dht.setMode('server');
+
+    node.services.fetch.registerLookupFunction('/tracker/subscribers/', async (key: string) => {
+        const topic = key.slice('/tracker/subscribers/'.length);
+        const peers = await Promise.all(node.services.pubsub.getSubscribers(topic).map(p => node.peerStore.get(p)));
+        const peerRecordEnvelopes = await Promise.all(peers.map(p => RecordEnvelope.seal(new PeerRecord({peerId: p.id, multiaddrs: p.addresses.map(a => a.multiaddr)}), node.peerId)));
+        const peersRecordEnvelopesData = peerRecordEnvelopes.map(pre => pre.marshal());
+        return Uint8ArrayMarshal(peersRecordEnvelopesData);
+    });
 
     node.addEventListener("connection:open", (event) => {
         console.log("connection:open", node.peerId, event.detail.remoteAddr);
@@ -115,7 +129,36 @@ async function main(): Promise<void> {
     node.addEventListener("peer:connect", (event) => {
         console.log("peer:connect", node.peerId, event.detail);
     });
+
     console.log('p2p:started', node.peerId, node.getMultiaddrs());
+}
+
+function Uint8ArrayMarshal(array: Uint8Array[]): Uint8Array {
+    // Calculate total length of all Uint8Arrays in the array
+    let totalLength = 0;
+    for (const arr of array) {
+        totalLength += arr.length;
+    }
+
+    // Calculate the total length of the marshalled data including the length prefixes
+    const totalByteLength = 4 + totalLength + (4 * array.length);
+
+    // Allocate a new Uint8Array with the total length
+    const result = new Uint8Array(totalByteLength);
+
+    // Write the number of arrays as a 32-bit integer at the beginning
+    new DataView(result.buffer).setUint32(0, array.length, true);
+    let offset = 4;
+
+    // For each array, write its length as a 32-bit integer followed by its data
+    for (const arr of array) {
+        new DataView(result.buffer).setUint32(offset, arr.length, true);
+        offset += 4;
+        result.set(arr, offset);
+        offset += arr.length;
+    }
+
+    return result;
 }
 
 

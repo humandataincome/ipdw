@@ -1,12 +1,13 @@
 import * as Y from 'yjs'
-import type {Libp2p, PeerInfo, PubSub} from "@libp2p/interface";
+import type {Libp2p, PubSub} from "@libp2p/interface";
 import type {IncomingStreamData} from '@libp2p/interface/src/stream-handler';
 import {PeerId} from "@libp2p/interface/src/peer-id";
 import {BlockStorage} from "../blocks";
 import {SubscriptionChangeData} from "@libp2p/interface/src/pubsub";
 import {KadDHT} from "@libp2p/kad-dht";
-import {CryptoUtils, TypedCustomEvent, TypedEventTarget} from "../../utils";
+import {ArrayUtils, TypedCustomEvent, TypedEventTarget} from "../../utils";
 import {SwarmsubService} from "./swarmsub.service";
+import {Fetch} from "@libp2p/fetch";
 
 export class SynchronizationProvider {
     public events: TypedEventTarget<{
@@ -16,17 +17,17 @@ export class SynchronizationProvider {
         "peer:synced": TypedCustomEvent<{ peerId: PeerId, type: 'IN' | 'OUT' }>;
     }> = new TypedEventTarget();
 
-    public node: Libp2p<{ pubsub: PubSub, dht: KadDHT }>;
+    public node: Libp2p<{ pubsub: PubSub, dht: KadDHT, fetch: Fetch }>;
     public swarm: SwarmsubService;
     public readonly peers: PeerId[];
+    public blockStorage: BlockStorage;
     private readonly discoverTopic: string;
     private readonly protocolName: string;
-    private blockStorage: BlockStorage;
     private readonly crdtDoc: Y.Doc;
 
-    constructor(blockStorage: BlockStorage, node: Libp2p<{ pubsub: PubSub, dht: KadDHT }>, roomId: string) {
+    constructor(blockStorage: BlockStorage, node: Libp2p<{ pubsub: PubSub, dht: KadDHT, fetch: Fetch }>, roomId: string) {
         this.node = node;
-        this.swarm = new SwarmsubService(this.node);
+        this.swarm = new SwarmsubService(node);
         this.discoverTopic = `/ipdw/discover/1.0.0/${roomId}`;
         this.protocolName = `/ipdw/sync/1.0.0/${roomId}`;
         this.peers = [];
@@ -98,7 +99,7 @@ export class SynchronizationProvider {
 
         // Use swarm to find peer candidates and try connection to them
         (await this.swarm.getSubscribers(this.discoverTopic)).forEach((p: PeerId) => this.node.dial(p).then());
-        await this.swarm.setSubscriptionListener(this.discoverTopic, (p: PeerInfo) => this.node.dial(p.id).then());
+        await this.swarm.setSubscriptionListener(this.discoverTopic, (p: PeerId) => this.node.dial(p).then());
         await this.swarm.subscribe(this.discoverTopic);
 
         // Why bootstrap node does not propagate subscription?
@@ -186,7 +187,7 @@ export class SynchronizationProvider {
             if (!stateRes.done) {
                 const remoteStateVector = stateRes.value.subarray(0, stateRes.value.length);
 
-                if (!CryptoUtils.Uint8ArrayEquals(remoteStateVector, Y.encodeStateVector(this.crdtDoc))) {
+                if (!ArrayUtils.Uint8ArrayEquals(remoteStateVector, Y.encodeStateVector(this.crdtDoc))) {
                     await stream.sink([Y.encodeStateVector(this.crdtDoc)]);
                     const updateRes = await stream.source.next();
 

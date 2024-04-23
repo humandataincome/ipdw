@@ -31,11 +31,4 @@ export class CryptoUtils {
         const key = ec.keyFromPrivate(privateKey.toString('hex'), 'hex');
         return Buffer.from(key.sign(hash).toDER());
     }
-
-    public static Uint8ArrayEquals(a: Uint8Array, b: Uint8Array): boolean {
-        if (a.length !== b.length) return false;
-        for (let i = 0; i < a.length; i++)
-            if (a[i] !== b[i]) return false;
-        return true;
-    }
 }

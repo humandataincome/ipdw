@@ -22,32 +22,44 @@ import {FsDatastore} from "datastore-fs";
 import {pubsubPeerDiscovery} from "@libp2p/pubsub-peer-discovery";
 import {createEd25519PeerId, createFromProtobuf, exportToProtobuf} from '@libp2p/peer-id-factory';
 import {Key} from 'interface-datastore';
+import {Fetch, fetch} from "@libp2p/fetch";
+import {PeerRecord, RecordEnvelope} from "@libp2p/peer-record";
+import {ArrayUtils} from "../../utils";
 import {mdns} from "@libp2p/mdns";
 
 
 export class Libp2pFactory {
-    public static async create(): Promise<Libp2p.Libp2p<{ pubsub: PubSub, dht: KadDHT }>> {
+    public static async create(): Promise<Libp2p.Libp2p<{ pubsub: PubSub, dht: KadDHT, fetch: Fetch }>> {
         let metastore;
         if (typeof window === 'object' || typeof importScripts === 'function') {
             metastore = new IDBDatastore('.metastore');
-            await metastore.open();
         } else {
             metastore = new FsDatastore('.metastore');
         }
 
-        if (!await metastore.has(new Key('/peerId'))) {
+        await metastore.open();
+
+        if (!await metastore.has(new Key('/peer-id'))) {
             const peerId = await createEd25519PeerId();
             const peerIdPB = exportToProtobuf(peerId);
-            await metastore.put(new Key('/peerId'), peerIdPB);
+            await metastore.put(new Key('/peer-id'), peerIdPB);
         }
 
-        const peerIdPB = await metastore.get(new Key('/peerId'));
+        const peerIdPB = await metastore.get(new Key('/peer-id'));
         const peerId = await createFromProtobuf(peerIdPB);
 
-        const nodeOptions = typeof window === 'object' || typeof importScripts === 'function' ? await this.libp2pWebOptions() : this.libp2pNodeOptions();
+        const nodeOptions = typeof window === 'object' || typeof importScripts === 'function' ? await this.libp2pWebOptions() : await this.libp2pNodeOptions();
 
         const node = await Libp2p.createLibp2p({peerId, ...nodeOptions});
         await node.services.dht.setMode('server');
+
+        node.services.fetch.registerLookupFunction('/tracker/subscribers/', async (key: string) => {
+            const topic = key.slice('/tracker/subscribers/'.length);
+            const peers = await Promise.all(node.services.pubsub.getSubscribers(topic).map(p => node.peerStore.get(p)));
+            const peerRecordEnvelopes = await Promise.all(peers.map(p => RecordEnvelope.seal(new PeerRecord({peerId: p.id, multiaddrs: p.addresses.map(a => a.multiaddr)}), node.peerId)));
+            const peersRecordEnvelopesData = peerRecordEnvelopes.map(pre => pre.marshal());
+            return ArrayUtils.Uint8ArrayMarshal(peersRecordEnvelopesData);
+        });
 
         node.addEventListener("connection:open", (event) => {
             console.log("connection:open", node.peerId, event.detail.remoteAddr);
@@ -66,6 +78,8 @@ export class Libp2pFactory {
             console.log("peer:connect", node.peerId, event.detail);
         });
         console.log('p2p:started', node.peerId, node.getMultiaddrs());
+
+        //node.dial('/dns4/bootstrap.ipdw.tech/tcp/4002/wss/p2p/12D3KooWCctszqqsrdcmuh151GTsKAHTaCg8Jor9mUbTHjkEaA7S');
 
         return node;
     }
@@ -113,23 +127,28 @@ export class Libp2pFactory {
                     protocol: '/ipdw/dht/1.0.0',
                     clientMode: false,
                     kBucketSize: 256,
-                    pingTimeout: 3000
+                    pingTimeout: 10000
                 }),
                 pubsub: gossipsub({allowPublishToZeroTopicPeers: true}),
                 autoNAT: autoNAT(),
                 dcutr: dcutr(),
-                ping: ping({protocolPrefix: 'ipdw'})
+                ping: ping({protocolPrefix: 'ipdw'}),
+                fetch: fetch({protocolPrefix: 'ipdw'})
             },
             connectionManager: {
-                minConnections: 1
+                minConnections: 5
             },
         };
     }
 
-    private static libp2pNodeOptions() {
+    private static async libp2pNodeOptions() {
         console.log('p2p:configuring:node');
         return {
-            datastore: new FsDatastore('.datastore'), // Disable for local testing
+            datastore: await (async () => {
+                const d = new FsDatastore('.datastore');
+                await d.open();
+                return d;
+            })(), // Disable for local testing
             addresses: {
                 listen: [
                     '/ip4/0.0.0.0/tcp/0',
@@ -166,16 +185,17 @@ export class Libp2pFactory {
                     protocol: '/ipdw/dht/1.0.0',
                     clientMode: false,
                     kBucketSize: 256,
-                    pingTimeout: 3000
+                    pingTimeout: 10000
                 }),
                 pubsub: gossipsub({allowPublishToZeroTopicPeers: true}),
                 autoNAT: autoNAT(),
                 upnp: uPnPNAT(),
                 dcutr: dcutr(),
-                ping: ping({protocolPrefix: 'ipdw'})
+                ping: ping({protocolPrefix: 'ipdw'}),
+                fetch: fetch({protocolPrefix: 'ipdw'})
             },
             connectionManager: {
-                minConnections: 1
+                minConnections: 5
             },
         };
     }

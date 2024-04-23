@@ -5,11 +5,11 @@ import {Buffer} from "buffer";
 
 export class IPDW {
     public data: MapSharded;
-    public syncProvider: SynchronizationProvider;
+    public synchronization: SynchronizationProvider;
 
-    constructor(data: MapSharded, syncProvider: SynchronizationProvider) {
+    constructor(data: MapSharded, network: SynchronizationProvider) {
         this.data = data;
-        this.syncProvider = syncProvider;
+        this.synchronization = network;
     }
 
     public static async create(privateKey: string, storageProvider: StorageProvider, salt: Buffer = Buffer.from('1Qmzz2vn', 'utf8')): Promise<IPDW> {
