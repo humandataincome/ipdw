@@ -88,7 +88,7 @@ export class SynchronizationProvider {
         });
 
         // Handle the crdt sync protocol
-        await this.node.handle(this.protocolName, this.onProtocolConnection.bind(this))
+        await this.node.handle(this.protocolName, this.onProtocolConnection.bind(this), {runOnTransientConnection: true})
 
         // For connected peers find those really interested in topic and evaluate
         this.node.services.pubsub.getSubscribers(this.discoverTopic).forEach(this.onTopicSubscribedPeer.bind(this));
@@ -100,6 +100,7 @@ export class SynchronizationProvider {
         // Use swarm to find peer candidates and try connection to them
         (await this.swarm.getSubscribers(this.discoverTopic)).forEach((p: PeerId) => this.node.dial(p).then());
         await this.swarm.setSubscriptionListener(this.discoverTopic, (p: PeerId) => this.node.dial(p).then());
+        //await this.swarm.setSubscriptionListener(this.discoverTopic, (p: PeerId) => this.onTopicSubscribedPeer(p).then());
         await this.swarm.subscribe(this.discoverTopic);
 
         // Why bootstrap node does not propagate subscription?
@@ -154,7 +155,7 @@ export class SynchronizationProvider {
         try {
             this.events.dispatchTypedEvent('peer:syncing', new TypedCustomEvent('peer:syncing', {detail: {peerId, type: 'OUT' as 'OUT'}}));
 
-            const stream = await this.node.dialProtocol(peerId, this.protocolName);
+            const stream = await this.node.dialProtocol(peerId, this.protocolName, {runOnTransientConnection: true});
 
             const _this = this;
             await stream.sink((async function* () {
@@ -165,9 +166,12 @@ export class SynchronizationProvider {
                     const remoteStateVector = stateRes.value.subarray(0, stateRes.value.length);
                     yield Y.encodeStateAsUpdate(_this.crdtDoc, remoteStateVector);
                 }
-            })())
+            })());
+
+            await stream.close();
+
             this.events.dispatchTypedEvent('peer:synced', new TypedCustomEvent('peer:synced', {detail: {peerId, type: 'OUT' as 'OUT'}}));
-        } catch (e) {
+        } catch (e: any) {
             console.log('Dial failed on peer', peerId, e);
 
             console.log("ipdw:peer:remove", this.node.peerId, peerId);

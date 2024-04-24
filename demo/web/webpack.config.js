@@ -27,7 +27,7 @@ export default (env, argv) => ({
         },
 
         devServer: {
-            server: 'https',
+            server: 'https', // disable when testing with local bootstrap node
             open: ['/index.html'],
             watchFiles: ['src/*'],
             static: {

@@ -95,21 +95,22 @@ export class Libp2pFactory {
                 return d;
             })(), // Disable for local testing
              */
+
             addresses: {
                 listen: [
-                    '/webrtc',
+                    '/webrtc', // Not available in service workers
                 ]
             },
             transports: [
                 circuitRelayTransport({
                     discoverRelays: 1
                 }),
-                webRTC(),
-                webRTCDirect(),
+                webRTC(), // Not available in service workers
+                webRTCDirect(), // Not available in service workers
                 webSockets({
                     filter: filters.all
                 }),
-                webTransport(),
+                webTransport(), // Not available in service workers
             ],
             connectionEncryption: [noise()],
             streamMuxers: [yamux(), mplex()],
@@ -133,7 +134,7 @@ export class Libp2pFactory {
                     kBucketSize: 256,
                     pingTimeout: 10000
                 }),
-                pubsub: gossipsub({allowPublishToZeroTopicPeers: true}),
+                pubsub: gossipsub({allowPublishToZeroTopicPeers: true, runOnTransientConnection: true}),
                 autoNAT: autoNAT(),
                 dcutr: dcutr(),
                 ping: ping({protocolPrefix: 'ipdw'}),
@@ -141,6 +142,9 @@ export class Libp2pFactory {
             },
             connectionManager: {
                 minConnections: 1
+            },
+            connectionGater: {
+                //denyDialMultiaddr: () => false // Enable for local testing
             },
         };
     }

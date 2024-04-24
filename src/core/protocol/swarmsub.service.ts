@@ -95,8 +95,9 @@ export class SwarmsubService {
         if (!this.subscribers[cid.toString()]) {
             this.subscribers[cid.toString()] = [];
 
-            //This should be removed on unsubscribe
+            // This should be removed on unsubscribe
             this.node.addEventListener('connection:open', async (event) => {
+                // When connection are transient it could be a problem
                 if (event.detail.transient) return;
                 const fetchedSubscribers = await this.fetchSubscribers(event.detail.remotePeer, topic);
                 for (const fetchedSubscriber of fetchedSubscribers) {

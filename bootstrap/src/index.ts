@@ -22,6 +22,7 @@ import * as https from "https";
 import {pubsubPeerDiscovery} from "@libp2p/pubsub-peer-discovery";
 import {PeerRecord, RecordEnvelope} from "@libp2p/peer-record";
 import {fetch} from "@libp2p/fetch";
+import * as http from "http";
 
 
 async function main(): Promise<void> {
@@ -38,9 +39,11 @@ async function main(): Promise<void> {
     const privateKey = await unmarshalPrivateKey(uint8ArrayFromString(privateKeyString, "base64pad"));
     const peerId = await peerIdFromKeys(privateKey.public.bytes, privateKey.bytes);
 
-    const server = https.createServer();
+    let server;
 
     if (args.length === 2) {
+        const server = https.createServer();
+
         const certificatesFolder = args[1];
 
         const setSecureContext = () => {
@@ -55,10 +58,18 @@ async function main(): Promise<void> {
             fs.watch(certificatesFolder, {persistent: true}, setSecureContext);
             setSecureContext();
         }
+    } else {
+        server = http.createServer();
     }
 
     const node = await createLibp2p({
-        //datastore: new FsDatastore('.datastore'),
+        /*
+        datastore: await (async () => {
+            const d = new FsDatastore('.datastore');
+            await d.open();
+            return d;
+        })(), // Disable for local testing
+         */
         peerId,
         addresses: {
             listen: [
@@ -93,8 +104,11 @@ async function main(): Promise<void> {
             autoNAT: autoNAT(),
             relay: circuitRelayServer({
                 advertise: true,
+                maxInboundHopStreams: Infinity,
+                maxOutboundHopStreams: Infinity,
                 reservations: {
-                    maxReservations: Infinity
+                    maxReservations: Infinity,
+                    applyDefaultLimit: false
                 }
             }),
             ping: ping({protocolPrefix: 'ipdw'}),
