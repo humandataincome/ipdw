@@ -131,8 +131,8 @@ export class SynchronizationProvider {
         } else if (peerIndex !== -1 && !subscribed) {
             console.log("ipdw:peer:remove", this.node.peerId, event.detail);
 
-            this.events.dispatchTypedEvent('peer:remove', new TypedCustomEvent('peer:remove', {detail: {peerId: event.detail.peerId}}));
             this.peers.splice(peerIndex, 1);
+            this.events.dispatchTypedEvent('peer:remove', new TypedCustomEvent('peer:remove', {detail: {peerId: event.detail.peerId}}));
         }
     }
 
@@ -140,8 +140,8 @@ export class SynchronizationProvider {
         if (await this.verifyAccess(peerId)) {
             console.log("ipdw:peer:add", this.node.peerId);
 
-            this.events.dispatchTypedEvent('peer:add', new TypedCustomEvent('peer:add', {detail: {peerId: peerId}}));
             this.peers.push(peerId);
+            this.events.dispatchTypedEvent('peer:add', new TypedCustomEvent('peer:add', {detail: {peerId: peerId}}));
             await this.runProtocol(peerId);
         }
     }
@@ -173,11 +173,10 @@ export class SynchronizationProvider {
             this.events.dispatchTypedEvent('peer:synced', new TypedCustomEvent('peer:synced', {detail: {peerId, type: 'OUT' as 'OUT'}}));
         } catch (e: any) {
             console.log('Dial failed on peer', peerId, e);
-
             console.log("ipdw:peer:remove", this.node.peerId, peerId);
 
-            this.events.dispatchTypedEvent('peer:remove', new TypedCustomEvent('peer:remove', {detail: {peerId: peerId}}));
             this.peers.splice(this.peers.indexOf(peerId), 1);
+            this.events.dispatchTypedEvent('peer:remove', new TypedCustomEvent('peer:remove', {detail: {peerId: peerId}}));
         }
     }
 
@@ -206,11 +205,10 @@ export class SynchronizationProvider {
             this.events.dispatchTypedEvent('peer:synced', new TypedCustomEvent('peer:synced', {detail: {peerId: data.connection.remotePeer, type: 'IN' as 'IN'}}));
         } catch (e) {
             console.log('Connection failed on peer', data.connection.remotePeer, e);
-
             console.log("ipdw:peer:remove", this.node.peerId, data.connection.remotePeer);
 
-            this.events.dispatchTypedEvent('peer:remove', new TypedCustomEvent('peer:remove', {detail: {peerId: data.connection.remotePeer}}));
             this.peers.splice(this.peers.indexOf(data.connection.remotePeer), 1);
+            this.events.dispatchTypedEvent('peer:remove', new TypedCustomEvent('peer:remove', {detail: {peerId: data.connection.remotePeer}}));
         }
     }
 
