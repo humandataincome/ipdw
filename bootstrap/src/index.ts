@@ -39,15 +39,15 @@ async function main(): Promise<void> {
     const privateKey = await unmarshalPrivateKey(uint8ArrayFromString(privateKeyString, "base64pad"));
     const peerId = await peerIdFromKeys(privateKey.public.bytes, privateKey.bytes);
 
-    let server;
+    let server: http.Server<typeof http.IncomingMessage, typeof http.ServerResponse> | https.Server<typeof http.IncomingMessage, typeof http.ServerResponse>;
 
     if (args.length === 2) {
-        const server = https.createServer();
+        server = https.createServer();
 
         const certificatesFolder = args[1];
 
         const setSecureContext = () => {
-            server.setSecureContext({
+            (server as https.Server<typeof http.IncomingMessage, typeof http.ServerResponse>).setSecureContext({
                 key: fs.readFileSync(certificatesFolder + 'privkey.pem'),
                 cert: fs.readFileSync(certificatesFolder + 'cert.pem'),
                 ca: fs.readFileSync(certificatesFolder + 'chain.pem'),
