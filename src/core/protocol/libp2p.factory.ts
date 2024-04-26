@@ -40,7 +40,7 @@ export class Libp2pFactory {
 
         await metastore.open();
 
-        if (!await metastore.has(new Key('/peer-id'))) {
+        if (!await metastore.has(new Key('/peer-id'))) { // Here remove ! at beginning to support same device test otherwise they should communicate on the same peer
             const peerId = await createEd25519PeerId();
             const peerIdPB = exportToProtobuf(peerId);
             await metastore.put(new Key('/peer-id'), peerIdPB);
