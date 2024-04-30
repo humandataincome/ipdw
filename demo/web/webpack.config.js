@@ -10,6 +10,7 @@ export default (env, argv) => ({
         context: __dirname,
 
         entry: {
+            'index.worker': './src/index.worker.ts',
             index: './src/index.ts',
         },
 
@@ -39,6 +40,7 @@ export default (env, argv) => ({
             new HtmlWebpackPlugin({
                 template: './src/index.html',
                 filename: 'index.html',
+                chunks: ['index']
             })
         ],
 

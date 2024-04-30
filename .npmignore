@@ -8,10 +8,11 @@ src/**/*.ts
 tsconfig.json
 webpack.config.js
 
+node_modules
 test
 demo
 assets
-boostrap
+bootstrap
 
 test.ipdw
 ipfs-ipdw*

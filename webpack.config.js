@@ -21,10 +21,6 @@ const commonsConfig = {
         })
     ],
 
-    entry: {
-        index: './src/index.ts',
-    },
-
     resolve: {
         extensions: ['.ts', '.js', '.json'],
     },
@@ -47,6 +43,13 @@ const commonsConfig = {
 export default (env, argv) => ([
     webpackMerge(commonsConfig, {
         target: 'web',
+
+        entry: {
+            index: [
+                './src/utils/localstorage-worker.polyfill.ts',
+                './src/index.ts'
+            ]
+        },
 
         experiments: {
             outputModule: true,
@@ -83,6 +86,10 @@ export default (env, argv) => ([
 
     webpackMerge(commonsConfig, {
         target: 'node',
+
+        entry: {
+            index: './src/index.ts',
+        },
 
         externals: [nodeExternals({importType: 'module'})],
 

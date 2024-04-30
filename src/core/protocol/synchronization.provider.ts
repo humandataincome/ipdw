@@ -88,7 +88,7 @@ export class SynchronizationProvider {
         });
 
         // Handle the crdt sync protocol
-        await this.node.handle(this.protocolName, this.onProtocolConnection.bind(this), {runOnTransientConnection: true})
+        await this.node.handle(this.protocolName, this.onProtocolConnection.bind(this), {runOnTransientConnection: false})
 
         // For connected peers find those really interested in topic and evaluate
         this.node.services.pubsub.getSubscribers(this.discoverTopic).forEach(this.onTopicSubscribedPeer.bind(this));
@@ -155,7 +155,7 @@ export class SynchronizationProvider {
         try {
             this.events.dispatchTypedEvent('peer:syncing', new TypedCustomEvent('peer:syncing', {detail: {peerId, type: 'OUT' as 'OUT'}}));
 
-            const stream = await this.node.dialProtocol(peerId, this.protocolName, {runOnTransientConnection: true});
+            const stream = await this.node.dialProtocol(peerId, this.protocolName, {runOnTransientConnection: false});
 
             const _this = this;
             await stream.sink((async function* () {

@@ -1,3 +1,5 @@
+import '../../utils/webrtc-worker.polyfill';
+
 import * as Libp2p from 'libp2p';
 import {noise} from '@chainsafe/libp2p-noise';
 import {yamux} from "@chainsafe/libp2p-yamux";
@@ -99,6 +101,8 @@ export class Libp2pFactory {
             addresses: {
                 listen: [
                     '/webrtc', // Not available in service workers
+                    //'/ip4/127.0.0.1/tcp/4002/ws/p2p/12D3KooWFMZzQ58LCRvnsu6747nbKqzLU6TamaTBYYzdasLGAbKQ/p2p-circuit',
+                    //'/dns4/bootstrap.ipdw.tech/tcp/4002/wss/p2p/12D3KooWCctszqqsrdcmuh151GTsKAHTaCg8Jor9mUbTHjkEaA7S/p2p-circuit'
                 ]
             },
             transports: [
@@ -134,7 +138,7 @@ export class Libp2pFactory {
                     kBucketSize: 256,
                     pingTimeout: 10000
                 }),
-                pubsub: gossipsub({allowPublishToZeroTopicPeers: true, runOnTransientConnection: true}),
+                pubsub: gossipsub({allowPublishToZeroTopicPeers: true, runOnTransientConnection: false}),
                 autoNAT: autoNAT(),
                 dcutr: dcutr(),
                 ping: ping({protocolPrefix: 'ipdw'}),
