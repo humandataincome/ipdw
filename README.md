@@ -1,13 +1,13 @@
 # ipdw (InterPlanetary Data Wallet)
 
-<img src="assets/logo.svg" width="256" alt="logo"/>
-
-[![npm (scoped)](https://img.shields.io/npm/v/ipdw)](https://www.npmjs.com/package/ipdw) [![node-current (scoped)](https://img.shields.io/node/v/idpw)](https://www.npmjs.com/package/ipdw)
-
 InterPlanetary Data Wallet (IPDW): store users data within a secure distributed storage.
 It enables to build a real decentralised network (Web 0) without the need of centralized database.
 You can take advantage of P2P interactions, database-less, conflict-free replication, and much more.
 The main idea is to shard data structures in blocks and to propagate them encrypted and signed.
+
+<img src="assets/logo.svg" width="256" alt="logo"/>
+
+[![npm (scoped)](https://img.shields.io/npm/v/ipdw)](https://www.npmjs.com/package/ipdw) [![node-current (scoped)](https://img.shields.io/node/v/idpw)](https://www.npmjs.com/package/ipdw)
 
 ## Features
 

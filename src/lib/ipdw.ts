@@ -25,6 +25,7 @@ export class IPDW {
         const blockStorage = new BlockStorage(storageProvider, privateBlockFactory);
 
         const data = await MapSharded.create(blockStorage);
+
         const node = await Libp2pFactory.create();
         const syncProvider = new SynchronizationProvider(blockStorage, node, publicKey);
 

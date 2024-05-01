@@ -39,13 +39,10 @@ export class MapSharded {
     }
 
     public static async create(blockStorage: BlockStorage): Promise<MapSharded> {
-        const keys: string[] = [];
-
-        for (let i = 0; i < await blockStorage.length(); i++) {
-            const block = await blockStorage.get(i);
-            const res = await this.decode(block!);
-            keys.push(res!.key);
-        }
+        // On safari indexeddb could be slow
+        const blocks = await Promise.all([...Array(await blockStorage.length()).keys()].map(i => blockStorage.get(i)!));
+        const decoded = await Promise.all(blocks.map(b => this.decode(b!)));
+        const keys = decoded.map(d => d!.key);
 
         return new MapSharded(blockStorage, keys);
     }

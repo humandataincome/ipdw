@@ -11,15 +11,19 @@ export class IndexedDBStorageProvider implements StorageProvider {
 
     public static async Init(basePath: string = ".storage/"): Promise<IndexedDBStorageProvider> {
         return new Promise((resolve, reject) => {
-            const request = indexedDB.open(".storage", 3);
+            const request = indexedDB.open(basePath, 3);
             request.onupgradeneeded = (event) => {
-                request.result
-                    .createObjectStore(basePath, {keyPath: 'key'})
-                    .createIndex("value", "value", {unique: false});
-
+                if (!request.result.objectStoreNames.contains(basePath)) {
+                    request.result
+                        //.createObjectStore(basePath)
+                        .createObjectStore(basePath, {keyPath: 'key'})
+                        .createIndex("keyIndex", "key");
+                    //.createObjectStore(basePath, {keyPath: 'key'})
+                    //.createIndex("value", "value", {unique: false});
+                }
             };
-            request.onerror = reject;
-            request.onblocked = reject;
+            request.onerror = () => reject(new Error("Failed to open the IndexedDB"));
+            request.onblocked = () => reject(new Error("Blocked to open the IndexedDB"));
             request.onsuccess = () => resolve(new IndexedDBStorageProvider(request.result, basePath));
         });
     }
@@ -46,6 +50,7 @@ export class IndexedDBStorageProvider implements StorageProvider {
     }
 
     public async get(key: string): Promise<Uint8Array | undefined> {
+        // Really slow when sequential get, maybe need to implement getMany
         const res = await IndexedDBStorageProvider.IDBRequestPromisify(this.database.transaction(this.basePath, "readonly").objectStore(this.basePath).get(key));
         return res ? new Uint8Array(res.value) : undefined;
     }
@@ -54,5 +59,6 @@ export class IndexedDBStorageProvider implements StorageProvider {
         return await IndexedDBStorageProvider.IDBRequestPromisify(this.database.transaction(this.basePath, "readonly").objectStore(this.basePath).getAllKeys()) as string[];
     }
 
-    //For better stream support add cursor
+    // To clear all await indexedDB.databases().then(dbs => dbs.forEach(db => indexedDB.deleteDatabase(db.name)))
+    // For better stream support add cursor
 }

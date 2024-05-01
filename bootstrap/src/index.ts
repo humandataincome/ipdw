@@ -39,27 +39,16 @@ async function main(): Promise<void> {
     const privateKey = await unmarshalPrivateKey(uint8ArrayFromString(privateKeyString, "base64pad"));
     const peerId = await peerIdFromKeys(privateKey.public.bytes, privateKey.bytes);
 
-    let server: http.Server<typeof http.IncomingMessage, typeof http.ServerResponse> | https.Server<typeof http.IncomingMessage, typeof http.ServerResponse>;
+    let webSocketOpts = {};
 
     if (args.length === 2) {
-        server = https.createServer();
-
         const certificatesFolder = args[1];
 
-        const setSecureContext = () => {
-            (server as https.Server<typeof http.IncomingMessage, typeof http.ServerResponse>).setSecureContext({
-                key: fs.readFileSync(certificatesFolder + 'privkey.pem'),
-                cert: fs.readFileSync(certificatesFolder + 'cert.pem'),
-                ca: fs.readFileSync(certificatesFolder + 'chain.pem'),
-            });
+        webSocketOpts = {
+            key: fs.readFileSync(certificatesFolder + 'privkey.pem'),
+            cert: fs.readFileSync(certificatesFolder + 'cert.pem'),
+            ca: fs.readFileSync(certificatesFolder + 'chain.pem'),
         }
-
-        if (fs.existsSync(certificatesFolder)) {
-            fs.watch(certificatesFolder, {persistent: true}, setSecureContext);
-            setSecureContext();
-        }
-    } else {
-        server = http.createServer();
     }
 
     const node = await createLibp2p({
@@ -72,10 +61,14 @@ async function main(): Promise<void> {
          */
         peerId,
         addresses: {
+            announce: [
+                '/dns4/bootstrap.ipdw.tech/tcp/4001', // Disable for local testing
+                '/dns4/bootstrap.ipdw.tech/tcp/4002/wss' // Disable for local testing
+            ],
             listen: [
                 '/ip4/0.0.0.0/tcp/4001',
                 '/ip4/0.0.0.0/tcp/4002/ws',
-                '/webrtc'
+                '/webrtc',
             ]
         },
         transports: [
@@ -85,7 +78,7 @@ async function main(): Promise<void> {
             tcp(),
             webRTC(),
             webRTCDirect(),
-            webSockets({websocket: {rejectUnauthorized: false}, server}),
+            webSockets(webSocketOpts),
         ],
         connectionEncryption: [noise()],
         streamMuxers: [yamux(), mplex()],
@@ -117,6 +110,7 @@ async function main(): Promise<void> {
             fetch: fetch({protocolPrefix: 'ipdw'})
         },
         connectionManager: {
+            maxConnections: Infinity,
             minConnections: 0
         },
     });

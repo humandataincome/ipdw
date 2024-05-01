@@ -21,7 +21,6 @@ import {tcp} from "@libp2p/tcp";
 import {uPnPNAT} from '@libp2p/upnp-nat';
 import {IDBDatastore} from 'datastore-idb'
 import {FsDatastore} from "datastore-fs";
-import {pubsubPeerDiscovery} from "@libp2p/pubsub-peer-discovery";
 import {createEd25519PeerId, createFromProtobuf, exportToProtobuf} from '@libp2p/peer-id-factory';
 import {Key} from 'interface-datastore';
 import {Fetch, fetch} from "@libp2p/fetch";
@@ -119,7 +118,7 @@ export class Libp2pFactory {
             connectionEncryption: [noise()],
             streamMuxers: [yamux(), mplex()],
             peerDiscovery: [
-                pubsubPeerDiscovery({topics: ['_peer-discovery._ipdw._pubsub']}),
+                //pubsubPeerDiscovery({topics: ['_peer-discovery._ipdw._pubsub']}),
                 bootstrap({
                     list: [
                         //'/ip4/127.0.0.1/tcp/4002/ws/p2p/12D3KooWFMZzQ58LCRvnsu6747nbKqzLU6TamaTBYYzdasLGAbKQ', // Enable for local testing
@@ -167,8 +166,6 @@ export class Libp2pFactory {
                 listen: [
                     '/ip4/0.0.0.0/tcp/0',
                     '/ip4/0.0.0.0/tcp/0/ws',
-                    '/ip6/::/tcp/0',
-                    '/ip6/::/tcp/0/ws',
                     '/webrtc'
                 ]
             },
@@ -187,7 +184,7 @@ export class Libp2pFactory {
             streamMuxers: [yamux(), mplex()],
             peerDiscovery: [
                 mdns(),
-                pubsubPeerDiscovery({topics: ['_peer-discovery._ipdw._pubsub']}),
+                //pubsubPeerDiscovery({topics: ['_peer-discovery._ipdw._pubsub']}),
                 bootstrap({
                     list: [
                         //'/ip4/127.0.0.1/tcp/4001/p2p/12D3KooWFMZzQ58LCRvnsu6747nbKqzLU6TamaTBYYzdasLGAbKQ', // Enable for local testing
