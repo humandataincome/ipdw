@@ -34,6 +34,8 @@ export class MapSharded {
         this.blockStorage.events.addEventListener('delete', async v => {
             if (!v.detail)
                 return;
+
+            // Check if it works
             this.keys.splice(v.detail.index, 1);
         });
     }

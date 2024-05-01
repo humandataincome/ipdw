@@ -124,6 +124,10 @@ export class SynchronizationProvider {
 
     private async onTopicSubscriptionChange(event: CustomEvent<SubscriptionChangeData>) {
         console.log("subscription:change", this.node.peerId, event.detail);
+
+        if (event.detail.peerId.equals(this.node.peerId))
+            return;
+
         const subscribed = event.detail.subscriptions.filter(s => s.topic === this.discoverTopic && s.subscribe).length === 1;
         const peerIndex = this.peers.indexOf(event.detail.peerId);
         if (peerIndex === -1 && subscribed) {

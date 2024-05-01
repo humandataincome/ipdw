@@ -109,16 +109,29 @@ export class SwarmsubService {
                 }
             });
 
+            this.node.addEventListener('peer:disconnect', async (event) => {
+                console.log('peer:disconnect', event.detail)
+
+                const index = this.subscribers[cid.toString()].findIndex(p => p.equals(event.detail));
+                if (index !== -1)
+                    this.subscribers[cid.toString()].splice(index, 1);
+            });
+
             (async () => {
-                for (const connectedPeer of this.node.getPeers()) {
-                    const fetchedSubscribers = await this.fetchSubscribers(connectedPeer, topic);
-                    for (const fetchedSubscriber of fetchedSubscribers) {
-                        if (!fetchedSubscriber.equals(this.node.peerId) && this.subscribers[cid.toString()].findIndex(p => p.equals(fetchedSubscriber)) === -1) {
-                            console.log('swarm:found', this.node.peerId, fetchedSubscriber);
-                            this.subscribers[cid.toString()].push(fetchedSubscriber);
-                            await this.listeners[cid.toString()](fetchedSubscriber);
+                while (this.listeners[cid.toString()]) {
+                    console.log('swarm:searching');
+                    for (const connectedPeer of this.node.getPeers()) {
+                        const fetchedSubscribers = await this.fetchSubscribers(connectedPeer, topic);
+                        for (const fetchedSubscriber of fetchedSubscribers) {
+                            if (!fetchedSubscriber.equals(this.node.peerId) && this.subscribers[cid.toString()].findIndex(p => p.equals(fetchedSubscriber)) === -1) {
+                                console.log('swarm:found', this.node.peerId, fetchedSubscriber);
+                                this.subscribers[cid.toString()].push(fetchedSubscriber);
+                                await this.listeners[cid.toString()](fetchedSubscriber);
+                            }
                         }
                     }
+                    if (this.listeners[cid.toString()])
+                        await new Promise(r => setTimeout(r, 15 * 1000)); // Refresh TTL in DHT
                 }
             })().then();
         }
