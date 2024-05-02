@@ -155,7 +155,7 @@ export class SynchronizationProvider {
     }
 
     private async onTopicSubscribedPeer(peerId: PeerId) {
-        if (this.peers.indexOf(peerId) !== -1 && await this.verifyAccess(peerId)) {
+        if (this.peers.indexOf(peerId) === -1 && await this.verifyAccess(peerId)) {
             console.log("ipdw:peer:add", this.node.peerId, peerId);
 
             this.peers.push(peerId);
