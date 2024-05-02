@@ -1,7 +1,7 @@
 // This polyfill is needed when running in service worker or in chrome extensions background service
 
 // @ts-ignore
-import * as workerWebRTC from 'worker-webrtc/worker.js';
+//import * as workerWebRTC from 'worker-webrtc/worker.js';
 
 /*
 if (!globalThis.RTCPeerConnection) {
@@ -13,5 +13,5 @@ if (!globalThis.RTCPeerConnection) {
  */
 
 export function webRTCPolyfillCreate(port: any): void {
-    workerWebRTC.addListener(port);
+    //workerWebRTC.addListener(port);
 }

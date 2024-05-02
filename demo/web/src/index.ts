@@ -93,6 +93,6 @@ async function workerMain(): Promise<void> {
 }
 
 (async () => {
-    //await main();
-    await workerMain();
+    await main();
+    //await workerMain();
 })();
