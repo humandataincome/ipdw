@@ -137,7 +137,7 @@ export class Libp2pFactory {
                     kBucketSize: 256,
                     pingTimeout: 10000
                 }),
-                pubsub: gossipsub({allowPublishToZeroTopicPeers: true, runOnTransientConnection: false}),
+                pubsub: gossipsub({allowPublishToZeroTopicPeers: true, runOnTransientConnection: true}),
                 autoNAT: autoNAT(),
                 //dcutr: dcutr(),
                 ping: ping({protocolPrefix: 'ipdw'}),

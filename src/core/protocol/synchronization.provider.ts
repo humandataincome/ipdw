@@ -88,7 +88,7 @@ export class SynchronizationProvider {
         });
 
         // Handle the crdt sync protocol
-        await this.node.handle(this.protocolName, this.onProtocolConnection.bind(this), {runOnTransientConnection: false})
+        await this.node.handle(this.protocolName, this.onProtocolConnection.bind(this), {runOnTransientConnection: true})
 
         // For connected peers find those really interested in topic and evaluate
         this.node.services.pubsub.getSubscribers(this.discoverTopic).forEach(this.onTopicSubscribedPeer.bind(this));
@@ -133,7 +133,7 @@ export class SynchronizationProvider {
         if (peerIndex === -1 && subscribed) {
             await this.onTopicSubscribedPeer(event.detail.peerId);
         } else if (peerIndex !== -1 && !subscribed) {
-            console.log("ipdw:peer:remove", this.node.peerId, event.detail);
+            console.log("ipdw:peer:remove", this.node.peerId, event.detail.peerId);
 
             this.peers.splice(peerIndex, 1);
             await this.node.hangUp(this.node.peerId);
@@ -143,7 +143,7 @@ export class SynchronizationProvider {
 
     private async onTopicSubscribedPeer(peerId: PeerId) {
         if (await this.verifyAccess(peerId)) {
-            console.log("ipdw:peer:add", this.node.peerId);
+            console.log("ipdw:peer:add", this.node.peerId, peerId);
 
             this.peers.push(peerId);
             this.events.dispatchTypedEvent('peer:add', new TypedCustomEvent('peer:add', {detail: {peerId: peerId}}));
@@ -160,7 +160,7 @@ export class SynchronizationProvider {
         try {
             this.events.dispatchTypedEvent('peer:syncing', new TypedCustomEvent('peer:syncing', {detail: {peerId, type: 'OUT' as 'OUT'}}));
 
-            const stream = await this.node.dialProtocol(peerId, this.protocolName, {runOnTransientConnection: false});
+            const stream = await this.node.dialProtocol(peerId, this.protocolName, {runOnTransientConnection: true});
 
             const _this = this;
             await stream.sink((async function* () {
@@ -171,8 +171,7 @@ export class SynchronizationProvider {
                     const remoteStateVector = stateRes.value.subarray(0, stateRes.value.length);
                     yield Y.encodeStateAsUpdate(_this.crdtDoc, remoteStateVector);
                 }
-                await stream.close();
-
+                //await stream.close();
             })());
 
             this.events.dispatchTypedEvent('peer:synced', new TypedCustomEvent('peer:synced', {detail: {peerId, type: 'OUT' as 'OUT'}}));
