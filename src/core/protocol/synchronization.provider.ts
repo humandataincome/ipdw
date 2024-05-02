@@ -84,7 +84,7 @@ export class SynchronizationProvider {
 
         this.crdtDoc.on('update', async () => {
             for (const peerId of this.peers)
-                await this.runProtocol(peerId);
+                await this.runProtocol(peerId); // Full mesh sync
         });
 
         // Handle the crdt sync protocol
@@ -99,8 +99,8 @@ export class SynchronizationProvider {
 
         // Use swarm to find peer candidates and try connection to them
         (await this.swarm.getSubscribers(this.discoverTopic)).forEach((p: PeerId) => this.node.dial(p).then());
-        await this.swarm.setSubscriptionListener(this.discoverTopic, (p: PeerId) => this.node.dial(p).then());
-        //await this.swarm.setSubscriptionListener(this.discoverTopic, (p: PeerId) => this.onTopicSubscribedPeer(p).then());
+        //await this.swarm.setSubscriptionListener(this.discoverTopic, (p: PeerId) => this.node.dial(p).then());
+        await this.swarm.setSubscriptionListener(this.discoverTopic, (p: PeerId) => this.onTopicSubscribedPeer(p).then());
         await this.swarm.subscribe(this.discoverTopic);
 
         // Why bootstrap node does not propagate subscription?
@@ -136,6 +136,7 @@ export class SynchronizationProvider {
             console.log("ipdw:peer:remove", this.node.peerId, event.detail);
 
             this.peers.splice(peerIndex, 1);
+            await this.node.hangUp(this.node.peerId);
             this.events.dispatchTypedEvent('peer:remove', new TypedCustomEvent('peer:remove', {detail: {peerId: event.detail.peerId}}));
         }
     }
@@ -170,9 +171,9 @@ export class SynchronizationProvider {
                     const remoteStateVector = stateRes.value.subarray(0, stateRes.value.length);
                     yield Y.encodeStateAsUpdate(_this.crdtDoc, remoteStateVector);
                 }
-            })());
+                await stream.close();
 
-            await stream.close();
+            })());
 
             this.events.dispatchTypedEvent('peer:synced', new TypedCustomEvent('peer:synced', {detail: {peerId, type: 'OUT' as 'OUT'}}));
         } catch (e: any) {
@@ -180,6 +181,7 @@ export class SynchronizationProvider {
             console.log("ipdw:peer:remove", this.node.peerId, peerId);
 
             this.peers.splice(this.peers.indexOf(peerId), 1);
+            await this.node.hangUp(this.node.peerId);
             this.events.dispatchTypedEvent('peer:remove', new TypedCustomEvent('peer:remove', {detail: {peerId: peerId}}));
         }
     }
@@ -201,8 +203,8 @@ export class SynchronizationProvider {
                     if (!updateRes.done) {
                         const remoteUpdateVector = updateRes.value.subarray(0, updateRes.value.length);
                         Y.applyUpdate(this.crdtDoc, remoteUpdateVector);
-                        await stream.close();
                     }
+                    await stream.close();
                 }
             }
 
@@ -212,6 +214,7 @@ export class SynchronizationProvider {
             console.log("ipdw:peer:remove", this.node.peerId, data.connection.remotePeer);
 
             this.peers.splice(this.peers.indexOf(data.connection.remotePeer), 1);
+            await this.node.hangUp(this.node.peerId);
             this.events.dispatchTypedEvent('peer:remove', new TypedCustomEvent('peer:remove', {detail: {peerId: data.connection.remotePeer}}));
         }
     }

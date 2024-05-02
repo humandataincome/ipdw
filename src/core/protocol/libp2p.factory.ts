@@ -139,7 +139,7 @@ export class Libp2pFactory {
                 }),
                 pubsub: gossipsub({allowPublishToZeroTopicPeers: true, runOnTransientConnection: false}),
                 autoNAT: autoNAT(),
-                dcutr: dcutr(),
+                //dcutr: dcutr(),
                 ping: ping({protocolPrefix: 'ipdw'}),
                 fetch: fetch({protocolPrefix: 'ipdw'})
             },

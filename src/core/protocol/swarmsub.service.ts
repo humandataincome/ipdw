@@ -109,10 +109,11 @@ export class SwarmsubService {
                 }
             });
 
-            this.node.addEventListener('peer:disconnect', async (event) => {
-                console.log('peer:disconnect', event.detail)
+            this.node.addEventListener('connection:close', async (event) => {
+                console.log('connection:close', event.detail)
 
-                const index = this.subscribers[cid.toString()].findIndex(p => p.equals(event.detail));
+                // This could be done better
+                const index = this.subscribers[cid.toString()].findIndex(p => p.equals(event.detail.remotePeer));
                 if (index !== -1)
                     this.subscribers[cid.toString()].splice(index, 1);
             });
