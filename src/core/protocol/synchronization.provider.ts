@@ -24,6 +24,7 @@ export class SynchronizationProvider {
     private readonly discoverTopic: string;
     private readonly protocolName: string;
     private readonly crdtDoc: Y.Doc;
+    private autoSync: boolean = true;
 
     constructor(blockStorage: BlockStorage, node: Libp2p<{ pubsub: PubSub, dht: KadDHT, fetch: Fetch }>, roomId: string) {
         this.node = node;
@@ -83,8 +84,9 @@ export class SynchronizationProvider {
         });
 
         this.crdtDoc.on('update', async () => {
-            for (const peerId of this.peers)
-                await this.runProtocol(peerId); // Full mesh sync
+            if (this.autoSync)
+                for (const peerId of this.peers)
+                    await this.runProtocol(peerId); // Full mesh sync
         });
 
         // Handle the crdt sync protocol
@@ -104,6 +106,17 @@ export class SynchronizationProvider {
         await this.swarm.subscribe(this.discoverTopic);
 
         // Why bootstrap node does not propagate subscription?
+    }
+
+    public async batch(edit: () => Promise<void>) {
+        this.autoSync = false;
+
+        await edit();
+
+        for (const peerId of this.peers)
+            await this.runProtocol(peerId); // Full mesh sync
+
+        this.autoSync = true;
     }
 
     public async stop(): Promise<void> {
