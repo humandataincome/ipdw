@@ -16,7 +16,7 @@ import type {PubSub} from '@libp2p/interface';
 import {autoNAT} from '@libp2p/autonat';
 import {KadDHT, kadDHT} from '@libp2p/kad-dht';
 import {ping} from '@libp2p/ping';
-import {webTransport} from '@libp2p/webtransport';
+//import {webTransport} from '@libp2p/webtransport';
 import {tcp} from "@libp2p/tcp";
 import {uPnPNAT} from '@libp2p/upnp-nat';
 import {IDBDatastore} from 'datastore-idb'
@@ -112,7 +112,7 @@ export class Libp2pFactory {
                 webSockets({
                     filter: filters.all
                 }),
-                ...(globalThis.WebTransport !== undefined ? [webTransport()] : []),
+                //...(globalThis.WebTransport !== undefined ? [webTransport()] : []),
             ],
             connectionEncryption: [noise()],
             streamMuxers: [yamux(), mplex()],
