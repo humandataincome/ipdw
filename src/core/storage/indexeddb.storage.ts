@@ -59,6 +59,9 @@ export class IndexedDBStorageProvider implements StorageProvider {
         return await IndexedDBStorageProvider.IDBRequestPromisify(this.database.transaction(this.basePath, "readonly").objectStore(this.basePath).getAllKeys()) as string[];
     }
 
-    // To clear all await indexedDB.databases().then(dbs => dbs.forEach(db => indexedDB.deleteDatabase(db.name)))
+    public async clear(): Promise<void> {
+        return await indexedDB.databases().then(dbs => dbs.forEach(db => indexedDB.deleteDatabase(db.name)))
+    }
+
     // For better stream support add cursor
 }

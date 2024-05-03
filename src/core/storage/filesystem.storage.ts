@@ -31,4 +31,10 @@ export class FileSystemStorageProvider implements StorageProvider {
             fs.readdir(this.basePath, (err, files) => err ? reject(err) : resolve(files))
         });
     }
+
+    public async clear(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            fs.rmdir(this.basePath, (err) => err ? reject(err) : resolve())
+        });
+    }
 }

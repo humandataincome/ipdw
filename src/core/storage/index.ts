@@ -6,6 +6,8 @@ export interface StorageProvider {
     get(key: string): Promise<Uint8Array | undefined>;
 
     ls(): Promise<string[]>;
+
+    clear(): Promise<void>
 }
 
 export * from "./memory.storage"
