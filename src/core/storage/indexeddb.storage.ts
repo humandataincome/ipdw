@@ -60,7 +60,13 @@ export class IndexedDBStorageProvider implements StorageProvider {
     }
 
     public async clear(): Promise<void> {
-        return await indexedDB.databases().then(dbs => dbs.forEach(db => indexedDB.deleteDatabase(db.name)))
+        return new Promise((resolve, reject) => {
+            this.database.close();
+            const request = indexedDB.deleteDatabase(this.database.name);
+
+            request.onerror = () => reject(new Error("Failed to delete the database"));
+            request.onsuccess = () => resolve();
+        });
     }
 
     // For better stream support add cursor
