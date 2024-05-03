@@ -1,6 +1,6 @@
 {
   "name": "ipdw",
-  "version": "2.1.8",
+  "version": "2.1.9",
   "author": "Andrea Silvi",
   "type": "module",
   "main": "./dist/node/index.js",

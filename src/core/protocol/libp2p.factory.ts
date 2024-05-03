@@ -108,12 +108,11 @@ export class Libp2pFactory {
                 circuitRelayTransport({
                     discoverRelays: 1
                 }),
-                webRTC(), // Not available in service workers
-                webRTCDirect(), // Not available in service workers
+                ...(globalThis.RTCPeerConnection !== undefined ? [webRTC(), webRTCDirect()] : []),
                 webSockets({
                     filter: filters.all
                 }),
-                webTransport(), // Not available in service workers
+                ...(globalThis.WebTransport !== undefined ? [webTransport()] : []),
             ],
             connectionEncryption: [noise()],
             streamMuxers: [yamux(), mplex()],
