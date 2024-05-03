@@ -25,6 +25,10 @@ export class MemoryStorageProvider implements StorageProvider {
     public async ls(): Promise<string[]> {
         return Array.from(this.storage.keys());
     }
+
+    public async clear(): Promise<void> {
+        return this.storage.clear();
+    }
 }
 
 // See docs:
