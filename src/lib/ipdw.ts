@@ -29,7 +29,8 @@ export class IPDW {
         const node = await Libp2pFactory.create();
         const syncProvider = new SynchronizationProvider(blockStorage, node, publicKey);
 
-        await syncProvider.start();
+        // WARNING: Disabled auto start
+        // await syncProvider.start();
 
         return new IPDW(data, syncProvider);
     }
