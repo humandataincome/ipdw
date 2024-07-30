@@ -18,8 +18,8 @@ export * from "./stream.provider"
 
 export * from "./algorand.storage"
 export * from "./bnbgreenfield.storage"
-export * from "./filecoin.storage"
-export * from "./ipfs.storage"
+//export * from "./filecoin.storage"
+//export * from "./ipfs.storage"
 
 export * from "./cached.storage"
 

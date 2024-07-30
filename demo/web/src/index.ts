@@ -2,7 +2,7 @@
 Wallet(IPDW TEST) - Address: 0xB5ea1eC38f0547004d5841a2FB5F33Ee07113Bcf - Private key: 0xb577c4367d79f1a7a0c8353f7937d601758d92c35df958781d72d70f9177e52f
  */
 
-import {IndexedDBStorageProvider, MemoryStorageProvider, IPDW, webRTCPolyfillListen} from "ipdw";
+import {IPDW, MemoryStorageProvider, webRTCPolyfillListen} from "ipdw";
 
 localStorage.debug = 'libp2p:*'
 

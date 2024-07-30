@@ -67,6 +67,12 @@ export default (env, argv) => ([
                 crypto: 'crypto-browserify',
                 stream: 'stream-browserify',
                 fs: false,
+                assert: 'assert/',
+                vm: 'vm-browserify',
+                http: 'stream-http',
+                https: 'https-browserify',
+                zlib: 'browserify-zlib',
+                url: 'url/'
             },
             alias: {
                 '@libp2p/upnp-nat': false,
