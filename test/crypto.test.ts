@@ -14,6 +14,9 @@ async function main(): Promise<void> {
     console.log('notVerified', notVerified);
 }
 
-(async () => {
-    await main();
-})();
+main()
+    .then(() => process.exit(0))
+    .catch(err => {
+        console.error(err);
+        process.exit(1);
+    });

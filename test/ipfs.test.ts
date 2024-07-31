@@ -1,13 +1,7 @@
-import {AlgorandStorageProvider} from "../src";
+import {IPFSStorageProvider} from "../src";
 
 async function main(): Promise<void> {
-    const provider = new AlgorandStorageProvider(
-        "",
-        "https://testnet-algorand.api.purestake.io/ps2",
-        "",
-        1,
-        ""
-    );
+    const provider = await IPFSStorageProvider.Init('', '', '');
 
     await provider.set("myKey", new TextEncoder().encode("myValue"));
     const value = await provider.get("myKey");

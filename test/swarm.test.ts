@@ -18,6 +18,9 @@ async function main(): Promise<void> {
     await runNode2();
 }
 
-(async () => {
-    await main();
-})();
+main()
+    .then(() => process.exit(0))
+    .catch(err => {
+        console.error(err);
+        process.exit(1);
+    });
