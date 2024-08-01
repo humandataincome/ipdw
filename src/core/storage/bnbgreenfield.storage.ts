@@ -7,38 +7,24 @@ import {StorageProvider} from "./";
 import {Buffer} from "buffer";
 import {DeliverTxResponse} from "@cosmjs/stargate";
 
-// https://www.bnbchainlist.org
-// https://docs.bnbchain.org/bnb-greenfield/
-// https://docs.bnbchain.org/bnb-greenfield/for-developers/network-endpoint/endpoints
-// https://docs.bnbchain.org/bnb-greenfield/for-developers/network-endpoint/network-info
-// https://docs.bnbchain.org/bnb-greenfield/getting-started/get-test-bnb/
+// https://testnet.dcellar.io/buckets
 
-
-export const GREENFIELD_CHAIN_TESTNET_RPC_URL = 'https://gnfd-testnet-fullnode-tendermint-us.bnbchain.org';
-export const GREENFIELD_SP_TESTNET_RPC_URL = 'https://gnfd-testnet-sp1.bnbchain.org';
-export const GREENFIELD_TESTNET_CHAIN_ID = 5600;
-
-export const GREENFIELD_CHAIN_MAINNET_RPC_URL = 'https://greenfield-chain.bnbchain.org';
-export const GREENFIELD_SP_MAINNET_RPC_URL = 'https://greenfield-sp.bnbchain.org';
-export const GREENFIELD_MAINNET_CHAIN_ID = 1017;
-
-export const GREENFIELD_CHAIN_RPC_URL = GREENFIELD_CHAIN_TESTNET_RPC_URL
-export const GREENFIELD_SP_RPC_URL = GREENFIELD_SP_TESTNET_RPC_URL;
-export const GREENFIELD_CHAIN_ID = GREENFIELD_TESTNET_CHAIN_ID;
-
+export const GREENFIELD_CHAIN_RPC_URL = process.env.NODE_ENV === 'dev' ? 'https://gnfd-testnet-fullnode-tendermint-us.bnbchain.org' : 'https://greenfield-chain.bnbchain.org';
+export const GREENFIELD_CHAIN_ID = process.env.NODE_ENV === 'dev' ? 5600 : 1017;
 export const DEFAULT_BUCKET_NAME = 'ipdw';
-
 
 export class BNBGreenfieldStorageProvider implements StorageProvider {
     private readonly privateKey: string;
     private readonly address: string;
     private readonly bucketName: string;
+    private readonly spEndpoint: string;
     private client: Client;
 
-    constructor(privateKey: string, address: string, bucketName: string, client: Client) {
+    constructor(privateKey: string, address: string, bucketName: string, spEndpoint: string, client: Client) {
         this.privateKey = privateKey;
         this.address = address;
         this.bucketName = bucketName;
+        this.spEndpoint = spEndpoint;
         this.client = client;
     }
 
@@ -46,7 +32,8 @@ export class BNBGreenfieldStorageProvider implements StorageProvider {
         const client = Client.create(GREENFIELD_CHAIN_RPC_URL, GREENFIELD_CHAIN_ID.toString());
 
         const sps = await client.sp.getStorageProviders();
-        const primarySP = sps[0].operatorAddress;
+        const sortedSps = sps.sort((a, b) => a.id - b.id);
+        const primarySP = sortedSps[0];
 
         const address = web3.eth.accounts.privateKeyToAccount(privateKey).address;
 
@@ -60,22 +47,40 @@ export class BNBGreenfieldStorageProvider implements StorageProvider {
         }
 
         const bucketName = DEFAULT_BUCKET_NAME;
-        try {
-            await client.bucket.headBucket(bucketName);
-        } catch (e) {
+
+        const quota = await client.bucket.getBucketReadQuota({
+            bucketName: bucketName
+        }, {
+            type: 'ECDSA',
+            privateKey: privateKey,
+        });
+
+        if (quota.body) {
+            const availableQuota = (quota.body!.freeQuota - quota.body!.freeConsumedSize) + (quota.body!.readQuota - quota.body!.consumedQuota) + (quota.body!.monthlyFreeQuota - quota.body!.monthlyQuotaConsumedSize);
+            if (availableQuota < 1024 * 1024 * 128) { // 128 Mb
+                const updateBucketTx = await client.bucket.updateBucketInfo({
+                    bucketName: bucketName,
+                    operator: address,
+                    chargedReadQuota: Long.fromNumber(1024 * 1024 * 512).toString(), // 512 Mb
+                    visibility: VisibilityType.VISIBILITY_TYPE_PRIVATE,
+                    paymentAddress: address,
+                });
+                await BNBGreenfieldStorageProvider.SendTransaction(updateBucketTx, privateKey);
+            }
+        } else {
             const createBucketTx = await client.bucket.createBucket({
                     bucketName: bucketName,
                     creator: address,
                     visibility: VisibilityType.VISIBILITY_TYPE_PRIVATE,
-                    chargedReadQuota: Long.fromNumber(1024 * 1024 * 1024 * 2), // 2 Gb
-                    primarySpAddress: primarySP,
+                    chargedReadQuota: Long.fromNumber(1024 * 1024 * 512), // 512 Gb
+                    primarySpAddress: primarySP.operatorAddress,
                     paymentAddress: address,
                 },
             );
             await BNBGreenfieldStorageProvider.SendTransaction(createBucketTx, privateKey);
         }
 
-        return new BNBGreenfieldStorageProvider(privateKey, address, bucketName, client);
+        return new BNBGreenfieldStorageProvider(privateKey, address, bucketName, primarySP.endpoint, client);
     }
 
     private static async SendTransaction(transaction: TxResponse, privateKey: string): Promise<DeliverTxResponse> {
@@ -93,7 +98,6 @@ export class BNBGreenfieldStorageProvider implements StorageProvider {
             privateKey: privateKey
         });
     }
-
 
     async set(key: string, value: Uint8Array | undefined): Promise<void> {
         if (!value) {
@@ -130,7 +134,7 @@ export class BNBGreenfieldStorageProvider implements StorageProvider {
                     size: value.length,
                     content: Buffer.from(value),
                 },
-                endpoint: GREENFIELD_SP_RPC_URL
+                endpoint: this.spEndpoint
             }, {
                 type: 'ECDSA',
                 privateKey: this.privateKey,
@@ -154,7 +158,7 @@ export class BNBGreenfieldStorageProvider implements StorageProvider {
         const response = await this.client.object.getObject({
             bucketName: this.bucketName,
             objectName: key,
-            endpoint: GREENFIELD_SP_RPC_URL
+            endpoint: this.spEndpoint
         }, {
             type: 'ECDSA',
             privateKey: this.privateKey,
@@ -169,9 +173,8 @@ export class BNBGreenfieldStorageProvider implements StorageProvider {
     async ls(): Promise<string[]> {
         const response = await this.client.object.listObjects({
             bucketName: this.bucketName,
-            endpoint: GREENFIELD_SP_RPC_URL
+            endpoint: this.spEndpoint
         });
-
 
         if (!response.body)
             return [];
