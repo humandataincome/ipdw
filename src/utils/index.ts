@@ -1,5 +1,3 @@
 export * from "./array.utils"
 export * from "./crypto.utils"
 export * from "./event.utils"
-export * from "./webrtc-worker.polyfill"
-export * from "./webrtc-window.polyfill"

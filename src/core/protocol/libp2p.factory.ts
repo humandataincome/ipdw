@@ -1,5 +1,3 @@
-import '../../utils/webrtc-worker.polyfill';
-
 import * as Libp2p from 'libp2p';
 import {noise} from '@chainsafe/libp2p-noise';
 import {yamux} from "@chainsafe/libp2p-yamux";

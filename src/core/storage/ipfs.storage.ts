@@ -1,51 +1,39 @@
-import {create, IPFSHTTPClient} from 'ipfs-http-client';
+import {createHelia, Helia} from 'helia';
+import {IPNS, ipns} from '@helia/ipns';
+import {UnixFS, unixfs} from '@helia/unixfs';
 import crypto from 'crypto';
 import {StorageProvider} from "./";
+import {Buffer} from "buffer";
+import util from "util";
+import {CID} from "multiformats/cid";
+import {PeerId} from "@libp2p/interface/src/peer-id";
+import {createFromPrivKey} from '@libp2p/peer-id-factory';
+import {keys} from '@libp2p/crypto';
+
+export const DEFAULT_SALT = Buffer.from('SyzVWivP', 'utf8');
 
 export class IPFSStorageProvider implements StorageProvider {
-    private ipfs: IPFSHTTPClient;
-    private ipnsName: string;
+    private readonly ipnsPeerId: PeerId;
 
-    private constructor(ipfs: IPFSHTTPClient, ipnsName: string) {
-        this.ipfs = ipfs;
-        this.ipnsName = ipnsName;
+    private ipnsInstance: IPNS;
+    private unixfsInstance: UnixFS;
+
+    private constructor(ipnsPeerId: PeerId, helia: Helia) {
+        this.ipnsPeerId = ipnsPeerId;
+        this.ipnsInstance = ipns(helia);
+        this.unixfsInstance = unixfs(helia);
     }
 
-    public static async Init(ipfsApiUrl: string, seed: string, salt: string): Promise<IPFSStorageProvider> {
-        const ipfs = create({url: ipfsApiUrl});
+    public static async Init(seed: string): Promise<IPFSStorageProvider> {
+        const helia = await createHelia();
 
-        // Derive a deterministic RSA key pair from the seed and salt
-        const [privateKeyBuffer, publicKeyBuffer] = await IPFSStorageProvider.DeriveKeyPair(Buffer.from(seed), Buffer.from(salt));
+        const keyBuffer = await util.promisify(crypto.pbkdf2)(seed, DEFAULT_SALT, 100100, 32, 'sha256');
+        const privateKey = keys.supportedKeys.secp256k1.unmarshalSecp256k1PrivateKey(keyBuffer);
 
-        // Convert the private key buffer to PEM format
-        const privateKeyPEM = privateKeyBuffer.toString('base64');
-        const privateKeyPEMFormatted = `-----BEGIN PRIVATE KEY-----\n${privateKeyPEM}\n-----END PRIVATE KEY-----`;
+        const keyInfo = await helia.libp2p.services.keychain.importPeer('ipdw-ipns-key', await createFromPrivKey(privateKey));
+        const peerId = await helia.libp2p.services.keychain.exportPeerId(keyInfo.name);
 
-        // Import the generated key pair into IPFS
-        const keyName = 'ipfs-storage-provider-key';
-        await ipfs.key.import(keyName, privateKeyPEMFormatted, seed);
-
-        const key = await ipfs.key.list().then(keys => keys.find(k => k.name === keyName));
-        if (!key) {
-            throw new Error('Failed to import deterministic key');
-        }
-
-        const ipnsName = key.id;
-
-        return new IPFSStorageProvider(ipfs, ipnsName);
-    }
-
-    public static async DeriveKeyPair(seed: Buffer, salt: Buffer): Promise<[Buffer, Buffer]> {
-        const keyBuffer = await crypto.pbkdf2Sync(seed, salt, 100100, 32, 'sha256');
-
-        keyBuffer[0] &= 248;
-        keyBuffer[31] &= 127;
-        keyBuffer[31] |= 64;
-        const privateKeyBuffer = Buffer.concat([Buffer.from('302e020100300506032b657004220420', 'hex'), keyBuffer]);
-        const privateKey = crypto.createPrivateKey({key: privateKeyBuffer, format: 'der', type: 'pkcs8'});
-        const publicKey = crypto.createPublicKey(privateKey);
-        const publicKeyBuffer = publicKey.export({format: 'der', type: 'spki'});
-        return [privateKeyBuffer, publicKeyBuffer];
+        return new IPFSStorageProvider(peerId, helia);
     }
 
     async set(key: string, value: Uint8Array | undefined): Promise<void> {
@@ -56,8 +44,8 @@ export class IPFSStorageProvider implements StorageProvider {
                 delete index[key];
             }
         } else {
-            const result = await this.ipfs.add(value);
-            index[key] = result.cid.toString();
+            const result = await this.unixfsInstance.addBytes(value);
+            index[key] = result.toString();
         }
 
         await this.updateIndex(index);
@@ -74,7 +62,7 @@ export class IPFSStorageProvider implements StorageProvider {
 
         try {
             const chunks = [];
-            for await (const chunk of this.ipfs.cat(index[key])) {
+            for await (const chunk of this.unixfsInstance.cat(CID.parse(index[key]))) {
                 chunks.push(chunk);
             }
             return new Uint8Array(Buffer.concat(chunks));
@@ -95,20 +83,14 @@ export class IPFSStorageProvider implements StorageProvider {
 
     private async getIndex(): Promise<Record<string, string>> {
         try {
-            // Resolve the IPNS name to get the latest CID
-            let resolvedPath = '';
-            for await (const path of this.ipfs.name.resolve(this.ipnsName)) {
-                resolvedPath = path;
-                break; // We only need the first (and usually only) resolved path
-            }
+            let resolvedPath = await this.ipnsInstance.resolve(this.ipnsPeerId);
 
             if (!resolvedPath) {
                 throw new Error('Failed to resolve IPNS name');
             }
 
-            // Fetch the content of the index file
             const chunks = [];
-            for await (const chunk of this.ipfs.cat(resolvedPath)) {
+            for await (const chunk of this.unixfsInstance.cat(resolvedPath.cid)) {
                 chunks.push(chunk);
             }
             const indexContent = Buffer.concat(chunks).toString();
@@ -121,11 +103,8 @@ export class IPFSStorageProvider implements StorageProvider {
 
     private async updateIndex(index: Record<string, string>): Promise<void> {
         const indexContent = JSON.stringify(index);
-        const file = await this.ipfs.add(indexContent);
+        const file = await this.unixfsInstance.addBytes(Buffer.from(indexContent));
 
-        // Publish the new CID to IPNS
-        await this.ipfs.name.publish(file.cid, {
-            key: 'ipfs-storage-provider-key'
-        });
+        await this.ipnsInstance.publish(this.ipnsPeerId, file);
     }
 }

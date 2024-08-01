@@ -45,10 +45,7 @@ export default (env, argv) => ([
         target: 'web',
 
         entry: {
-            index: [
-                './src/utils/localstorage-worker.polyfill.ts',
-                './src/index.ts'
-            ]
+            index: './src/index.ts',
         },
 
         experiments: {
