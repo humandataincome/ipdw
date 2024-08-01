@@ -6,11 +6,11 @@ import {StorageProvider} from "./";
 import {Buffer} from "buffer";
 import util from "util";
 import {CID} from "multiformats/cid";
-import {PeerId} from "@libp2p/interface/src/peer-id";
+import {PeerId} from "@libp2p/interface";
 import {createFromPrivKey} from '@libp2p/peer-id-factory';
 import {keys} from '@libp2p/crypto';
 
-export const DEFAULT_SALT = Buffer.from('SyzVWivP', 'utf8');
+export const DEFAULT_DERIVATION_SALT = Buffer.from('SyzVWivP', 'utf8');
 
 export class IPFSStorageProvider implements StorageProvider {
     private readonly ipnsPeerId: PeerId;
@@ -24,13 +24,15 @@ export class IPFSStorageProvider implements StorageProvider {
         this.unixfsInstance = unixfs(helia);
     }
 
-    public static async Init(seed: string): Promise<IPFSStorageProvider> {
+    public static async Init(privateKey: string): Promise<IPFSStorageProvider> {
+        // Future works: evaluate remote pinning services (@helia/remote-pinning) and http helia client (@helia/http)
         const helia = await createHelia();
 
-        const keyBuffer = await util.promisify(crypto.pbkdf2)(seed, DEFAULT_SALT, 100100, 32, 'sha256');
-        const privateKey = keys.supportedKeys.secp256k1.unmarshalSecp256k1PrivateKey(keyBuffer);
+        // const derivedKeyBuffer = Buffer.from(privateKey.slice(2), 'hex');
+        const derivedKeyBuffer = await util.promisify(crypto.pbkdf2)(privateKey, DEFAULT_DERIVATION_SALT, 100100, 32, 'sha256');
+        const derivedPrivateKey = keys.supportedKeys.secp256k1.unmarshalSecp256k1PrivateKey(derivedKeyBuffer);
 
-        const keyInfo = await helia.libp2p.services.keychain.importPeer('ipdw-ipns-key', await createFromPrivKey(privateKey));
+        const keyInfo = await helia.libp2p.services.keychain.importPeer('ipdw-ipns-key', await createFromPrivKey(derivedPrivateKey));
         const peerId = await helia.libp2p.services.keychain.exportPeerId(keyInfo.name);
 
         return new IPFSStorageProvider(peerId, helia);
