@@ -13,7 +13,7 @@
     "start:test:swarm": "NODE_ENV=main DEBUG=libp2p:* tsx test/swarm.test.ts",
     "start:test:sync": "NODE_ENV=main tsx test/sync.test.ts",
     "start:test:crypto": "NODE_ENV=main tsx test/crypto.test.ts",
-    "start:test:algorand": "NODE_ENV=main tsx test/algorand.test.ts",
+    "start:test:algorand": "NODE_ENV=dev tsx test/algorand.test.ts",
     "start:test:bnbgreenfield": "NODE_ENV=dev tsx test/bnbgreenfield.test.ts",
     "start:test:cere": "NODE_ENV=dev tsx test/cere.test.ts",
     "start:test:ipfs": "NODE_ENV=dev tsx test/ipfs.test.ts",

@@ -1,13 +1,21 @@
-import sys
-sys.path.append('..')
+import os
 
-from src.storage import storage
+from src.storage import approval_program, clear_program
 from pyteal import compileTeal, Mode
 
+
 def compile_contract():
-    teal = compileTeal(storage(), mode=Mode.Application, version=10)
-    with open("storage.teal", "w") as f:
-        f.write(teal)
+    if not os.path.exists("build"):
+        os.makedirs("build")
+
+    with open('build/approval.teal', 'w') as f:
+        compiled = compileTeal(approval_program(), mode=Mode.Application, version=10)
+        f.write(compiled)
+
+    with open('build/clear.teal', 'w') as f:
+        compiled = compileTeal(clear_program(), mode=Mode.Application, version=10)
+        f.write(compiled)
+
 
 if __name__ == "__main__":
     compile_contract()
