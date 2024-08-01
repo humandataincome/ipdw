@@ -9,8 +9,8 @@ import {DeliverTxResponse} from "@cosmjs/stargate";
 
 // https://testnet.dcellar.io/buckets
 
-export const GREENFIELD_CHAIN_RPC_URL = process.env.NODE_ENV === 'dev' ? 'https://gnfd-testnet-fullnode-tendermint-us.bnbchain.org' : 'https://greenfield-chain.bnbchain.org';
-export const GREENFIELD_CHAIN_ID = process.env.NODE_ENV === 'dev' ? 5600 : 1017;
+export const GREENFIELD_CHAIN_RPC_URL = (globalThis.localStorage?.WEB_ENV || process?.env.NODE_ENV) === 'dev' ? 'https://gnfd-testnet-fullnode-tendermint-us.bnbchain.org' : 'https://greenfield-chain.bnbchain.org';
+export const GREENFIELD_CHAIN_ID = (globalThis.localStorage?.WEB_ENV || process?.env.NODE_ENV) === 'dev' ? 5600 : 1017;
 export const DEFAULT_BUCKET_NAME = 'ipdw';
 
 export class BNBGreenfieldStorageProvider implements StorageProvider {

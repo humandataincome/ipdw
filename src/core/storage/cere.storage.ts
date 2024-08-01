@@ -2,16 +2,18 @@ import {DdcClient, File, FileUri, MAINNET, Signer, TESTNET} from '@cere-ddc-sdk/
 import {CnsRecord, NodeInterface} from '@cere-ddc-sdk/ddc';
 import {StorageProvider} from "./";
 import {Blockchain} from "@cere-ddc-sdk/blockchain";
+import {Bucket} from "@cere-ddc-sdk/blockchain/src/types";
 
 //https://docs.cere.network/ddc/developer-guide/setup
 
-export const CERE_CONFIG = process.env.NODE_ENV === 'dev' ? TESTNET : MAINNET;
+export const CERE_CONFIG = (globalThis.localStorage?.WEB_ENV || process?.env.NODE_ENV) === 'dev' ? TESTNET : MAINNET;
 export const CERE_TOKEN_UNIT = 10_000_000_000n;
+export const CERE_INDEXER_URL = (globalThis.localStorage?.WEB_ENV || process?.env.NODE_ENV) === 'dev' ? 'https://subsquid.testnet.cere.network/graphql' : 'https://subsquid.cere.network/graphql';
 
 export class CereStorageProvider implements StorageProvider {
     private ddcClient: DdcClient;
     private ddcNode: NodeInterface;
-    private bucketId: bigint;
+    private readonly bucketId: bigint;
 
     private constructor(ddcClient: DdcClient, ddcNode: NodeInterface, bucketId: bigint) {
         this.ddcClient = ddcClient;
@@ -30,15 +32,10 @@ export class CereStorageProvider implements StorageProvider {
         const clusters = await blockchain.ddcClusters.listClusters();
         const selectedCluster = clusters[0];
 
-        //TODO: Research how to efficiently find the list of buckets given an ownerId
-        //const buckets = await api.query.ddcCustomers.buckets({ownerId:'6ThoqrfAvCcfqprqqYAEoEBsyaQ6M1uoKBNkjjEYet9DW1k3'});
-
-        const buckets = await ddcClient.getBucketList();
+        const buckets = await this.GetBucketList(signer.address);
 
         let resBucketId = 0n;
         for (let bucket of buckets) {
-            if (bucket.ownerId !== signer.address) continue;
-
             const bucketNameCnsResponse = await ddcNode.getCnsRecord(bucket.bucketId, '__name__');
             if (!bucketNameCnsResponse) continue;
             const bucketNameFileResponse = await ddcClient.read(new FileUri(bucket.bucketId, bucketNameCnsResponse.cid));
@@ -67,6 +64,23 @@ export class CereStorageProvider implements StorageProvider {
         }
 
         return new CereStorageProvider(ddcClient, ddcNode, resBucketId);
+    }
+
+    public static async GetBucketList(ownerId: string): Promise<any> {
+        const body = JSON.stringify({
+            query: `query { ddcBuckets(where: { ownerId: { id_eq: "${ownerId}" } }) { bucketId ownerId { id } clusterId { id } isPublic isRemoved } }`
+        });
+
+        const response = await fetch(CERE_INDEXER_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: body
+        });
+
+
+        return (await response.json()).data.ddcBuckets.map((b: any) => b == null ? undefined : ({bucketId: b.bucketId, ownerId: b.ownerId.id, clusterId: b.clusterId.id, isPublic: b.isPublic, isRemoved: b.isRemoved} as Bucket));
     }
 
     async set(key: string, value: Uint8Array | undefined): Promise<void> {

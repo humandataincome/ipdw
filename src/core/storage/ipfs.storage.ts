@@ -10,7 +10,7 @@ import {PeerId} from "@libp2p/interface";
 import {createFromPrivKey} from '@libp2p/peer-id-factory';
 import {keys} from '@libp2p/crypto';
 
-export const DEFAULT_DERIVATION_SALT = Buffer.from('SyzVWivP', 'utf8');
+export const DEFAULT_DERIVATION_SALT = (globalThis.localStorage?.WEB_ENV || process?.env.NODE_ENV) === 'dev' ? Buffer.from('gAxkvMFf', 'utf8') : Buffer.from('SyzVWivP', 'utf8');
 
 export class IPFSStorageProvider implements StorageProvider {
     private readonly ipnsPeerId: PeerId;

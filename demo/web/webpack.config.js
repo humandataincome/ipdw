@@ -2,6 +2,7 @@ import path from "path";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import {fileURLToPath} from 'url';
 
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -10,7 +11,6 @@ export default (env, argv) => ({
         context: __dirname,
 
         entry: {
-            'index.worker': './src/index.worker.ts',
             index: './src/index.ts',
         },
 

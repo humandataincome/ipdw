@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start:dev": "ts-node src/index.ts",
+    "start:dev": "NODE_ENV=dev tsx src/index.ts",
     "start:prod": "node dist/index.js",
     "build:prod": "tsc"
   },
@@ -13,6 +13,6 @@
   "devDependencies": {
     "@types/node": "^22.0.2",
     "typescript": "^5.5.4",
-    "ts-node": "^10.9.2"
+    "tsx": "^4.16.5"
   }
 }
