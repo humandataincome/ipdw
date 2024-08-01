@@ -11,7 +11,7 @@
     "ipdw": "file:../../"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
+    "@types/node": "^22.0.2",
     "typescript": "^5.5.4",
     "ts-node": "^10.9.2"
   }

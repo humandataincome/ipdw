@@ -1,8 +1,11 @@
-import {DdcClient, File, FileUri, TESTNET} from '@cere-ddc-sdk/ddc-client';
+import {DdcClient, File, FileUri, MAINNET, Signer, TESTNET} from '@cere-ddc-sdk/ddc-client';
 import {CnsRecord, NodeInterface} from '@cere-ddc-sdk/ddc';
 import {StorageProvider} from "./";
+import {Blockchain} from "@cere-ddc-sdk/blockchain";
 
-export const CERE_MAIN_CLUSTER_ID = '0x825c4b2352850de9986d9d28568db6f0c023a1e3';
+//https://docs.cere.network/ddc/developer-guide/setup
+
+export const CERE_CONFIG = process.env.NODE_ENV === 'dev' ? TESTNET : MAINNET;
 export const CERE_TOKEN_UNIT = 10_000_000_000n;
 
 export class CereStorageProvider implements StorageProvider {
@@ -17,38 +20,50 @@ export class CereStorageProvider implements StorageProvider {
     }
 
     public static async Init(privateKey: string): Promise<CereStorageProvider> {
-        const ddcClient = await DdcClient.create(privateKey, TESTNET);
+        const ddcClient = await DdcClient.create(privateKey, CERE_CONFIG);
         const ddcNode = ((<any>ddcClient).ddcNode as NodeInterface);
+        const blockchain = ((<any>ddcClient).blockchain as Blockchain);
+        //const api = ((<any>blockchain).api as ApiPromise);
+        const signer = ((<any>ddcClient).signer as Signer);
+        console.log('CERE Address is', signer.address);
+
+        const clusters = await blockchain.ddcClusters.listClusters();
+        const selectedCluster = clusters[0];
+
+        //TODO: Research how to efficiently find the list of buckets given an ownerId
+        //const buckets = await api.query.ddcCustomers.buckets({ownerId:'6ThoqrfAvCcfqprqqYAEoEBsyaQ6M1uoKBNkjjEYet9DW1k3'});
 
         const buckets = await ddcClient.getBucketList();
 
         let resBucketId = 0n;
         for (let bucket of buckets) {
+            if (bucket.ownerId !== signer.address) continue;
+
             const bucketNameCnsResponse = await ddcNode.getCnsRecord(bucket.bucketId, '__name__');
             if (!bucketNameCnsResponse) continue;
             const bucketNameFileResponse = await ddcClient.read(new FileUri(bucket.bucketId, bucketNameCnsResponse.cid));
             const bucketName = await bucketNameFileResponse.text();
             if (bucketName === '__ipdw__') {
                 resBucketId = bucket.bucketId;
+                console.log('Bucket found with id', resBucketId);
                 break;
             }
         }
-
         const deposit = await ddcClient.getDeposit();
 
         if (deposit < 1n * CERE_TOKEN_UNIT) {
-            try {
-                await ddcClient.depositBalance(5n * CERE_TOKEN_UNIT);
-            } catch (e) {
-                throw Error('Keep at least 5 CERE on the wallet, they will be automatically deposited for storage when needed');
-            }
+            const balance = await ddcClient.getBalance();
+            if (balance < 5n * CERE_TOKEN_UNIT)
+                throw Error('Keep at least 5 CERE on the wallet, they will be automatically deposited for storage when needed. Use https://bridge.cere.network/transfer');
+
+            await ddcClient.depositBalance(5n * CERE_TOKEN_UNIT);
         }
 
         if (resBucketId === 0n) {
-            resBucketId = await ddcClient.createBucket(CERE_MAIN_CLUSTER_ID, {isPublic: false});
+            resBucketId = await ddcClient.createBucket(selectedCluster.clusterId, {isPublic: false});
+            console.log('Bucket created with id', resBucketId)
             const bucketNameFileUri = await ddcClient.store(resBucketId, new File(new TextEncoder().encode("__ipdw__")))
-            const bucketNameCnsResponse = await ddcNode.storeCnsRecord(resBucketId, new CnsRecord(bucketNameFileUri.cid, '__name__'));
-            console.log(bucketNameCnsResponse);
+            await ddcNode.storeCnsRecord(resBucketId, new CnsRecord(bucketNameFileUri.cid, '__name__'));
         }
 
         return new CereStorageProvider(ddcClient, ddcNode, resBucketId);
