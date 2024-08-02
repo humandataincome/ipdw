@@ -9,6 +9,7 @@ import {Bucket} from "@cere-ddc-sdk/blockchain/src/types";
 export const CERE_CONFIG = (globalThis.localStorage?.WEB_ENV || process?.env.NODE_ENV) === 'dev' ? TESTNET : MAINNET;
 export const CERE_TOKEN_UNIT = 10_000_000_000n;
 export const CERE_INDEXER_URL = (globalThis.localStorage?.WEB_ENV || process?.env.NODE_ENV) === 'dev' ? 'https://subsquid.testnet.cere.network/graphql' : 'https://subsquid.cere.network/graphql';
+export const CERE_BUCKET_NAME = 'ipdw-v1';
 
 export class CereStorageProvider implements StorageProvider {
     private ddcClient: DdcClient;
@@ -40,7 +41,7 @@ export class CereStorageProvider implements StorageProvider {
             if (!bucketNameCnsResponse) continue;
             const bucketNameFileResponse = await ddcClient.read(new FileUri(bucket.bucketId, bucketNameCnsResponse.cid));
             const bucketName = await bucketNameFileResponse.text();
-            if (bucketName === '__ipdw__') {
+            if (bucketName === CERE_BUCKET_NAME) {
                 resBucketId = bucket.bucketId;
                 console.log('Bucket found with id', resBucketId);
                 break;
@@ -59,7 +60,7 @@ export class CereStorageProvider implements StorageProvider {
         if (resBucketId === 0n) {
             resBucketId = await ddcClient.createBucket(selectedCluster.clusterId, {isPublic: false});
             console.log('Bucket created with id', resBucketId)
-            const bucketNameFileUri = await ddcClient.store(resBucketId, new File(new TextEncoder().encode("__ipdw__")))
+            const bucketNameFileUri = await ddcClient.store(resBucketId, new File(new TextEncoder().encode(CERE_BUCKET_NAME)))
             await ddcNode.storeCnsRecord(resBucketId, new CnsRecord(bucketNameFileUri.cid, '__name__'));
         }
 

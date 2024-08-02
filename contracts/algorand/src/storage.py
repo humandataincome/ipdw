@@ -5,9 +5,22 @@ from pyteal import *
 def set_value():
     key = Txn.application_args[1]
     value = Txn.application_args[2]
+
     return Seq([
-        App.box_put(key, value),
-        Int(1)
+        length := App.box_length(key),
+        If(
+            length.hasValue(),
+            Pop(App.box_delete(key)),
+        ),
+        If(
+            value.__eq__(Bytes('')),
+            Int(1),
+            Seq([
+                Pop(App.box_create(key, Len(value))),
+                App.box_put(key, value),
+                Int(1)
+            ])
+        )
     ])
 
 

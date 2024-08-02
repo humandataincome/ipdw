@@ -11,7 +11,7 @@ import {DeliverTxResponse} from "@cosmjs/stargate";
 
 export const GREENFIELD_CHAIN_RPC_URL = (globalThis.localStorage?.WEB_ENV || process?.env.NODE_ENV) === 'dev' ? 'https://gnfd-testnet-fullnode-tendermint-us.bnbchain.org' : 'https://greenfield-chain.bnbchain.org';
 export const GREENFIELD_CHAIN_ID = (globalThis.localStorage?.WEB_ENV || process?.env.NODE_ENV) === 'dev' ? 5600 : 1017;
-export const DEFAULT_BUCKET_NAME = 'ipdw';
+export const GREENFIELD_BUCKET_NAME = 'ipdw-v1';
 
 export class BNBGreenfieldStorageProvider implements StorageProvider {
     private readonly privateKey: string;
@@ -46,7 +46,7 @@ export class BNBGreenfieldStorageProvider implements StorageProvider {
             throw Error('Keep at least 0.01 BNB on the wallet on Greenfield network, use https://greenfield.bnbchain.org/en/bridge?type=transfer-in');
         }
 
-        const bucketName = DEFAULT_BUCKET_NAME;
+        const bucketName = GREENFIELD_BUCKET_NAME;
 
         const quota = await client.bucket.getBucketReadQuota({
             bucketName: bucketName
