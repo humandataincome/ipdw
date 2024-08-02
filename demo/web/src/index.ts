@@ -2,10 +2,9 @@
 Wallet(IPDW TEST) - Address: 0xB5ea1eC38f0547004d5841a2FB5F33Ee07113Bcf - Private key: 0xb577c4367d79f1a7a0c8353f7937d601758d92c35df958781d72d70f9177e52f
  */
 
-import {CereStorageProvider, IPDW, MemoryStorageProvider} from "ipdw";
+import {ALGORAND_TESTNET_INDEXER_URL, ALGORAND_TESTNET_SERVER_URL, AlgorandStorageProvider, IPDW, MemoryStorageProvider} from "ipdw";
 
 localStorage.debug = 'libp2p:*'
-globalThis.localStorage.WEB_ENV = 'dev'
 
 const orig_console_log = console.log;
 console.log = function (...e) {
@@ -31,8 +30,10 @@ async function main(): Promise<void> {
 }
 
 async function main1(): Promise<void> {
-    //const provider = await BNBGreenfieldStorageProvider.Init('0xb577c4367d79f1a7a0c8353f7937d601758d92c35df958781d72d70f9177e52f');
-    const provider = await CereStorageProvider.Init('hybrid label reunion only dawn maze asset draft cousin height flock nation');
+    const provider = await AlgorandStorageProvider.Init('0xb577c4367d79f1a7a0c8353f7937d601758d92c35df958781d72d70f9177e52f', ALGORAND_TESTNET_SERVER_URL, ALGORAND_TESTNET_INDEXER_URL);
+    //const provider = await BNBGreenfieldStorageProvider.Init('0xb577c4367d79f1a7a0c8353f7937d601758d92c35df958781d72d70f9177e52f', GREENFIELD_TESTNET_CHAIN_RPC_URL, GREENFIELD_TESTNET_CHAIN_ID);
+    //const provider = await IPFSStorageProvider.Init('0xb577c4367d79f1a7a0c8353f7937d601758d92c35df958781d72d70f9177e52f');
+    //const provider = await CereStorageProvider.Init('hybrid label reunion only dawn maze asset draft cousin height flock nation', CERE_TESTNET_RPC_URL, CERE_TESTNET_INDEXER_URL);
 
     console.log('set', await provider.set("myKey", new TextEncoder().encode("myValue")))
     console.log('get', new TextDecoder().decode(await provider.get("myKey")));

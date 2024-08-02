@@ -1,15 +1,18 @@
-import {DdcClient, File, FileUri, MAINNET, Signer, TESTNET} from '@cere-ddc-sdk/ddc-client';
+import {DdcClient, File, FileUri, Signer} from '@cere-ddc-sdk/ddc-client';
 import {CnsRecord, NodeInterface} from '@cere-ddc-sdk/ddc';
 import {StorageProvider} from "./";
 import {Blockchain} from "@cere-ddc-sdk/blockchain";
 import {Bucket} from "@cere-ddc-sdk/blockchain/src/types";
 
-//https://docs.cere.network/ddc/developer-guide/setup
+export const CERE_TESTNET_RPC_URL = 'wss://rpc.testnet.cere.network/ws';
+export const CERE_TESTNET_INDEXER_URL = 'https://subsquid.testnet.cere.network/graphql';
 
-export const CERE_CONFIG = (globalThis.localStorage?.WEB_ENV || process?.env.NODE_ENV) === 'dev' ? TESTNET : MAINNET;
+export const CERE_MAINNET_RPC_URL = 'wss://rpc.mainnet.cere.network/ws';
+export const CERE_MAINNET_INDEXER_URL = 'https://subsquid.cere.network/graphql';
+
+export const CERE_DEFAULT_BUCKET_NAME = 'ipdw-v1';
+
 export const CERE_TOKEN_UNIT = 10_000_000_000n;
-export const CERE_INDEXER_URL = (globalThis.localStorage?.WEB_ENV || process?.env.NODE_ENV) === 'dev' ? 'https://subsquid.testnet.cere.network/graphql' : 'https://subsquid.cere.network/graphql';
-export const CERE_BUCKET_NAME = 'ipdw-v1';
 
 export class CereStorageProvider implements StorageProvider {
     private ddcClient: DdcClient;
@@ -22,26 +25,28 @@ export class CereStorageProvider implements StorageProvider {
         this.bucketId = bucketId;
     }
 
-    public static async Init(privateKey: string): Promise<CereStorageProvider> {
-        const ddcClient = await DdcClient.create(privateKey, CERE_CONFIG);
+    public static async Init(privateKey: string, rpcUrl: string = CERE_MAINNET_RPC_URL, indexerUrl: string = CERE_MAINNET_INDEXER_URL, bucketName: string = CERE_DEFAULT_BUCKET_NAME): Promise<CereStorageProvider> {
+        const ddcClient = await DdcClient.create(privateKey, {blockchain: rpcUrl});
         const ddcNode = ((<any>ddcClient).ddcNode as NodeInterface);
         const blockchain = ((<any>ddcClient).blockchain as Blockchain);
         //const api = ((<any>blockchain).api as ApiPromise);
         const signer = ((<any>ddcClient).signer as Signer);
         console.log('CERE Address is', signer.address);
 
+        // To get started go to https://docs.cere.network/ddc/developer-guide/setup
+
         const clusters = await blockchain.ddcClusters.listClusters();
         const selectedCluster = clusters[0];
 
-        const buckets = await this.GetBucketList(signer.address);
+        const buckets = await this.GetBucketList(indexerUrl, signer.address);
 
         let resBucketId = 0n;
         for (let bucket of buckets) {
             const bucketNameCnsResponse = await ddcNode.getCnsRecord(bucket.bucketId, '__name__');
             if (!bucketNameCnsResponse) continue;
             const bucketNameFileResponse = await ddcClient.read(new FileUri(bucket.bucketId, bucketNameCnsResponse.cid));
-            const bucketName = await bucketNameFileResponse.text();
-            if (bucketName === CERE_BUCKET_NAME) {
+            const gotBucketName = await bucketNameFileResponse.text();
+            if (gotBucketName === bucketName) {
                 resBucketId = bucket.bucketId;
                 console.log('Bucket found with id', resBucketId);
                 break;
@@ -60,19 +65,19 @@ export class CereStorageProvider implements StorageProvider {
         if (resBucketId === 0n) {
             resBucketId = await ddcClient.createBucket(selectedCluster.clusterId, {isPublic: false});
             console.log('Bucket created with id', resBucketId)
-            const bucketNameFileUri = await ddcClient.store(resBucketId, new File(new TextEncoder().encode(CERE_BUCKET_NAME)))
+            const bucketNameFileUri = await ddcClient.store(resBucketId, new File(new TextEncoder().encode(bucketName)))
             await ddcNode.storeCnsRecord(resBucketId, new CnsRecord(bucketNameFileUri.cid, '__name__'));
         }
 
         return new CereStorageProvider(ddcClient, ddcNode, resBucketId);
     }
 
-    public static async GetBucketList(ownerId: string): Promise<any> {
+    public static async GetBucketList(indexerUrl: string, ownerId: string): Promise<any> {
         const body = JSON.stringify({
             query: `query { ddcBuckets(where: { ownerId: { id_eq: "${ownerId}" } }) { bucketId ownerId { id } clusterId { id } isPublic isRemoved } }`
         });
 
-        const response = await fetch(CERE_INDEXER_URL, {
+        const response = await fetch(indexerUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

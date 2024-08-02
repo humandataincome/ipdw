@@ -7,11 +7,13 @@ import {StorageProvider} from "./";
 import {Buffer} from "buffer";
 import {DeliverTxResponse} from "@cosmjs/stargate";
 
-// https://testnet.dcellar.io/buckets
+export const GREENFIELD_TESTNET_CHAIN_RPC_URL = 'https://gnfd-testnet-fullnode-tendermint-us.bnbchain.org';
+export const GREENFIELD_TESTNET_CHAIN_ID = 5600;
 
-export const GREENFIELD_CHAIN_RPC_URL = (globalThis.localStorage?.WEB_ENV || process?.env.NODE_ENV) === 'dev' ? 'https://gnfd-testnet-fullnode-tendermint-us.bnbchain.org' : 'https://greenfield-chain.bnbchain.org';
-export const GREENFIELD_CHAIN_ID = (globalThis.localStorage?.WEB_ENV || process?.env.NODE_ENV) === 'dev' ? 5600 : 1017;
-export const GREENFIELD_BUCKET_NAME = 'ipdw-v1';
+export const GREENFIELD_MAINNET_CHAIN_RPC_URL = 'https://greenfield-chain.bnbchain.org';
+export const GREENFIELD_MAINNET_CHAIN_ID = 1017;
+
+export const GREENFIELD_DEFAULT_BUCKET_NAME = 'ipdw-v1';
 
 export class BNBGreenfieldStorageProvider implements StorageProvider {
     private readonly privateKey: string;
@@ -28,8 +30,8 @@ export class BNBGreenfieldStorageProvider implements StorageProvider {
         this.client = client;
     }
 
-    public static async Init(privateKey: string): Promise<BNBGreenfieldStorageProvider> {
-        const client = Client.create(GREENFIELD_CHAIN_RPC_URL, GREENFIELD_CHAIN_ID.toString());
+    public static async Init(privateKey: string, rpcUrl: string = GREENFIELD_MAINNET_CHAIN_RPC_URL, chainId: number = GREENFIELD_MAINNET_CHAIN_ID, bucketName: string = GREENFIELD_DEFAULT_BUCKET_NAME): Promise<BNBGreenfieldStorageProvider> {
+        const client = Client.create(rpcUrl, chainId.toString());
 
         const sps = await client.sp.getStorageProviders();
         const sortedSps = sps.sort((a, b) => a.id - b.id);
@@ -42,11 +44,11 @@ export class BNBGreenfieldStorageProvider implements StorageProvider {
             denom: 'BNB',
         });
 
+        // To check buckets go to https://testnet.dcellar.io/buckets
+
         if (BigInt(balance.balance!.amount) < 10 ** (18 - 2)) {
             throw Error('Keep at least 0.01 BNB on the wallet on Greenfield network, use https://greenfield.bnbchain.org/en/bridge?type=transfer-in');
         }
-
-        const bucketName = GREENFIELD_BUCKET_NAME;
 
         const quota = await client.bucket.getBucketReadQuota({
             bucketName: bucketName

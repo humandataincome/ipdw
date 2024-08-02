@@ -3,12 +3,17 @@ import algosdk, {Account} from 'algosdk';
 import {StorageProvider} from "./";
 import {Buffer} from "buffer";
 
-export const ALGORAND_SERVER_URL = (globalThis.localStorage?.WEB_ENV || process?.env.NODE_ENV) === 'dev' ? 'https://testnet-api.algonode.cloud' : 'https://mainnet-api.algonode.cloud';
-export const ALGORAND_INDEXER_URL = (globalThis.localStorage?.WEB_ENV || process?.env.NODE_ENV) === 'dev' ? 'https://testnet-idx.algonode.cloud' : 'https://mainnet-idx.algonode.cloud';
+export const ALGORAND_TESTNET_SERVER_URL = 'https://testnet-api.algonode.cloud';
+export const ALGORAND_TESTNET_INDEXER_URL = 'https://testnet-idx.algonode.cloud';
+
+export const ALGORAND_MAINNET_SERVER_URL = 'https://mainnet-api.algonode.cloud';
+export const ALGORAND_MAINNET_INDEXER_URL = 'https://mainnet-idx.algonode.cloud';
+
+export const ALGORAND_DEFAULT_CONTRACT_NAME = 'ipdw-v1';
+
 export const ALGORAND_STORAGE_APPROVAL_CODE = 'I3ByYWdtYSB2ZXJzaW9uIDEwCnR4biBBcHBsaWNhdGlvbklECmludCAwCj09CmJueiBtYWluX2wxNAp0eG4gT25Db21wbGV0aW9uCmludCBOb09wCj09CmJueiBtYWluX2wxMQp0eG4gT25Db21wbGV0aW9uCmludCBEZWxldGVBcHBsaWNhdGlvbgo9PQpibnogbWFpbl9sMTAKdHhuIE9uQ29tcGxldGlvbgppbnQgVXBkYXRlQXBwbGljYXRpb24KPT0KYm56IG1haW5fbDkKdHhuIE9uQ29tcGxldGlvbgppbnQgT3B0SW4KPT0KYm56IG1haW5fbDgKdHhuIE9uQ29tcGxldGlvbgppbnQgQ2xvc2VPdXQKPT0KYm56IG1haW5fbDcKZXJyCm1haW5fbDc6CmludCAxCnJldHVybgptYWluX2w4OgppbnQgMQpyZXR1cm4KbWFpbl9sOToKaW50IDEKcmV0dXJuCm1haW5fbDEwOgppbnQgMQpyZXR1cm4KbWFpbl9sMTE6CnR4bmEgQXBwbGljYXRpb25BcmdzIDAKYnl0ZSAic2V0Igo9PQpibnogbWFpbl9sMTMKZXJyCm1haW5fbDEzOgpjYWxsc3ViIHNldHZhbHVlXzAKcmV0dXJuCm1haW5fbDE0OgpieXRlICJuYW1lIgp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCmFwcF9nbG9iYWxfcHV0CmludCAxCnJldHVybgoKLy8gc2V0X3ZhbHVlCnNldHZhbHVlXzA6CnByb3RvIDAgMQp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCmJveF9sZW4Kc3RvcmUgMQpzdG9yZSAwCmxvYWQgMQpibnogc2V0dmFsdWVfMF9sNApzZXR2YWx1ZV8wX2wxOgp0eG5hIEFwcGxpY2F0aW9uQXJncyAyCmJ5dGUgIiIKPT0KYm56IHNldHZhbHVlXzBfbDMKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQp0eG5hIEFwcGxpY2F0aW9uQXJncyAyCmxlbgpib3hfY3JlYXRlCnBvcAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCnR4bmEgQXBwbGljYXRpb25BcmdzIDIKYm94X3B1dAppbnQgMQpiIHNldHZhbHVlXzBfbDUKc2V0dmFsdWVfMF9sMzoKaW50IDEKYiBzZXR2YWx1ZV8wX2w1CnNldHZhbHVlXzBfbDQ6CnR4bmEgQXBwbGljYXRpb25BcmdzIDEKYm94X2RlbApwb3AKYiBzZXR2YWx1ZV8wX2wxCnNldHZhbHVlXzBfbDU6CnJldHN1Yg==';
 export const ALGORAND_STORAGE_CLEAR_CODE = 'I3ByYWdtYSB2ZXJzaW9uIDEwCmludCAxCnJldHVybg==';
 export const ALGORAND_TOKEN_UNIT = 1e6;
-export const ALGORAND_CONTRACT_NAME = 'ipdw-v1';
 
 export class AlgorandStorageProvider implements StorageProvider {
     private account: algosdk.Account;
@@ -21,9 +26,9 @@ export class AlgorandStorageProvider implements StorageProvider {
         this.client = client;
     }
 
-    public static async Init(privateKey: string): Promise<AlgorandStorageProvider> {
-        const client = new algosdk.Algodv2('', ALGORAND_SERVER_URL, 443);
-        const indexer = new algosdk.Indexer('', ALGORAND_INDEXER_URL, 443);
+    public static async Init(privateKey: string, serverUrl: string = ALGORAND_MAINNET_SERVER_URL, indexerUrl: string = ALGORAND_MAINNET_INDEXER_URL, contractName: string = ALGORAND_DEFAULT_CONTRACT_NAME): Promise<AlgorandStorageProvider> {
+        const client = new algosdk.Algodv2('', serverUrl, 443);
+        const indexer = new algosdk.Indexer('', indexerUrl, 443);
 
         const account = algosdk.mnemonicToSecretKey(algosdk.secretKeyToMnemonic(Buffer.from(privateKey.slice(2), 'hex')));
         console.log('ALGO Address is', account.addr);
@@ -31,8 +36,8 @@ export class AlgorandStorageProvider implements StorageProvider {
         const accountInfo = await client.accountInformation(account.addr).do();
         const balance = accountInfo.amount / ALGORAND_TOKEN_UNIT;
         console.log('ALGO Balance is', balance);
-        if (balance < 6) // 0.001 ALGO just for deploy
-            throw Error('Keep at least 0.01 ALGO on the wallet');
+        if (balance < 4) // 0.001 ALGO just for deploy
+            throw Error('Keep at least 4 ALGO on the wallet');
 
         let resApplicationId = -1;
         let nextToken = '';
@@ -48,7 +53,7 @@ export class AlgorandStorageProvider implements StorageProvider {
                 const nameKey = Buffer.from("name").toString('base64');
                 const nameValue = globalState.find((item: any) => item.key === nameKey);
 
-                if (nameValue && Buffer.from(nameValue.value.bytes, 'base64').toString() === ALGORAND_CONTRACT_NAME) {
+                if (nameValue && Buffer.from(nameValue.value.bytes, 'base64').toString() === contractName) {
                     resApplicationId = app.id;
                     break;
                 }
@@ -59,7 +64,7 @@ export class AlgorandStorageProvider implements StorageProvider {
 
         if (resApplicationId === -1) {
             const appArgs = [
-                new TextEncoder().encode(ALGORAND_CONTRACT_NAME)
+                new TextEncoder().encode(contractName)
             ];
 
             const compiledApprovalProgram = await client.compile(Buffer.from(ALGORAND_STORAGE_APPROVAL_CODE, 'base64')).do();
@@ -92,7 +97,7 @@ export class AlgorandStorageProvider implements StorageProvider {
         const applicationBalance = applicationAccountInfo.amount / ALGORAND_TOKEN_UNIT;
         console.log('Application ALGO Balance is', applicationBalance);
         if (applicationBalance < 1) {
-            const totalCost = 5 * ALGORAND_TOKEN_UNIT;
+            const totalCost = 3 * ALGORAND_TOKEN_UNIT;
             const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
                 from: account.addr,
                 to: applicationAddress,
