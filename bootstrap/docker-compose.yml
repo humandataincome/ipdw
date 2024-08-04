@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    restart: always
+    ports:
+      - "4001:4001"
+      - "4002:4002"
+      - "4002:4002/udp"
+      - "443:443"
+      - "80:80"
+    environment:
+      NODE_ENV: production
+      PRIVATE_KEY:
+      DOMAIN: bootstrap.ipdw.tech
+    volumes:
+      - ./data:/app/data

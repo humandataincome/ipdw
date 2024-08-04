@@ -4,7 +4,7 @@ Wallet(IPDW TEST) - Address: 0xB5ea1eC38f0547004d5841a2FB5F33Ee07113Bcf - Privat
 
 import {ALGORAND_TESTNET_INDEXER_URL, ALGORAND_TESTNET_SERVER_URL, AlgorandStorageProvider, IPDW, MemoryStorageProvider} from "ipdw";
 
-localStorage.debug = 'libp2p:*'
+//localStorage.debug = 'libp2p:*'
 
 const orig_console_log = console.log;
 console.log = function (...e) {
@@ -43,7 +43,7 @@ async function main1(): Promise<void> {
     console.log('has not', await provider.has("myKey"));
 }
 
-main1()
+main()
     .catch(err => {
         console.error(err);
     });

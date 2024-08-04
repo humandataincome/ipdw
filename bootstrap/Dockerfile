@@ -1,22 +1,24 @@
-FROM node:21-alpine
+FROM node:18 AS build
 
-RUN apk add --no-cache g++ cmake make openssl openssl-dev openssl-libs-static git
+WORKDIR /app
 
-WORKDIR /usr/src/app
-
-COPY package.json .
+COPY package.json ./
 RUN npm install
+
 COPY . .
-RUN npm run build:prod
+RUN npm run build
 
-# ENV DEBUG libp2p:*
+FROM node:18-slim
 
-ENTRYPOINT [ "npm", "run", "start:prod" ]
+WORKDIR /app
 
-# BEFORE STARTING
-# docker run -it --rm -v /home/bootstrap/letsencrypt/:/etc/letsencrypt/:rw -p 80:80 certbot/certbot certonly -d bootstrap.ipdw.tech --standalone --non-interactive --agree-tos --register-unsafely-without-email
-# (crontab -l 2>/dev/null; echo "30 2 * * * docker run -it --rm -v /home/bootstrap/letsencrypt/:/etc/letsencrypt/:rw -p 80:80 certbot/certbot renew") | crontab -
+COPY --from=build /app/dist /app/dist
+COPY --from=build /app/node_modules /app/node_modules
+COPY --from=build /app/package.json /app/package.json
 
-# USAGE EXAMPLE
-# docker buildx build . --platform=linux/amd64 --tag=ipdw-bootstrap-node --progress=plain
-# docker run -d --rm -v /home/bootstrap/letsencrypt:/etc/ipdw/certificates:ro -p 4001:4001 -p 4002:4002 ipdw-bootstrap-node CAESQO8swgDBS6fc3/8o27ErvWERJG4e9+Fgts0YFgC665eWUkjOdH5aVa0bF0BqfrlVAVJwLydZMCdBKB4NqUajwis= /etc/ipdw/certificates/live/bootstrap.ipdw.tech/
+ENV NODE_ENV=production
+ENV DEBUG=acme-client
+
+EXPOSE 4001 4002 443 80
+
+CMD ["node", "dist/index.js"]

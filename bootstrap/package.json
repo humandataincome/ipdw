@@ -3,36 +3,36 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start:gen": "ts-node src/index.ts",
-    "start:dev": "DEBUG=libp2p:* ts-node src/index.ts CAESQO8swgDBS6fc3/8o27ErvWERJG4e9+Fgts0YFgC665eWUkjOdH5aVa0bF0BqfrlVAVJwLydZMCdBKB4NqUajwis=",
+    "start:dev": "DEBUG=libp2p:* PRIVATE_KEY=CAESQO8swgDBS6fc3/8o27ErvWERJG4e9+Fgts0YFgC665eWUkjOdH5aVa0bF0BqfrlVAVJwLydZMCdBKB4NqUajwis= tsx src/index.ts",
     "start:prod": "node dist/index.js",
-    "build:prod": "tsc"
+    "build": "tsc"
   },
   "dependencies": {
-    "@chainsafe/libp2p-gossipsub": "^13.0.0",
-    "@chainsafe/libp2p-noise": "^15.0.0",
+    "@chainsafe/libp2p-gossipsub": "^13.1.0",
+    "@chainsafe/libp2p-noise": "^15.1.0",
     "@chainsafe/libp2p-yamux": "^6.0.2",
-    "@libp2p/autonat": "^1.0.19",
-    "@libp2p/circuit-relay-v2": "^1.0.22",
-    "@libp2p/crypto": "^4.1.1",
-    "@libp2p/dcutr": "^1.0.19",
-    "@libp2p/identify": "^1.0.21",
-    "@libp2p/kad-dht": "^12.0.15",
-    "@libp2p/mplex": "^10.0.22",
-    "@libp2p/peer-id": "^4.1.1",
-    "@libp2p/tcp": "^9.0.24",
-    "@libp2p/upnp-nat": "^1.0.20",
-    "@libp2p/webrtc": "^4.0.30",
-    "@libp2p/websockets": "^8.0.22",
-    "@libp2p/ping": "^1.0.17",
+    "@libp2p/autonat": "^1.1.4",
+    "@libp2p/circuit-relay-v2": "^1.1.4",
+    "@libp2p/crypto": "^4.1.8",
+    "@libp2p/dcutr": "^1.1.4",
+    "@libp2p/fetch": "^1.1.4",
+    "@libp2p/identify": "^2.1.4",
+    "@libp2p/kad-dht": "^12.1.4",
+    "@libp2p/mplex": "^10.1.4",
+    "@libp2p/peer-id": "^4.2.3",
+    "@libp2p/ping": "^1.1.4",
     "@libp2p/pubsub-peer-discovery": "^10.0.2",
-    "@libp2p/fetch": "^1.0.16",
-    "libp2p": "^1.5.0",
-    "datastore-fs": "^9.1.8"
+    "@libp2p/tcp": "^9.1.4",
+    "@libp2p/upnp-nat": "^1.2.4",
+    "@libp2p/webrtc": "^4.1.4",
+    "@libp2p/websockets": "^8.1.4",
+    "acme-client": "^5.4.0",
+    "libp2p": "^1.8.3",
+    "node-forge": "^1.3.1"
   },
   "devDependencies": {
-    "@types/node": "^20.12.8",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.4.5"
+    "@types/node": "^22.1.0",
+    "tsx": "^4.16.5",
+    "typescript": "^5.5.4"
   }
 }

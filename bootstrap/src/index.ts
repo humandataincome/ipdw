@@ -10,75 +10,156 @@ import {createLibp2p} from "libp2p";
 import {autoNAT} from "@libp2p/autonat";
 import {circuitRelayServer, circuitRelayTransport} from "@libp2p/circuit-relay-v2";
 import {fromString as uint8ArrayFromString} from "uint8arrays/from-string";
-import {toString} from 'uint8arrays/to-string';
+import {toString as uint8ArrayToString} from 'uint8arrays/to-string';
 import {webRTC, webRTCDirect} from "@libp2p/webrtc";
 import {identify} from "@libp2p/identify";
 import {gossipsub} from "@chainsafe/libp2p-gossipsub";
 import {uPnPNAT} from "@libp2p/upnp-nat";
 import {dcutr} from "@libp2p/dcutr";
 import {ping} from "@libp2p/ping";
-import * as fs from "fs";
-import * as https from "https";
 import {pubsubPeerDiscovery} from "@libp2p/pubsub-peer-discovery";
 import {PeerRecord, RecordEnvelope} from "@libp2p/peer-record";
 import {fetch} from "@libp2p/fetch";
-import * as http from "http";
+import * as acme from 'acme-client';
+import * as fs from 'fs';
+import * as http from 'http';
+import forge from 'node-forge';
 
+const CERT_PATH = './data/cert.pem';
+const KEY_PATH = './data/key.pem';
 
-async function main(): Promise<void> {
-    const args = process.argv.slice(2);
+interface CertificateInfo {
+    key: string;
+    cert: string;
+    expirationDate: Date;
+}
 
-    if (args.length === 0) {
-        const privateKey = await generateKeyPair("Ed25519", 2048);
-        const privateKeyString = toString(marshalPrivateKey(privateKey), "base64pad");
-        console.log('Copy this private key', privateKeyString);
-        return;
+async function generateOrRenewCertificate(domain: string): Promise<CertificateInfo> {
+    const client = new acme.Client({
+        directoryUrl: acme.directory.letsencrypt.production,
+        accountKey: await acme.forge.createPrivateKey()
+    });
+
+    const [key, csr] = await acme.forge.createCsr({
+        commonName: domain,
+    });
+
+    let server: http.Server | null = null;
+    let challengePath: string | null = null;
+    let challengeContent: string | null = null;
+
+    const cert = await client.auto({
+        csr,
+        email: 'info@' + domain,
+        termsOfServiceAgreed: true,
+        challengePriority: ['http-01'],
+        challengeCreateFn: async (authz, challenge, keyAuthorization) => {
+            if (challenge.type === 'http-01') {
+                challengePath = `/.well-known/acme-challenge/${challenge.token}`;
+                challengeContent = keyAuthorization;
+
+                server = http.createServer((req, res) => {
+                    if (req.url === challengePath) {
+                        res.writeHead(200, {'Content-Type': 'text/plain'});
+                        res.end(challengeContent);
+                    } else {
+                        res.writeHead(404);
+                        res.end();
+                    }
+                });
+
+                await new Promise<void>((resolve) => {
+                    server!.listen(80, () => {
+                        console.log('ACME challenge server listening on port 80');
+                        resolve();
+                    });
+                });
+            }
+        },
+        challengeRemoveFn: async (authz, challenge, keyAuthorization) => {
+            if (server) {
+                await new Promise<void>((resolve) => {
+                    server!.close(() => {
+                        console.log('ACME challenge server closed');
+                        resolve();
+                    });
+                });
+                server = null;
+            }
+            challengePath = null;
+            challengeContent = null;
+        },
+    });
+
+    console.log('Certificate generated', cert);
+
+    const expirationDate = parseCertificateExpirationDate(cert)!;
+
+    return {
+        key: key.toString(),
+        cert,
+        expirationDate
+    };
+}
+
+function parseCertificateExpirationDate(certPem: string): Date | null {
+    try {
+        const certDer = forge.util.decode64(certPem.replace(/-----BEGIN CERTIFICATE-----|-----END CERTIFICATE-----|[\r\n]/g, ''));
+        const certAsn1 = forge.asn1.fromDer(certDer);
+        const cert = forge.pki.certificateFromAsn1(certAsn1);
+        return cert.validity.notAfter;
+    } catch (error) {
+        console.error('Error parsing certificate:', error);
+        return null;
     }
+}
 
-    const privateKeyString = args[0];
-    const privateKey = await unmarshalPrivateKey(uint8ArrayFromString(privateKeyString, "base64pad"));
-    const peerId = await peerIdFromKeys(privateKey.public.bytes, privateKey.bytes);
+async function ensureValidCertificate(domain: string): Promise<CertificateInfo> {
+    let certInfo: CertificateInfo;
 
-    let webSocketOpts = {};
+    if (fs.existsSync(CERT_PATH) && fs.existsSync(KEY_PATH)) {
+        const cert = fs.readFileSync(CERT_PATH, 'utf-8');
+        const key = fs.readFileSync(KEY_PATH, 'utf-8');
+        const expirationDate = parseCertificateExpirationDate(cert)!;
 
-    if (args.length === 2) {
-        const certificatesFolder = args[1];
+        certInfo = {cert, key, expirationDate};
 
-        webSocketOpts = {
-            key: fs.readFileSync(certificatesFolder + 'privkey.pem'),
-            cert: fs.readFileSync(certificatesFolder + 'cert.pem'),
-            ca: fs.readFileSync(certificatesFolder + 'chain.pem'),
+        console.log('loaded cert', certInfo);
+
+        // If the certificate expires in less than 30 days, renew it
+        if (expirationDate.getTime() - Date.now() < 30 * 24 * 60 * 60 * 1000) {
+            console.log('Certificate expiring soon. Renewing...');
+            certInfo = await generateOrRenewCertificate(domain);
         }
+    } else {
+        console.log('No existing certificate found. Generating new one...');
+        certInfo = await generateOrRenewCertificate(domain);
     }
 
-    const node = await createLibp2p({
-        /*
-        datastore: await (async () => {
-            const d = new FsDatastore('.datastore');
-            await d.open();
-            return d;
-        })(), // Disable for local testing
-         */
+    // Save the certificate and key
+    fs.writeFileSync(CERT_PATH, certInfo.cert);
+    fs.writeFileSync(KEY_PATH, certInfo.key);
+
+    return certInfo;
+}
+
+async function createNode(peerId: any, wsConfig: any, announceAddresses: any) {
+    return await createLibp2p({
         peerId,
         addresses: {
-            announce: [
-                '/dns4/bootstrap.ipdw.tech/tcp/4001', // Disable for local testing
-                '/dns4/bootstrap.ipdw.tech/tcp/4002/wss' // Disable for local testing
-            ],
             listen: [
                 '/ip4/0.0.0.0/tcp/4001',
                 '/ip4/0.0.0.0/tcp/4002/ws',
                 '/webrtc',
-            ]
+            ],
+            announce: announceAddresses
         },
         transports: [
-            circuitRelayTransport({
-                discoverRelays: 1
-            }),
+            circuitRelayTransport({discoverRelays: 1}),
             tcp(),
             webRTC(),
             webRTCDirect(),
-            webSockets(webSocketOpts),
+            webSockets(wsConfig),
         ],
         connectionEncryption: [noise()],
         streamMuxers: [yamux(), mplex()],
@@ -91,90 +172,140 @@ async function main(): Promise<void> {
                 protocol: '/ipdw/dht/1.0.0',
                 clientMode: false,
                 kBucketSize: 1024,
-                pingTimeout: 10000
+                pingTimeout: 10000,
             }),
-            pubsub: gossipsub({fallbackToFloodsub: true, canRelayMessage: true, doPX: true}),
+            pubsub: gossipsub({
+                fallbackToFloodsub: true,
+                canRelayMessage: true,
+                doPX: true,
+            }),
             autoNAT: autoNAT(),
             relay: circuitRelayServer({
-                advertise: true,
                 maxInboundHopStreams: Infinity,
                 maxOutboundHopStreams: Infinity,
                 reservations: {
                     maxReservations: Infinity,
-                    applyDefaultLimit: false
+                    applyDefaultLimit: false,
                 }
             }),
             ping: ping({protocolPrefix: 'ipdw'}),
             upnp: uPnPNAT(),
             dcutr: dcutr(),
-            fetch: fetch({protocolPrefix: 'ipdw'})
+            fetch: fetch({protocolPrefix: 'ipdw'}),
         },
         connectionManager: {
             maxConnections: Infinity,
-            minConnections: 0
+            minConnections: 0,
         },
     });
-
-    await node.services.dht.setMode('server');
-
-    node.services.fetch.registerLookupFunction('/tracker/subscribers/', async (key: string) => {
-        const topic = key.slice('/tracker/subscribers/'.length);
-        const peers = await Promise.all(node.services.pubsub.getSubscribers(topic).map(p => node.peerStore.get(p)));
-        const peerRecordEnvelopes = await Promise.all(peers.map(p => RecordEnvelope.seal(new PeerRecord({peerId: p.id, multiaddrs: p.addresses.map(a => a.multiaddr)}), node.peerId)));
-        const peersRecordEnvelopesData = peerRecordEnvelopes.map(pre => pre.marshal());
-        return Uint8ArrayMarshal(peersRecordEnvelopesData);
-    });
-
-    node.addEventListener("connection:open", (event) => {
-        console.log("connection:open", node.peerId, event.detail.remoteAddr);
-    });
-    node.addEventListener("connection:close", (event) => {
-        console.log("connection:close", node.peerId, event.detail.remoteAddr);
-    });
-    node.addEventListener("peer:update", (event) => {
-        //console.log("peer:update", node.peerId, event.detail.peer.id, event.detail.peer.addresses);
-    });
-    node.addEventListener("peer:discovery", (event) => {
-        console.log("peer:discovery", node.peerId, event.detail, event.detail.id, event.detail.multiaddrs);
-    });
-    node.addEventListener("peer:connect", (event) => {
-        console.log("peer:connect", node.peerId, event.detail);
-    });
-
-    console.log('p2p:started', node.peerId, node.getMultiaddrs());
 }
 
-function Uint8ArrayMarshal(array: Uint8Array[]): Uint8Array {
-    // Calculate total length of all Uint8Arrays in the array
-    let totalLength = 0;
-    for (const arr of array) {
-        totalLength += arr.length;
+async function main(): Promise<void> {
+    const privateKey = process.env.PRIVATE_KEY
+        ? await unmarshalPrivateKey(uint8ArrayFromString(process.env.PRIVATE_KEY, "base64pad"))
+        : await generateKeyPair("Ed25519", 2048);
+
+    const peerId = await peerIdFromKeys(privateKey.public.bytes, privateKey.bytes);
+
+    let wsConfig: any = {};
+    let announceAddresses: string[] = [];
+    let node: any;
+
+    async function setupNode() {
+        if (process.env.DOMAIN) {
+            const domain = process.env.DOMAIN;
+            const certInfo = await ensureValidCertificate(domain);
+
+            wsConfig = {
+                key: certInfo.key,
+                cert: certInfo.cert
+            };
+
+            announceAddresses = [
+                `/dns4/${domain}/tcp/4002/wss`,
+                `/dns4/${domain}/tcp/4001`,
+            ];
+        }
+
+        if (node) {
+            await node.stop();
+        }
+
+        node = await createNode(peerId, wsConfig, announceAddresses);
+        await node.start();
+
+        await node.services.dht.setMode('server');
+
+        node.services.fetch.registerLookupFunction('/tracker/subscribers/', async (key: string) => {
+            const topic = key.slice('/tracker/subscribers/'.length);
+            const peers = await Promise.all(node.services.pubsub.getSubscribers(topic).map((p: any) => node.peerStore.get(p)));
+            const peerRecordEnvelopes = await Promise.all(peers.map(p => RecordEnvelope.seal(new PeerRecord({
+                peerId: p.id,
+                multiaddrs: p.addresses.map((a: any) => a.multiaddr),
+            }), node.peerId)));
+            return marshalUint8Array(peerRecordEnvelopes.map(pre => pre.marshal()));
+        });
+
+        node.addEventListener("connection:open", (event: any) => {
+            console.log("connection:open", node.peerId, event.detail.remoteAddr);
+        });
+        node.addEventListener("connection:close", (event: any) => {
+            console.log("connection:close", node.peerId, event.detail.remoteAddr);
+        });
+        node.addEventListener("peer:update", (event: any) => {
+            //console.log("peer:update", node.peerId, event.detail.peer.id, event.detail.peer.addresses);
+        });
+        node.addEventListener("peer:discovery", (event: any) => {
+            console.log("peer:discovery", node.peerId, event.detail, event.detail.id, event.detail.multiaddrs);
+        });
+        node.addEventListener("peer:connect", (event: any) => {
+            console.log("peer:connect", node.peerId, event.detail);
+        });
+
+        console.log('p2p:started', node.peerId, node.getMultiaddrs().map((ma: any) => ma.toString()));
     }
 
-    // Calculate the total length of the marshalled data including the length prefixes
-    const totalByteLength = 4 + totalLength + (4 * array.length);
+    await setupNode();
 
-    // Allocate a new Uint8Array with the total length
+    if (process.env.DOMAIN) {
+        const domain = process.env.DOMAIN;
+
+        // Schedule certificate renewal
+        setInterval(async () => {
+            console.log('Checking certificate for renewal...');
+            const newCertInfo = await ensureValidCertificate(domain);
+
+            // If the certificate has been renewed, reload the node
+            if (newCertInfo.cert !== wsConfig.tls.cert) {
+                console.log('Certificate renewed. Reloading node...');
+                await setupNode();
+            }
+        }, 24 * 60 * 60 * 1000); // Check every 24 hours
+    }
+
+    console.log('To reuse this Peer ID use this key', uint8ArrayToString(marshalPrivateKey(privateKey), "base64pad"));
+}
+
+function marshalUint8Array(arrays: Uint8Array[]): Uint8Array {
+    const totalLength = arrays.reduce((sum, arr) => sum + arr.length, 0);
+    const totalByteLength = 4 + totalLength + (4 * arrays.length);
     const result = new Uint8Array(totalByteLength);
+    const view = new DataView(result.buffer);
 
-    // Write the number of arrays as a 32-bit integer at the beginning
-    new DataView(result.buffer).setUint32(0, array.length, true);
+    view.setUint32(0, arrays.length, true);
     let offset = 4;
 
-    // For each array, write its length as a 32-bit integer followed by its data
-    for (const arr of array) {
-        new DataView(result.buffer).setUint32(offset, arr.length, true);
+    arrays.forEach(arr => {
+        view.setUint32(offset, arr.length, true);
         offset += 4;
         result.set(arr, offset);
         offset += arr.length;
-    }
+    });
 
     return result;
 }
-
 
 main().catch(err => {
     console.error(err);
     process.exit(1);
 });
-
