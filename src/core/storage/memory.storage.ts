@@ -30,7 +30,3 @@ export class MemoryStorageProvider implements StorageProvider {
         return this.storage.clear();
     }
 }
-
-// See docs:
-// FileSystemStorageProvider is the implementation for Node;
-// IndexedDBStorageProvider is the implementation for Browser;

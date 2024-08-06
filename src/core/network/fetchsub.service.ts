@@ -1,16 +1,4 @@
-/*
-   TODO: FINISH
-    Implement DHT querying to find peers interested in topics.
-    Handle subscription requests from peers.
-    Handle message sending to subscribed peers.
-    Optionally partition sorted subscribers in x chunks of len y with a given shift and send message to first of chunk and then instruct him tro propagate to next y-1
- */
-
-/*
-    SwarmSub (aka DHTSub)
- */
-import type {Libp2p} from "@libp2p/interface";
-import {KadDHT} from "@libp2p/kad-dht";
+import type {Libp2p, PubSub} from "@libp2p/interface";
 import * as raw from "multiformats/codecs/raw";
 import {sha256} from "multiformats/hashes/sha2";
 import {CID} from "multiformats/cid";
@@ -19,16 +7,16 @@ import {Fetch} from "@libp2p/fetch";
 import {ArrayUtils} from "../../utils";
 import {PeerRecord, RecordEnvelope} from "@libp2p/peer-record";
 
-export class SwarmsubService {
-    private node: Libp2p<{ dht: KadDHT, fetch: Fetch }>;
+export class FetchsubService {
+    private node: Libp2p<{ pubsub: PubSub, fetch: Fetch }>;
 
     private subscriptions: { [cid: string]: boolean; } = {};
     private listeners: { [cid: string]: (peer: PeerId) => Promise<void>; } = {}; //TODO: Support multiple listeners
     private subscribers: { [cid: string]: PeerId[]; } = {};
 
-    // Need to handle unsubscription from providers using ttl
+    private readonly subscribersFetchPathPrefix = '/tracker/subscribers/1.0.0/';
 
-    constructor(node: Libp2p<{ dht: KadDHT, fetch: Fetch }>) {
+    constructor(node: Libp2p<{ pubsub: PubSub, fetch: Fetch }>) {
         this.node = node;
     }
 
@@ -36,25 +24,6 @@ export class SwarmsubService {
         const cid = CID.create(1, raw.code, await sha256.digest(raw.encode(new TextEncoder().encode(topic))));
 
         this.subscriptions[cid.toString()] = true;
-
-        /*
-        (async () => {
-            while (this.subscriptions[cid.toString()]) {
-                try {
-                    for await (const event of this.node.services.dht.provide(cid, {useCache: false, useNetwork: true})) {
-                        //console.log('swarm:provide', this.node.peerId, event);
-
-                        if (!this.subscriptions[cid.toString()])
-                            break;
-                    }
-                } catch (e) {
-                    //console.log('swarm:provide:error', e);
-                }
-                if (this.subscriptions[cid.toString()])
-                    await new Promise(r => setTimeout(r, 30 * 1000)); // Refresh TTL in DHT
-            }
-        })().then();
-         */
     }
 
     public async unsubscribe(topic: string): Promise<void> {
@@ -62,10 +31,24 @@ export class SwarmsubService {
         delete this.subscriptions[cid.toString()];
     }
 
+    public registerHandleFetchSubscribers() {
+        this.node.services.fetch.registerLookupFunction(this.subscribersFetchPathPrefix, async (key: string) => {
+            const topic = key.slice(this.subscribersFetchPathPrefix.length);
+            const peers = await Promise.all(this.node.services.pubsub.getSubscribers(topic).map(p => this.node.peerStore.get(p)));
+            const peerRecordEnvelopes = await Promise.all(peers.map(p => RecordEnvelope.seal(new PeerRecord({peerId: p.id, multiaddrs: p.addresses.map(a => a.multiaddr)}), this.node.peerId)));
+            const peersRecordEnvelopesData = peerRecordEnvelopes.map(pre => pre.marshal());
+            return ArrayUtils.Uint8ArrayMarshal(peersRecordEnvelopesData);
+        });
+    }
+
+    public unregisterHandleFetchSubscribers() {
+        this.node.services.fetch.unregisterLookupFunction(this.subscribersFetchPathPrefix);
+    }
+
     public async fetchSubscribers(peerId: PeerId, topic: string): Promise<PeerId[]> {
         let peersFetchData;
         try {
-            peersFetchData = await this.node.services.fetch.fetch(peerId, `/tracker/subscribers/${topic}`);
+            peersFetchData = await this.node.services.fetch.fetch(peerId, this.subscribersFetchPathPrefix + topic);
         } catch (e) {
             console.log(e)
         }
@@ -136,47 +119,6 @@ export class SwarmsubService {
                 }
             })().then();
         }
-
-        // Show logs and also hook sendrequest function
-        // Ideally send dht query always to bootstrap
-        // The main suspect is that in the actual state dht is not resilient
-        // It is somehow bypassing bootstrap because the actual peer discovered unavailable peers
-        // Also arbitrer could be the suspect in kbucket, but I think no
-        // We need also to purge last seen contacts
-        // Or create a swarm dht service with similar logic from scratch
-        // DOUBLE CHECK YAMUX when running the query
-
-        /*
-        (async () => {
-            while (this.listeners[cid.toString()]) {
-                try {
-                    for await (const event of this.node.services.dht.findProviders(cid, {useCache: false, useNetwork: true})) {
-                        //console.log('swarm:find', this.node.peerId, event);
-
-                        if (!this.listeners[cid.toString()])
-                            break;
-
-                        if (event.name === 'PROVIDER' && event.providers.length > 0) {
-                            for (const peer of event.providers) {
-                                if (!peer.id.equals(this.node.peerId) && this.subscribers[cid.toString()].findIndex(p => p.equals(peer.id)) === -1) {
-                                    console.log('swarm:found', this.node.peerId, peer.id);
-                                    this.subscribers[cid.toString()].push(peer.id);
-                                    await this.listeners[cid.toString()](peer.id);
-                                }
-                            }
-                        }
-                    }
-
-                } catch (e) {
-                    //console.log('swarm:find:error', e);
-                }
-                if (this.listeners[cid.toString()])
-                    await new Promise(r => setTimeout(r, 30 * 1000)); // Refresh TTL in DHT
-            }
-        })().then();
-        */
-
-        //await this.node.services.dht.refreshRoutingTable();
     }
 
     public async removeSubscriptionListener(topic: string): Promise<void> {

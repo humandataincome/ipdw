@@ -23,7 +23,7 @@ export class FileSystemStorageProvider implements StorageProvider {
     }
 
     public async get(key: string): Promise<Uint8Array | undefined> {
-        return fs.promises.readFile(this.basePath + key);
+        return fs.existsSync(this.basePath + key) ? fs.promises.readFile(this.basePath + key) : undefined;
     }
 
     public async ls(): Promise<string[]> {

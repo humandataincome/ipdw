@@ -1,3 +1,2 @@
-export * from "./core"
-export * from "./lib"
 export * from "./utils"
+export * from "./core"

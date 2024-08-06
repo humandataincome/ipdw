@@ -1,11 +1,11 @@
-import {StorageProvider} from "./";
+import {StorageProvider} from "../storage";
 
 interface CacheMetadata {
     lastModified: number;
     hash: string;
 }
 
-export class CachedStorageProvider implements StorageProvider {
+export class CachedStorageOverlay implements StorageProvider {
     private remoteStorage: StorageProvider;
     private cacheStorage: StorageProvider;
     private cacheMetadata: Map<string, CacheMetadata>;

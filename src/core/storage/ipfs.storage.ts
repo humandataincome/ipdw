@@ -3,7 +3,7 @@ import {IPNS, ipns} from '@helia/ipns';
 import {UnixFS, unixfs} from '@helia/unixfs';
 import crypto from 'crypto';
 import {StorageProvider} from "./";
-import {Buffer} from "buffer";
+
 import util from "util";
 import {CID} from "multiformats/cid";
 import {PeerId} from "@libp2p/interface";
@@ -89,7 +89,7 @@ export class IPFSStorageProvider implements StorageProvider {
             let resolvedPath = await this.ipnsInstance.resolve(this.ipnsPeerId);
 
             if (!resolvedPath) {
-                throw new Error('Failed to resolve IPNS name');
+                throw Error('Failed to resolve IPNS name');
             }
 
             const chunks = [];

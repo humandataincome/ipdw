@@ -1,4 +1,4 @@
-import {FileSystemStorageProvider, IndexedDBStorageProvider, MemoryStorageProvider, StreamProvider} from "../src";
+import {FileSystemStorageProvider, IndexedDBStorageProvider, MemoryStorageProvider} from "../src";
 
 import "fake-indexeddb/auto";
 
@@ -49,25 +49,5 @@ describe("Storage tests", async () => {
 
         res = await storage.get("key1");
         console.log(new TextDecoder().decode(res));
-    });
-
-    it("Check StreamProvider", async () => {
-        const storage = new MemoryStorageProvider();
-        const stream = new StreamProvider(storage);
-
-        let res;
-        res = (await stream.getWritable("key1", 3, true)).getWriter();
-        await res.write(new TextEncoder().encode("va"));
-        await res.write(new TextEncoder().encode("lue1"));
-        await res.close();
-
-        res = await stream.has("key1");
-        console.log(res);
-
-        res = (await stream.getReadable("key1", 2)).getReader();
-        let chunk;
-        while (!(chunk = await res.read()).done) {
-            console.log('chunk:', new TextDecoder().decode(chunk.value));
-        }
     });
 });

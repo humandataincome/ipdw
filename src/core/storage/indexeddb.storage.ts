@@ -15,11 +15,8 @@ export class IndexedDBStorageProvider implements StorageProvider {
             request.onupgradeneeded = (event) => {
                 if (!request.result.objectStoreNames.contains(basePath)) {
                     request.result
-                        //.createObjectStore(basePath)
                         .createObjectStore(basePath, {keyPath: 'key'})
                         .createIndex("keyIndex", "key");
-                    //.createObjectStore(basePath, {keyPath: 'key'})
-                    //.createIndex("value", "value", {unique: false});
                 }
             };
             request.onerror = () => reject(new Error("Failed to open the IndexedDB"));
@@ -31,7 +28,7 @@ export class IndexedDBStorageProvider implements StorageProvider {
     private static async IDBRequestPromisify<T>(request: IDBRequest<T>): Promise<T> {
         return new Promise((resolve, reject) => {
             request.onerror = reject
-            request.onsuccess = () => resolve(request.result) // Or (event) => resolve((event.target as any).result)
+            request.onsuccess = () => resolve(request.result)
         });
     }
 
@@ -50,7 +47,7 @@ export class IndexedDBStorageProvider implements StorageProvider {
     }
 
     public async get(key: string): Promise<Uint8Array | undefined> {
-        // Really slow when sequential get, maybe need to implement getMany
+        // Really slow when sequential gets, maybe need to implement getMany
         const res = await IndexedDBStorageProvider.IDBRequestPromisify(this.database.transaction(this.basePath, "readonly").objectStore(this.basePath).get(key));
         return res ? new Uint8Array(res.value) : undefined;
     }
@@ -68,6 +65,4 @@ export class IndexedDBStorageProvider implements StorageProvider {
             request.onsuccess = () => resolve();
         });
     }
-
-    // For better stream support add cursor
 }

@@ -1,21 +1,20 @@
-import {Buffer} from "buffer";
 import crypto from "crypto";
-import {BlockFactory} from "./";
+import {PackFactory} from "./";
 
-// EncryptedBlock: ivSalt(4 Bytes Buffer) | payload(? Bytes Buffer)
+// EncryptedPack: ivSalt(4 Bytes Buffer) | payload(? Bytes Buffer)
 
-export class EncryptedBlockFactory implements BlockFactory {
+export class EncryptedPackFactory implements PackFactory {
     private readonly key: Buffer;
 
     constructor(key: Buffer) {
         this.key = key;
     }
 
-    async decode(block: Uint8Array): Promise<Uint8Array | undefined> {
-        const encryptedBlockBuffer = Buffer.from(block);
+    async decode(pack: Uint8Array): Promise<Uint8Array | undefined> {
+        const encryptedPackBuffer = Buffer.from(pack);
 
-        const ivSalt = encryptedBlockBuffer.subarray(0, 4);
-        const payload = encryptedBlockBuffer.subarray(4, encryptedBlockBuffer.length);
+        const ivSalt = encryptedPackBuffer.subarray(0, 4);
+        const payload = encryptedPackBuffer.subarray(4, encryptedPackBuffer.length);
 
         const iv = crypto.createHash('sha256').update(this.key).update(ivSalt.toString()).digest().subarray(16);
 
@@ -32,12 +31,12 @@ export class EncryptedBlockFactory implements BlockFactory {
 
         const cipher = crypto.createCipheriv('aes-256-cbc', this.key, iv);
         const payload = Buffer.concat([cipher.update(Buffer.from(value)), cipher.final()]);
-        const encryptedBlockBuffer = Buffer.alloc(4 + payload.length);
+        const encryptedPackBuffer = Buffer.alloc(4 + payload.length);
 
-        encryptedBlockBuffer.fill(ivSalt, 0);
-        encryptedBlockBuffer.fill(payload, 4);
+        encryptedPackBuffer.fill(ivSalt, 0);
+        encryptedPackBuffer.fill(payload, 4);
 
-        return new Uint8Array(encryptedBlockBuffer.buffer.slice(encryptedBlockBuffer.byteOffset, encryptedBlockBuffer.byteOffset + encryptedBlockBuffer.byteLength));
+        return new Uint8Array(encryptedPackBuffer.buffer.slice(encryptedPackBuffer.byteOffset, encryptedPackBuffer.byteOffset + encryptedPackBuffer.byteLength));
     }
 
 }

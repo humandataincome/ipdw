@@ -4,8 +4,9 @@ import {ReedSolomon} from "@bnb-chain/reed-solomon";
 import * as web3 from 'web3';
 
 import {StorageProvider} from "./";
-import {Buffer} from "buffer";
+
 import {DeliverTxResponse} from "@cosmjs/stargate";
+import {ReadWriteLock, withReadLock, withWriteLock} from "../../utils";
 
 export const GREENFIELD_TESTNET_CHAIN_RPC_URL = 'https://gnfd-testnet-fullnode-tendermint-us.bnbchain.org';
 export const GREENFIELD_TESTNET_CHAIN_ID = 5600;
@@ -13,9 +14,11 @@ export const GREENFIELD_TESTNET_CHAIN_ID = 5600;
 export const GREENFIELD_MAINNET_CHAIN_RPC_URL = 'https://greenfield-chain.bnbchain.org';
 export const GREENFIELD_MAINNET_CHAIN_ID = 1017;
 
-export const GREENFIELD_DEFAULT_BUCKET_NAME = 'ipdw-v1';
+export const GREENFIELD_DEFAULT_BUCKET_NAME = '0--ipdw--0'; // Underscore not supported
 
 export class BNBGreenfieldStorageProvider implements StorageProvider {
+    private rwLock = new ReadWriteLock();
+
     private readonly privateKey: string;
     private readonly address: string;
     private readonly bucketName: string;
@@ -101,7 +104,15 @@ export class BNBGreenfieldStorageProvider implements StorageProvider {
         });
     }
 
-    async set(key: string, value: Uint8Array | undefined): Promise<void> {
+    public async getAccountInfo(): Promise<{ address: string, balance: bigint }> {
+        const balance = await this.client.account.getAccountBalance({address: this.address, denom: 'BNB'});
+        return {address: this.address, balance: BigInt(balance.balance!.amount)};
+    }
+
+    @withWriteLock(function (this: BNBGreenfieldStorageProvider) {
+        return this.rwLock;
+    })
+    public async set(key: string, value: Uint8Array | undefined): Promise<void> {
         if (!value) {
             const deleteObjectTx = await this.client.object.deleteObject({
                 bucketName: this.bucketName,
@@ -111,8 +122,15 @@ export class BNBGreenfieldStorageProvider implements StorageProvider {
 
             await BNBGreenfieldStorageProvider.SendTransaction(deleteObjectTx, this.privateKey);
         } else {
-            if (await this.has(key))
-                await this.set(key, undefined);
+            if (await this.has(key)) {
+                const deleteObjectTx = await this.client.object.deleteObject({
+                    bucketName: this.bucketName,
+                    objectName: key,
+                    operator: this.address
+                });
+
+                await BNBGreenfieldStorageProvider.SendTransaction(deleteObjectTx, this.privateKey);
+            }
 
             const createObjectTx = await this.client.object.createObject({
                 bucketName: this.bucketName,
@@ -144,7 +162,7 @@ export class BNBGreenfieldStorageProvider implements StorageProvider {
         }
     }
 
-    async has(key: string): Promise<boolean> {
+    public async has(key: string): Promise<boolean> {
         try {
             await this.client.object.headObject(this.bucketName, key);
             return true;
@@ -156,7 +174,10 @@ export class BNBGreenfieldStorageProvider implements StorageProvider {
         }
     }
 
-    async get(key: string): Promise<Uint8Array | undefined> {
+    @withReadLock(function (this: BNBGreenfieldStorageProvider) {
+        return this.rwLock;
+    })
+    public async get(key: string): Promise<Uint8Array | undefined> {
         const response = await this.client.object.getObject({
             bucketName: this.bucketName,
             objectName: key,
@@ -172,7 +193,7 @@ export class BNBGreenfieldStorageProvider implements StorageProvider {
         return new Uint8Array(await response.body.arrayBuffer());
     }
 
-    async ls(): Promise<string[]> {
+    public async ls(): Promise<string[]> {
         const response = await this.client.object.listObjects({
             bucketName: this.bucketName,
             endpoint: this.spEndpoint
@@ -183,7 +204,7 @@ export class BNBGreenfieldStorageProvider implements StorageProvider {
         return response.body.GfSpListObjectsByBucketNameResponse.Objects.map(obj => obj.ObjectInfo.ObjectName);
     }
 
-    async clear(): Promise<void> {
+    public async clear(): Promise<void> {
         const objects = await this.ls();
         await Promise.all(objects.map(objectName => this.set(objectName, undefined)));
     }

@@ -1,7 +1,8 @@
 import algosdk, {Account} from 'algosdk';
 
 import {StorageProvider} from "./";
-import {Buffer} from "buffer";
+import {ReadWriteLock, withWriteLock} from "../../utils";
+
 
 export const ALGORAND_TESTNET_SERVER_URL = 'https://testnet-api.algonode.cloud';
 export const ALGORAND_TESTNET_INDEXER_URL = 'https://testnet-idx.algonode.cloud';
@@ -9,13 +10,15 @@ export const ALGORAND_TESTNET_INDEXER_URL = 'https://testnet-idx.algonode.cloud'
 export const ALGORAND_MAINNET_SERVER_URL = 'https://mainnet-api.algonode.cloud';
 export const ALGORAND_MAINNET_INDEXER_URL = 'https://mainnet-idx.algonode.cloud';
 
-export const ALGORAND_DEFAULT_CONTRACT_NAME = 'ipdw-v1';
+export const ALGORAND_DEFAULT_CONTRACT_NAME = '__ipdw__';
 
 export const ALGORAND_STORAGE_APPROVAL_CODE = 'I3ByYWdtYSB2ZXJzaW9uIDEwCnR4biBBcHBsaWNhdGlvbklECmludCAwCj09CmJueiBtYWluX2wxNAp0eG4gT25Db21wbGV0aW9uCmludCBOb09wCj09CmJueiBtYWluX2wxMQp0eG4gT25Db21wbGV0aW9uCmludCBEZWxldGVBcHBsaWNhdGlvbgo9PQpibnogbWFpbl9sMTAKdHhuIE9uQ29tcGxldGlvbgppbnQgVXBkYXRlQXBwbGljYXRpb24KPT0KYm56IG1haW5fbDkKdHhuIE9uQ29tcGxldGlvbgppbnQgT3B0SW4KPT0KYm56IG1haW5fbDgKdHhuIE9uQ29tcGxldGlvbgppbnQgQ2xvc2VPdXQKPT0KYm56IG1haW5fbDcKZXJyCm1haW5fbDc6CmludCAxCnJldHVybgptYWluX2w4OgppbnQgMQpyZXR1cm4KbWFpbl9sOToKaW50IDEKcmV0dXJuCm1haW5fbDEwOgppbnQgMQpyZXR1cm4KbWFpbl9sMTE6CnR4bmEgQXBwbGljYXRpb25BcmdzIDAKYnl0ZSAic2V0Igo9PQpibnogbWFpbl9sMTMKZXJyCm1haW5fbDEzOgpjYWxsc3ViIHNldHZhbHVlXzAKcmV0dXJuCm1haW5fbDE0OgpieXRlICJuYW1lIgp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCmFwcF9nbG9iYWxfcHV0CmludCAxCnJldHVybgoKLy8gc2V0X3ZhbHVlCnNldHZhbHVlXzA6CnByb3RvIDAgMQp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCmJveF9sZW4Kc3RvcmUgMQpzdG9yZSAwCmxvYWQgMQpibnogc2V0dmFsdWVfMF9sNApzZXR2YWx1ZV8wX2wxOgp0eG5hIEFwcGxpY2F0aW9uQXJncyAyCmJ5dGUgIiIKPT0KYm56IHNldHZhbHVlXzBfbDMKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQp0eG5hIEFwcGxpY2F0aW9uQXJncyAyCmxlbgpib3hfY3JlYXRlCnBvcAp0eG5hIEFwcGxpY2F0aW9uQXJncyAxCnR4bmEgQXBwbGljYXRpb25BcmdzIDIKYm94X3B1dAppbnQgMQpiIHNldHZhbHVlXzBfbDUKc2V0dmFsdWVfMF9sMzoKaW50IDEKYiBzZXR2YWx1ZV8wX2w1CnNldHZhbHVlXzBfbDQ6CnR4bmEgQXBwbGljYXRpb25BcmdzIDEKYm94X2RlbApwb3AKYiBzZXR2YWx1ZV8wX2wxCnNldHZhbHVlXzBfbDU6CnJldHN1Yg==';
 export const ALGORAND_STORAGE_CLEAR_CODE = 'I3ByYWdtYSB2ZXJzaW9uIDEwCmludCAxCnJldHVybg==';
 export const ALGORAND_TOKEN_UNIT = 1e6;
 
 export class AlgorandStorageProvider implements StorageProvider {
+    private rwLock = new ReadWriteLock();
+
     private account: algosdk.Account;
     private readonly applicationId: number;
     private readonly client: algosdk.Algodv2;
@@ -113,7 +116,16 @@ export class AlgorandStorageProvider implements StorageProvider {
         return new AlgorandStorageProvider(account, resApplicationId, client);
     }
 
-    async set(key: string, value: Uint8Array | undefined): Promise<void> {
+    public async getAccountInfo(): Promise<{ address: string, mnemonic: string, balance: bigint }> {
+        const accountInfo = await this.client.accountInformation(this.account.addr).do();
+        return {address: this.account.addr, mnemonic: algosdk.secretKeyToMnemonic(this.account.sk), balance: accountInfo.balance};
+    }
+
+    @withWriteLock(function (this: AlgorandStorageProvider) {
+        return this.rwLock;
+    })
+    public async set(key: string, value: Uint8Array | undefined): Promise<void> {
+        console.log(key)
         const txn = algosdk.makeApplicationNoOpTxnFromObject({
             from: this.account.addr,
             appIndex: this.applicationId,
@@ -127,12 +139,12 @@ export class AlgorandStorageProvider implements StorageProvider {
         await algosdk.waitForConfirmation(this.client, txId, 4);
     }
 
-    async has(key: string): Promise<boolean> {
+    public async has(key: string): Promise<boolean> {
         const value = await this.get(key);
         return value !== undefined;
     }
 
-    async get(key: string): Promise<Uint8Array | undefined> {
+    public async get(key: string): Promise<Uint8Array | undefined> {
         try {
             const boxResponse = await this.client.getApplicationBoxByName(this.applicationId, Buffer.from(key)).do();
             return boxResponse.value;
@@ -144,12 +156,12 @@ export class AlgorandStorageProvider implements StorageProvider {
         }
     }
 
-    async ls(): Promise<string[]> {
+    public async ls(): Promise<string[]> {
         const boxes = await this.client.getApplicationBoxes(this.applicationId).do();
         return boxes.boxes.map((box) => Buffer.from(box.name).toString('utf8'));
     }
 
-    async clear(): Promise<void> {
+    public async clear(): Promise<void> {
         const keys = await this.ls();
         await Promise.all(keys.map(key => this.set(key, undefined)));
     }

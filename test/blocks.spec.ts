@@ -1,4 +1,4 @@
-import {BlockStorage, CombinedBlockFactory, CryptoUtils, EncryptedBlockFactory, MapSharded, MemoryStorageProvider, PlainBlockFactory, SignedBlockFactory} from "../src";
+import {BlockStorageOverlay, CombinedPackFactory, CryptoUtils, EncryptedPackFactory, MemoryStorageProvider, SignedPackFactory} from "../src";
 
 import "fake-indexeddb/auto";
 
@@ -17,11 +17,11 @@ describe("Blocks tests", async () => {
 
         const storageProvider = new MemoryStorageProvider();
 
-        const encryptedBlockFactory = new EncryptedBlockFactory(keyBuffer);
-        const signedBlockFactory = new SignedBlockFactory(publicKeyBuffer, privateKeyBuffer);
+        const encryptedBlockFactory = new EncryptedPackFactory(keyBuffer);
+        const signedBlockFactory = new SignedPackFactory(publicKeyBuffer, privateKeyBuffer);
 
-        const privateBlockFactory = new CombinedBlockFactory([encryptedBlockFactory, signedBlockFactory]);
-        const blockStorage = new BlockStorage(storageProvider, privateBlockFactory);
+        const privateBlockFactory = new CombinedPackFactory([encryptedBlockFactory, signedBlockFactory]);
+        const blockStorage = new BlockStorageOverlay(storageProvider, encryptedBlockFactory, privateBlockFactory);
 
         const plainBlock = new Uint8Array([1, 4, 6]);
         console.log('plainBlock', plainBlock);
@@ -30,25 +30,13 @@ describe("Blocks tests", async () => {
         const signedBlock = await signedBlockFactory.encode(encryptedBlock);
         console.log('signedBlock', signedBlock);
 
-        await blockStorage.insert(0, signedBlock);
+        await blockStorage.set('0', signedBlock);
 
-        const savedBlock = await blockStorage.get(0);
+        const savedBlock = await blockStorage.get('0');
         console.log('savedBlock', savedBlock);
         const verifiedBlock = await signedBlockFactory.decode(savedBlock!);
         console.log('verifiedBlock', verifiedBlock);
         const decryptedBlock = await encryptedBlockFactory.decode(verifiedBlock!);
         console.log('decryptedBlock', decryptedBlock);
-    });
-
-    it("Check events with map sharded", async () => {
-        const storageProvider = new MemoryStorageProvider();
-        const plainBlockFactory = new PlainBlockFactory();
-        const blockStorage = new BlockStorage(storageProvider, plainBlockFactory);
-
-        blockStorage.events.addEventListener('insert', e => console.log('insert', e.detail!.index, e.detail!.value));
-        blockStorage.events.addEventListener('delete', e => console.log('delete', e.detail!.index));
-
-        const mapSharded = await MapSharded.create(blockStorage);
-        await mapSharded.set('test', '12345');
     });
 });

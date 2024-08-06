@@ -10,7 +10,7 @@ export const CERE_TESTNET_INDEXER_URL = 'https://subsquid.testnet.cere.network/g
 export const CERE_MAINNET_RPC_URL = 'wss://rpc.mainnet.cere.network/ws';
 export const CERE_MAINNET_INDEXER_URL = 'https://subsquid.cere.network/graphql';
 
-export const CERE_DEFAULT_BUCKET_NAME = 'ipdw-v1';
+export const CERE_DEFAULT_BUCKET_NAME = '__ipdw__';
 
 export const CERE_TOKEN_UNIT = 10_000_000_000n;
 
@@ -72,7 +72,7 @@ export class CereStorageProvider implements StorageProvider {
         return new CereStorageProvider(ddcClient, ddcNode, resBucketId);
     }
 
-    public static async GetBucketList(indexerUrl: string, ownerId: string): Promise<any> {
+    private static async GetBucketList(indexerUrl: string, ownerId: string): Promise<any> {
         const body = JSON.stringify({
             query: `query { ddcBuckets(where: { ownerId: { id_eq: "${ownerId}" } }) { bucketId ownerId { id } clusterId { id } isPublic isRemoved } }`
         });
@@ -89,7 +89,13 @@ export class CereStorageProvider implements StorageProvider {
         return (await response.json()).data.ddcBuckets.map((b: any) => b == null ? undefined : ({bucketId: b.bucketId, ownerId: b.ownerId.id, clusterId: b.clusterId.id, isPublic: b.isPublic, isRemoved: b.isRemoved} as Bucket));
     }
 
-    async set(key: string, value: Uint8Array | undefined): Promise<void> {
+    public async getAccountInfo(): Promise<{ address: string, balance: bigint }> {
+        const signer = ((<any>this.ddcClient).signer as Signer);
+        const deposit = await this.ddcClient.getDeposit();
+        return {address: signer.address, balance: deposit};
+    }
+
+    public async set(key: string, value: Uint8Array | undefined): Promise<void> {
         const index = await this.getIndex();
 
         if (value === undefined) {
@@ -105,12 +111,12 @@ export class CereStorageProvider implements StorageProvider {
         await this.updateIndex(index);
     }
 
-    async has(key: string): Promise<boolean> {
+    public async has(key: string): Promise<boolean> {
         const index = await this.getIndex();
         return !!index[key];
     }
 
-    async get(key: string): Promise<Uint8Array | undefined> {
+    public async get(key: string): Promise<Uint8Array | undefined> {
         const index = await this.getIndex();
         if (!index[key]) return undefined;
 
@@ -123,12 +129,12 @@ export class CereStorageProvider implements StorageProvider {
         }
     }
 
-    async ls(): Promise<string[]> {
+    public async ls(): Promise<string[]> {
         const index = await this.getIndex();
         return Object.keys(index);
     }
 
-    async clear(): Promise<void> {
+    public async clear(): Promise<void> {
         await this.updateIndex({});
     }
 
