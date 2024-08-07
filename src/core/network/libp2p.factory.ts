@@ -21,95 +21,90 @@ import {Fetch, fetch} from "@libp2p/fetch";
 import {mdns} from "@libp2p/mdns";
 import * as libp2pInfo from 'libp2p/version';
 
-
 export class Libp2pFactory {
+    private static readonly PROTOCOL_PREFIX = 'ipdw';
+    private static readonly DHT_PROTOCOL = '/ipdw/dht/1.0.0';
+    private static readonly BOOTSTRAP_ADDR = '/dns4/bootstrap.ipdw.tech/tcp/4001/p2p/12D3KooWCctszqqsrdcmuh151GTsKAHTaCg8Jor9mUbTHjkEaA7S';
+
     public static async create(): Promise<Libp2p.Libp2p<{ pubsub: PubSub, dht: KadDHT, fetch: Fetch }>> {
-        const nodeOptions = typeof window === 'object' || typeof importScripts === 'function' ? await this.libp2pWebOptions() : await this.libp2pNodeOptions();
+        const isWeb = typeof window === 'object' || typeof importScripts === 'function';
+        const nodeOptions = isWeb ? await this.libp2pWebOptions() : await this.libp2pNodeOptions();
 
         const node = await Libp2p.createLibp2p(nodeOptions);
-        await node.services.dht.setMode('server');
 
-        node.addEventListener("connection:open", (event) => {
-            console.log("connection:open", node.peerId, event.detail.remoteAddr);
-        });
-        node.addEventListener("connection:close", (event) => {
-            console.log("connection:close", node.peerId, event.detail.remoteAddr);
-        });
-        node.addEventListener("peer:update", (event) => {
-            //console.log("peer:update", node.peerId, event.detail.peer.id, event.detail.peer.addresses);
-        });
-        node.addEventListener("peer:discovery", (event) => {
-            console.log("peer:discovery", node.peerId, event.detail, event.detail.id, event.detail.multiaddrs);
-            //node.dial(event.detail.id).then();
-        });
-        node.addEventListener("peer:connect", (event) => {
-            console.log("peer:connect", node.peerId, event.detail);
-        });
-        console.log('p2p:started', node.peerId, node.getMultiaddrs());
+        this.setupEventListeners(node);
+        console.log('p2p:started', node.peerId.toString(), node.getMultiaddrs().map(ma => ma.toString()));
 
-        return node;
+        return node as any;
     }
 
-    private static async libp2pWebOptions() {
-        console.log('p2p:configuring:web');
+    private static setupEventListeners(node: Libp2p.Libp2p): void {
+        const events = ['connection:open', 'connection:close', 'peer:connect', 'peer:discovery'];
+        events.forEach((event: any) => {
+            node.addEventListener(event, (e) => {
+                console.log(event, node.peerId.toString(), e.detail);
+            });
+        });
+    }
 
+    private static getCommonOptions(): Partial<Libp2p.Libp2pOptions> {
         return {
-            addresses: {
-                listen: [
-                    '/webrtc',
-                ]
-            },
-            transports: [
-                circuitRelayTransport({
-                    discoverRelays: 1
-                }),
-                webSockets({
-                    filter: filters.all
-                }),
-                webRTC(),
-                webRTCDirect(),
-                ...(globalThis.WebTransport !== undefined ? [webTransport()] : []),
-            ],
             connectionEncryption: [noise()],
             streamMuxers: [yamux(), mplex()],
             peerDiscovery: [
                 bootstrap({
-                    list: [
-                        //'/ip4/127.0.0.1/tcp/4002/ws/p2p/12D3KooWFMZzQ58LCRvnsu6747nbKqzLU6TamaTBYYzdasLGAbKQ', // Enable for local testing
-                        '/dns4/bootstrap.ipdw.tech/tcp/4002/wss/p2p/12D3KooWCctszqqsrdcmuh151GTsKAHTaCg8Jor9mUbTHjkEaA7S'
-                    ]
+                    list: [this.BOOTSTRAP_ADDR]
                 }),
             ],
             services: {
                 identify: identify({
-                    protocolPrefix: 'ipdw',
-                    agentVersion: `ipdw/client/1.0.0 ${libp2pInfo.name}/${libp2pInfo.version} UserAgent=${globalThis.navigator.userAgent}`
+                    protocolPrefix: this.PROTOCOL_PREFIX,
+                    agentVersion: this.getAgentVersion()
                 }),
                 dht: kadDHT({
-                    protocol: '/ipdw/dht/1.0.0',
+                    protocol: this.DHT_PROTOCOL,
                     clientMode: false,
                     kBucketSize: 256,
                     pingTimeout: 10000
                 }),
-                pubsub: gossipsub({allowPublishToZeroTopicPeers: true, runOnTransientConnection: true}),
+                pubsub: gossipsub({allowPublishToZeroTopicPeers: true}),
                 autoNAT: autoNAT(),
                 dcutr: dcutr(),
-                ping: ping({protocolPrefix: 'ipdw'}),
-                fetch: fetch({protocolPrefix: 'ipdw'})
+                ping: ping({protocolPrefix: this.PROTOCOL_PREFIX}),
+                fetch: fetch({protocolPrefix: this.PROTOCOL_PREFIX})
             },
             connectionManager: {
                 minConnections: 1
             },
+        };
+    }
+
+    private static async libp2pWebOptions(): Promise<Libp2p.Libp2pOptions> {
+        console.log('p2p:configuring:web');
+
+        return {
+            ...this.getCommonOptions(),
+            addresses: {
+                listen: ['/webrtc']
+            },
+            transports: [
+                circuitRelayTransport({discoverRelays: 1}),
+                webSockets({filter: filters.all}),
+                webRTC(),
+                webRTCDirect(),
+                ...(globalThis.WebTransport !== undefined ? [webTransport()] : []),
+            ],
             connectionGater: {
-                denyDialMultiaddr: () => false // Enable for local testing
+                denyDialMultiaddr: () => false
             },
         };
     }
 
-    private static async libp2pNodeOptions() {
+    private static async libp2pNodeOptions(): Promise<Libp2p.Libp2pOptions> {
         console.log('p2p:configuring:node');
 
         return {
+            ...this.getCommonOptions(),
             addresses: {
                 listen: [
                     '/ip4/0.0.0.0/tcp/0',
@@ -118,52 +113,26 @@ export class Libp2pFactory {
                 ]
             },
             transports: [
-                circuitRelayTransport({
-                    discoverRelays: 1
-                }),
+                circuitRelayTransport({discoverRelays: 1}),
                 tcp(),
                 webRTC(),
                 webRTCDirect(),
-                webSockets({
-                    filter: filters.all
-                }),
+                webSockets({filter: filters.all}),
             ],
-            connectionEncryption: [noise()],
-            streamMuxers: [yamux(), mplex()],
             peerDiscovery: [
+                ...(this.getCommonOptions().peerDiscovery || []),
                 mdns(),
-                bootstrap({
-                    list: [
-                        //'/ip4/127.0.0.1/tcp/4001/p2p/12D3KooWFMZzQ58LCRvnsu6747nbKqzLU6TamaTBYYzdasLGAbKQ', // Enable for local testing
-                        '/dns4/bootstrap.ipdw.tech/tcp/4001/p2p/12D3KooWCctszqqsrdcmuh151GTsKAHTaCg8Jor9mUbTHjkEaA7S'
-                    ]
-                }),
             ],
             services: {
-                identify: identify({
-                    protocolPrefix: 'ipdw',
-                    agentVersion: `ipdw/client/1.0.0 ${libp2pInfo.name}/${libp2pInfo.version} UserAgent=node-${process.versions.node}`
-                }),
-                dht: kadDHT({
-                    protocol: '/ipdw/dht/1.0.0',
-                    clientMode: false,
-                    kBucketSize: 256,
-                    pingTimeout: 10000
-                }),
-                pubsub: gossipsub({allowPublishToZeroTopicPeers: true}),
-                autoNAT: autoNAT(),
-                dcutr: dcutr(),
-                ping: ping({protocolPrefix: 'ipdw'}),
-                fetch: fetch({protocolPrefix: 'ipdw'}),
-
+                ...this.getCommonOptions().services,
                 upnp: uPnPNAT(),
                 relay: circuitRelayServer()
             },
-            connectionManager: {
-                minConnections: 1
-            },
         };
     }
+
+    private static getAgentVersion(): string {
+        const platform = typeof process !== 'undefined' ? `node-${process.versions.node}` : globalThis.navigator.userAgent;
+        return `ipdw/client/1.0.0 ${libp2pInfo.name}/${libp2pInfo.version} UserAgent=${platform}`;
+    }
 }
-
-
