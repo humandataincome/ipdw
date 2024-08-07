@@ -236,8 +236,8 @@ async function main(): Promise<void> {
 
         await node.services.dht.setMode('server');
 
-        node.services.fetch.registerLookupFunction('/tracker/subscribers/', async (key: string) => {
-            const topic = key.slice('/tracker/subscribers/'.length);
+        node.services.fetch.registerLookupFunction('/tracker/subscribers/1.0.0/', async (key: string) => {
+            const topic = key.slice('/tracker/subscribers/1.0.0/'.length);
             const peers = await Promise.all(node.services.pubsub.getSubscribers(topic).map((p: any) => node.peerStore.get(p)));
             const peerRecordEnvelopes = await Promise.all(peers.map(p => RecordEnvelope.seal(new PeerRecord({
                 peerId: p.id,

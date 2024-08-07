@@ -1,7 +1,7 @@
 import {StorageProvider} from "../storage";
 
 
-export class VersionedOverlay implements StorageProvider {
+export class VersionedStorageOverlay implements StorageProvider {
     private storageProvider: StorageProvider;
 
     private currentVersion: string = '3.0.0';
@@ -10,8 +10,8 @@ export class VersionedOverlay implements StorageProvider {
         this.storageProvider = storageProvider;
     }
 
-    public static async Init(storageProvider: StorageProvider): Promise<VersionedOverlay> {
-        const overlay = new VersionedOverlay(storageProvider);
+    public static async Init(storageProvider: StorageProvider): Promise<VersionedStorageOverlay> {
+        const overlay = new VersionedStorageOverlay(storageProvider);
         await overlay.migrateIfNeeded();
         return overlay;
     }

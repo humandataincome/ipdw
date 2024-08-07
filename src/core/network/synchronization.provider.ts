@@ -62,10 +62,9 @@ export class SynchronizationProvider {
         this.node.services.pubsub.subscribe(this.discoverTopicNamePrefix + this.address);
 
         // Use services to find peer candidates and try connection to them
-        this.fetchsub.registerHandleFetchSubscribers();
         (await this.fetchsub.getSubscribers(this.discoverTopicNamePrefix + this.address)).forEach((p: PeerId) => this.node.dial(p).then());
-        await this.fetchsub.setSubscriptionListener(this.discoverTopicNamePrefix + this.address, (p: PeerId) => this.onTopicSubscribedPeer(p).then());
-        await this.fetchsub.subscribe(this.discoverTopicNamePrefix + this.address);
+        await this.fetchsub.addSubscriptionListener(this.discoverTopicNamePrefix + this.address, (t: 'found', p: PeerId) => this.onTopicSubscribedPeer(p).then());
+        this.fetchsub.subscribe(this.discoverTopicNamePrefix + this.address);
     }
 
     public async stop(): Promise<void> {
@@ -76,9 +75,8 @@ export class SynchronizationProvider {
         this.node.services.pubsub.removeEventListener('subscription-change', this.onTopicSubscriptionChange.bind(this))
         this.node.services.pubsub.unsubscribe(this.discoverTopicNamePrefix + this.address);
 
-        this.fetchsub.unregisterHandleFetchSubscribers();
-        await this.fetchsub.removeSubscriptionListener(this.discoverTopicNamePrefix + this.address);
-        await this.fetchsub.unsubscribe(this.discoverTopicNamePrefix + this.address);
+        await this.fetchsub.removeSubscriptionListener(this.discoverTopicNamePrefix + this.address, (t: 'found', p: PeerId) => this.onTopicSubscribedPeer(p).then());
+        this.fetchsub.unsubscribe(this.discoverTopicNamePrefix + this.address);
     }
 
     private async onDocumentUpdate(arg0: Uint8Array, arg1: any, arg2: Y.Doc, arg3: Y.Transaction) {

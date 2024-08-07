@@ -40,6 +40,8 @@ export class IPDWStorageProvider implements StorageProvider {
         const node = await Libp2pFactory.create();
         const synchronizationProvider = await SynchronizationProvider.Init(node, crdtDoc, privateKey);
 
+        await synchronizationProvider.start();
+
         return new IPDWStorageProvider(crdtMap, synchronizationProvider);
     }
 

@@ -27,6 +27,11 @@ export class FlattenedArray {
     }
 
     public async set(index: number, value: string | FlattenedMap | FlattenedArray | undefined): Promise<void> {
+        const length = await this.length();
+        if (index >= length) {
+            throw new Error("Cannot set item with index greater than or equal to length");
+        }
+
         const fullKey = `${this.prefix}${index}`;
         if (typeof value === 'string') {
             await this.storage.set(fullKey, new TextEncoder().encode(value));
@@ -41,17 +46,55 @@ export class FlattenedArray {
         return this.storage.has(`${this.prefix}${index}`);
     }
 
-    // TODO: Shift items
     public async delete(index: number): Promise<void> {
+        const length = await this.length();
+        if (index >= length) {
+            return; // No need to delete if index is out of bounds
+        }
+
+        // Delete the item at the given index
         const fullKey = `${this.prefix}${index}`;
         const keys = await this.storage.ls();
         const relevantKeys = keys.filter(k => k.startsWith(fullKey));
         for (const key of relevantKeys) {
             await this.storage.set(key, undefined);
         }
+
+        // Shift the remaining items
+        for (let i = index + 1; i < length; i++) {
+            const currentItem = await this.get(i);
+            await this.set(i - 1, currentItem);
+        }
+
+        // Delete the last item (now duplicated)
+        const lastKey = `${this.prefix}${length - 1}`;
+        const lastKeys = keys.filter(k => k.startsWith(lastKey));
+        for (const key of lastKeys) {
+            await this.storage.set(key, undefined);
+        }
     }
 
-    // TODO: add insert
+    public async insert(index: number, value: string | FlattenedMap | FlattenedArray): Promise<void> {
+        const length = await this.length();
+        if (index > length) {
+            throw new Error("Cannot insert item at an index greater than length");
+        }
+
+        // Shift existing items to make room for the new item
+        for (let i = length - 1; i >= index; i--) {
+            const item = await this.get(i);
+            await this.set(i + 1, item);
+        }
+
+        // Insert the new item
+        await this.set(index, value);
+    }
+
+    public async push(value: string | FlattenedMap | FlattenedArray): Promise<number> {
+        const length = await this.length();
+        await this.set(length, value);
+        return length + 1;
+    }
 
     public async length(): Promise<number> {
         const keys = await this.storage.ls();

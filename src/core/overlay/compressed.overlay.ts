@@ -1,6 +1,6 @@
 import {MemoryStorageProvider, StorageProvider} from "../storage";
 
-export class CompressedOverlay implements StorageProvider {
+export class CompressedStorageOverlay implements StorageProvider {
     private compressedStorageProvider: StorageProvider;
     private uncompressedStorageProvider: StorageProvider;
 
@@ -9,7 +9,7 @@ export class CompressedOverlay implements StorageProvider {
         this.uncompressedStorageProvider = uncompressedStorageProvider;
     }
 
-    public static async Init(storageProvider: StorageProvider): Promise<CompressedOverlay> {
+    public static async Init(storageProvider: StorageProvider): Promise<CompressedStorageOverlay> {
         const compressed = await storageProvider.get('__compressed__');
         const uncompressedStorageProvider = new MemoryStorageProvider();
 
@@ -23,7 +23,7 @@ export class CompressedOverlay implements StorageProvider {
             }
         }
 
-        return new CompressedOverlay(storageProvider, uncompressedStorageProvider);
+        return new CompressedStorageOverlay(storageProvider, uncompressedStorageProvider);
     }
 
     public async set(key: string, value: Uint8Array | undefined): Promise<void> {
