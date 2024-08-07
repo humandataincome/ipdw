@@ -1,5 +1,5 @@
+import {promises as fs} from 'fs';
 import {StorageProvider} from "./";
-import fs from "fs";
 
 export class FileSystemStorageProvider implements StorageProvider {
     private readonly basePath: string;
@@ -7,34 +7,47 @@ export class FileSystemStorageProvider implements StorageProvider {
     constructor(basePath: string = ".storage/") {
         this.basePath = basePath;
 
-        if (!fs.existsSync(this.basePath))
-            fs.mkdirSync(this.basePath, {recursive: true});
+        fs.mkdir(this.basePath, {recursive: true}).catch(err => {
+            if (err.code !== 'EEXIST') throw err;
+        });
     }
 
     public async set(key: string, value: Uint8Array | undefined): Promise<void> {
-        if (value)
-            await fs.promises.writeFile(this.basePath + key, value)
-        else
-            await fs.promises.unlink(this.basePath + key)
+        if (value) {
+            await fs.writeFile(this.basePath + key, value);
+        } else {
+            await fs.unlink(this.basePath + key).catch(err => {
+                if (err.code !== 'ENOENT') throw err;
+            });
+        }
     }
 
     public async has(key: string): Promise<boolean> {
-        return fs.existsSync(this.basePath + key);
+        try {
+            await fs.access(this.basePath + key);
+            return true;
+        } catch {
+            return false;
+        }
     }
 
     public async get(key: string): Promise<Uint8Array | undefined> {
-        return fs.existsSync(this.basePath + key) ? fs.promises.readFile(this.basePath + key) : undefined;
+        try {
+            return await fs.readFile(this.basePath + key);
+        } catch (err: any) {
+            if (err.code === 'ENOENT') {
+                return undefined;
+            }
+            throw err;
+        }
     }
 
     public async ls(): Promise<string[]> {
-        return new Promise((resolve, reject) => {
-            fs.readdir(this.basePath, (err, files) => err ? reject(err) : resolve(files))
-        });
+        return await fs.readdir(this.basePath);
     }
 
     public async clear(): Promise<void> {
-        return new Promise((resolve, reject) => {
-            fs.rmdir(this.basePath, (err) => err ? reject(err) : resolve())
-        });
+        await fs.rm(this.basePath, {recursive: true, force: true});
+        await fs.mkdir(this.basePath, {recursive: true});
     }
 }

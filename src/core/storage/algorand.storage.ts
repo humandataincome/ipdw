@@ -162,6 +162,7 @@ export class AlgorandStorageProvider implements StorageProvider {
     }
 
     public async clear(): Promise<void> {
+        // Here we can also delete the app and clear user state
         const keys = await this.ls();
         await Promise.all(keys.map(key => this.set(key, undefined)));
     }

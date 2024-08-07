@@ -205,6 +205,7 @@ export class BNBGreenfieldStorageProvider implements StorageProvider {
     }
 
     public async clear(): Promise<void> {
+        // Here we can also delete the bucket
         const objects = await this.ls();
         await Promise.all(objects.map(objectName => this.set(objectName, undefined)));
     }

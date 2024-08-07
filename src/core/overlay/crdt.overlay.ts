@@ -6,7 +6,8 @@ interface CacheMetadata {
     hash: string;
 }
 
-export class CachedStorageOverlay implements StorageProvider {
+// This is a conflict free version of Cached. It uses Last-Write-Wins
+export class CRDTStorageOverlay implements StorageProvider {
     private remoteStorage: StorageProvider;
     private cacheStorage: StorageProvider;
     private cacheMetadata: Map<string, CacheMetadata>;
@@ -22,10 +23,11 @@ export class CachedStorageOverlay implements StorageProvider {
     }
 
     async set(key: string, value: Uint8Array | undefined): Promise<void> {
-        await this.remoteStorage.set(key, value);
+        const timestamp = Date.now();
+        await this.remoteStorage.set(key, value ? this.wrapWithTimestamp(value, timestamp) : undefined);
         if (value) {
             await this.cacheStorage.set(key, value);
-            await this.updateCacheMetadata(key, value);
+            await this.updateCacheMetadata(key, value, timestamp);
         } else {
             await this.cacheStorage.set(key, undefined);
             this.cacheMetadata.delete(key);
@@ -43,12 +45,13 @@ export class CachedStorageOverlay implements StorageProvider {
         const cachedValue = await this.cacheStorage.get(key);
         if (cachedValue) return cachedValue;
 
-        const remoteValue = await this.remoteStorage.get(key);
-        if (remoteValue) {
+        const remoteValueWrapped = await this.remoteStorage.get(key);
+        if (remoteValueWrapped) {
+            const {value: remoteValue, timestamp: remoteTimestamp} = this.unwrapWithTimestamp(remoteValueWrapped);
             await this.cacheStorage.set(key, remoteValue);
-            await this.updateCacheMetadata(key, remoteValue);
+            await this.updateCacheMetadata(key, remoteValue, remoteTimestamp);
         }
-        return remoteValue;
+        return remoteValueWrapped ? this.unwrapWithTimestamp(remoteValueWrapped).value : undefined;
     }
 
     async ls(): Promise<string[]> {
@@ -60,6 +63,19 @@ export class CachedStorageOverlay implements StorageProvider {
         await this.cacheStorage.clear();
         this.cacheMetadata.clear();
         await this.saveCacheMetadata();
+    }
+
+    public startSync(): void {
+        if (!this.syncIntervalId) {
+            this.syncIntervalId = setInterval(() => this.sync(), this.syncInterval);
+        }
+    }
+
+    public stopSync(): void {
+        if (this.syncIntervalId) {
+            clearInterval(this.syncIntervalId);
+            this.syncIntervalId = null;
+        }
     }
 
     async sync(): Promise<void> {
@@ -78,32 +94,19 @@ export class CachedStorageOverlay implements StorageProvider {
 
         // Handle updates and additions
         for (const remoteKey of remoteKeys) {
-            const remoteValue = await this.remoteStorage.get(remoteKey);
-            if (!remoteValue) continue;
+            const remoteValueWrapped = await this.remoteStorage.get(remoteKey);
+            if (!remoteValueWrapped) continue;
 
+            const {value: remoteValue, timestamp: remoteTimestamp} = this.unwrapWithTimestamp(remoteValueWrapped);
             const localMetadata = this.cacheMetadata.get(remoteKey);
-            const remoteHash = await this.computeHash(remoteValue);
 
-            if (!localMetadata || localMetadata.hash !== remoteHash) {
+            if (!localMetadata || localMetadata.lastModified < remoteTimestamp) {
                 await this.cacheStorage.set(remoteKey, remoteValue);
-                await this.updateCacheMetadata(remoteKey, remoteValue);
+                await this.updateCacheMetadata(remoteKey, remoteValue, remoteTimestamp);
             }
         }
 
         await this.saveCacheMetadata();
-    }
-
-    public startSync(): void {
-        if (!this.syncIntervalId) {
-            this.syncIntervalId = setInterval(() => this.sync(), this.syncInterval);
-        }
-    }
-
-    public stopSync(): void {
-        if (this.syncIntervalId) {
-            clearInterval(this.syncIntervalId);
-            this.syncIntervalId = null;
-        }
     }
 
     private async loadCacheMetadata(): Promise<void> {
@@ -118,10 +121,10 @@ export class CachedStorageOverlay implements StorageProvider {
         await this.cacheStorage.set('__cache__', new TextEncoder().encode(metadataJson));
     }
 
-    private async updateCacheMetadata(key: string, value: Uint8Array): Promise<void> {
+    private async updateCacheMetadata(key: string, value: Uint8Array, timestamp: number): Promise<void> {
         const hash = await this.computeHash(value);
         this.cacheMetadata.set(key, {
-            lastModified: Date.now(),
+            lastModified: timestamp,
             hash
         });
         await this.saveCacheMetadata();
@@ -129,5 +132,22 @@ export class CachedStorageOverlay implements StorageProvider {
 
     private async computeHash(data: Uint8Array): Promise<string> {
         return Buffer.from(crypto.createHash('sha256').update(data).digest()).toString('base64');
+    }
+
+    private wrapWithTimestamp(value: Uint8Array, timestamp: number): Uint8Array {
+        const timestampBuffer = new ArrayBuffer(8);
+        new DataView(timestampBuffer).setUint32(0, Math.floor(timestamp / 2 ** 32));
+        new DataView(timestampBuffer).setUint32(4, timestamp % 2 ** 32);
+        const wrappedValue = new Uint8Array(8 + value.length);
+        wrappedValue.set(new Uint8Array(timestampBuffer), 0);
+        wrappedValue.set(value, 8);
+        return wrappedValue;
+    }
+
+    private unwrapWithTimestamp(wrappedValue: Uint8Array): { value: Uint8Array, timestamp: number } {
+        const timestampBuffer = wrappedValue.slice(0, 8);
+        const timestamp = new DataView(timestampBuffer.buffer).getUint32(0) * 2 ** 32 + new DataView(timestampBuffer.buffer).getUint32(4);
+        const value = wrappedValue.slice(8);
+        return {value, timestamp};
     }
 }

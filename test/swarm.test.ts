@@ -10,7 +10,7 @@ async function runNode1() {
 async function runNode2() {
     const node = await Libp2pFactory.create();
     const swarm = new SwarmsubService(node);
-    await swarm.setSubscriptionListener('ipdw-test-1', async (p) => console.log(p));
+    await swarm.addSubscriptionListener('ipdw-test-1', async (e, p) => console.log(e, p));
 }
 
 async function main(): Promise<void> {

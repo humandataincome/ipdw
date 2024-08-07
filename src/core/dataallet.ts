@@ -3,7 +3,7 @@ import {CryptoUtils} from "../";
 
 export class DataWallet {
     public static async Create(privateKey: string, storageProvider: StorageProvider, salt: Buffer = Buffer.from('1Qmzz2vn', 'utf8')): Promise<FlattenedMap> {
-        const versionedOverlay = await VersionedStorageOverlay.Init(storageProvider); // This can be put at the top, writing as
+        const versionedOverlay = await VersionedStorageOverlay.Init(storageProvider);
 
         const [privateKeyBuffer, publicKeyBuffer] = await CryptoUtils.GetKeyPair(Buffer.from(privateKey.slice(2), 'hex'));
         const keyBuffer = await CryptoUtils.DeriveKey(privateKeyBuffer, salt);

@@ -1,4 +1,4 @@
-import {BlockStorageOverlay, CombinedPackFactory, CryptoUtils, EncryptedPackFactory, MemoryStorageProvider, SignedPackFactory} from "../src";
+import {PackedStorageOverlay, CombinedPackFactory, CryptoUtils, EncryptedPackFactory, MemoryStorageProvider, SignedPackFactory} from "../src";
 
 import "fake-indexeddb/auto";
 
@@ -21,7 +21,7 @@ describe("Blocks tests", async () => {
         const signedBlockFactory = new SignedPackFactory(publicKeyBuffer, privateKeyBuffer);
 
         const privateBlockFactory = new CombinedPackFactory([encryptedBlockFactory, signedBlockFactory]);
-        const blockStorage = new BlockStorageOverlay(storageProvider, encryptedBlockFactory, privateBlockFactory);
+        const blockStorage = new PackedStorageOverlay(storageProvider, encryptedBlockFactory, privateBlockFactory);
 
         const plainBlock = new Uint8Array([1, 4, 6]);
         console.log('plainBlock', plainBlock);
