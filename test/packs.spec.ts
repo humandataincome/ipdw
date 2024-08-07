@@ -1,4 +1,4 @@
-import {PackedStorageOverlay, CombinedPackFactory, CryptoUtils, EncryptedPackFactory, MemoryStorageProvider, SignedPackFactory} from "../src";
+import {CombinedPackFactory, CryptoUtils, EncryptedPackFactory, MemoryStorageProvider, PackedStorageOverlay, SignedPackFactory} from "../src";
 
 import "fake-indexeddb/auto";
 

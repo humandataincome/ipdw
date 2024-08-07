@@ -24,7 +24,8 @@ import * as libp2pInfo from 'libp2p/version';
 export class Libp2pFactory {
     private static readonly PROTOCOL_PREFIX = 'ipdw';
     private static readonly DHT_PROTOCOL = '/ipdw/dht/1.0.0';
-    private static readonly BOOTSTRAP_ADDR = '/dns4/bootstrap.ipdw.tech/tcp/4001/p2p/12D3KooWCctszqqsrdcmuh151GTsKAHTaCg8Jor9mUbTHjkEaA7S';
+    //private static readonly BOOTSTRAP_ADDR = '/dns4/bootstrap.ipdw.tech/tcp/4001/p2p/12D3KooWCctszqqsrdcmuh151GTsKAHTaCg8Jor9mUbTHjkEaA7S';
+    private static readonly BOOTSTRAP_ADDR = '/dns4/bootstrap.ipdw.tech/tcp/4002/ws/p2p/12D3KooWCctszqqsrdcmuh151GTsKAHTaCg8Jor9mUbTHjkEaA7S';
 
     public static async create(): Promise<Libp2p.Libp2p<{ pubsub: PubSub, dht: KadDHT, fetch: Fetch }>> {
         const isWeb = typeof window === 'object' || typeof importScripts === 'function';

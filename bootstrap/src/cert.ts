@@ -82,7 +82,8 @@ async function generateOrRenewCertificate(domain: string): Promise<CertificateIn
 
 function parseCertificateExpirationDate(certPem: string): Date | null {
     try {
-        const certDer = forge.util.decode64(certPem.replace(/-----BEGIN CERTIFICATE-----|-----END CERTIFICATE-----|[\r\n]/g, ''));
+        const firstCertPem = certPem.match(/-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/)![0];
+        const certDer = forge.util.decode64(firstCertPem.replace(/-----BEGIN CERTIFICATE-----|-----END CERTIFICATE-----|[\r\n]/g, ''));
         const certAsn1 = forge.asn1.fromDer(certDer);
         const cert = forge.pki.certificateFromAsn1(certAsn1);
         return cert.validity.notAfter;

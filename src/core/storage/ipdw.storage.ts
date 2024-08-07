@@ -46,10 +46,10 @@ export class IPDWStorageProvider implements StorageProvider {
     }
 
     public async set(key: string, value: Uint8Array | undefined): Promise<void> {
-        if (value === undefined) {
+        if (!value) {
             this.yMap.delete(key);
         } else {
-            this.yMap.set(key, value);
+            this.yMap.set(key, new Uint8Array(value));
         }
     }
 

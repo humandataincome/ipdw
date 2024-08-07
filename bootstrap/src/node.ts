@@ -21,8 +21,8 @@ import {ping} from "@libp2p/ping";
 import {pubsubPeerDiscovery} from "@libp2p/pubsub-peer-discovery";
 import {PeerRecord, RecordEnvelope} from "@libp2p/peer-record";
 import {Fetch, fetch} from "@libp2p/fetch";
-import {ensureValidCertificate} from './cert';
-import {ArrayUtils} from "../utils";
+import {ensureValidCertificate} from './cert.js';
+import {ArrayUtils} from "./utils.js";
 import type {PubSub} from "@libp2p/interface";
 
 export class Libp2pNode {

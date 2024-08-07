@@ -1,4 +1,4 @@
-import {Libp2pNode} from "./core/libp2p";
+import {Libp2pNode} from "./node.js";
 
 async function main(): Promise<void> {
     const node = new Libp2pNode();

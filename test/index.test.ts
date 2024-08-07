@@ -23,7 +23,7 @@ async function startNode(): Promise<void> {
 
 async function main(): Promise<void> {
     await startNode();
-    await startNode();
+    //await startNode();
 }
 
 main()

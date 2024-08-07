@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start:dev": "NODE_ENV=dev tsx src/index.ts",
-    "start:prod": "node dist/index.js",
-    "build:prod": "tsc"
+    "start:dev": "NODE_ENV=dev tsx src/index.ts"
   },
   "dependencies": {
     "ipdw": "file:../../"

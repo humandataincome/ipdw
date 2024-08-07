@@ -52,3 +52,5 @@ Thumbs.db
 package-lock.json
 dist
 .datastore
+
+data
