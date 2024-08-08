@@ -11,6 +11,10 @@ import {FetchsubService} from "./fetchsub.service";
 import util from "util";
 import crypto from "crypto";
 
+import Debug from "debug";
+
+const debug = Debug('ipdw:synchronization')
+
 export const IPDW_DEFAULT_ADDRESS_DERIVATION_SALT = Buffer.from('DJDFhR9z', 'utf8');
 
 type SyncEventTypes = {
@@ -98,7 +102,7 @@ export class SynchronizationProvider {
     }
 
     private async onTopicSubscriptionChange(event: CustomEvent<SubscriptionChangeData>): Promise<void> {
-        console.log("subscription:changed", this.node.peerId.toString(), event.detail);
+        debug("subscription:changed", this.node.peerId.toString(), event.detail);
 
         if (event.detail.peerId.equals(this.node.peerId)) return;
 
@@ -113,7 +117,7 @@ export class SynchronizationProvider {
 
     private async onTopicSubscribedPeer(peerId: PeerId): Promise<void> {
         if (!this.peers.has(peerId) && await this.runAuthFetch(peerId)) {
-            console.log("ipdw:peer:adding", this.node.peerId.toString(), peerId.toString());
+            debug("ipdw:peer:adding", this.node.peerId.toString(), peerId.toString());
             this.peers.add(peerId);
             this.events.dispatchTypedEvent('peer:added', new TypedCustomEvent('peer:added', {detail: {peerId}}));
             await this.runSyncProtocol(peerId).catch(console.error);
@@ -186,7 +190,7 @@ export class SynchronizationProvider {
     }
 
     private async removePeer(peerId: PeerId): Promise<void> {
-        console.log("ipdw:peer:removing", this.node.peerId.toString(), peerId.toString());
+        debug("ipdw:peer:removing", this.node.peerId.toString(), peerId.toString());
         this.peers.delete(peerId);
         await this.node.hangUp(peerId);
         this.events.dispatchTypedEvent('peer:removed', new TypedCustomEvent('peer:removed', {detail: {peerId}}));

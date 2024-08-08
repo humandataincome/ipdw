@@ -1,4 +1,4 @@
-import {CERE_TESTNET_INDEXER_URL, CERE_TESTNET_RPC_URL, CereStorageProvider} from "../src";
+import {CERE_TESTNET_INDEXER_URL, CERE_TESTNET_RPC_URL, CereStorageProvider} from "../src/core/storage/cere.storage";
 
 async function main(): Promise<void> {
     const provider = await CereStorageProvider.Init('hybrid label reunion only dawn maze asset draft cousin height flock nation', CERE_TESTNET_RPC_URL, CERE_TESTNET_INDEXER_URL);

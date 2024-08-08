@@ -20,32 +20,47 @@ import {uPnPNAT} from '@libp2p/upnp-nat';
 import {Fetch, fetch} from "@libp2p/fetch";
 import {mdns} from "@libp2p/mdns";
 import * as libp2pInfo from 'libp2p/version';
+import {createEd25519PeerId, createFromProtobuf, exportToProtobuf} from '@libp2p/peer-id-factory';
+
+import Debug from "debug";
+import {IDBDatastore} from "datastore-idb";
+import {FsDatastore} from "datastore-fs";
+import {Key} from 'interface-datastore';
+
+const debug = Debug('ipdw:libp2p');
+
+const DATASTORE_ENABLED = false; // Fix when this is true
 
 export class Libp2pFactory {
     private static readonly PROTOCOL_PREFIX = 'ipdw';
     private static readonly DHT_PROTOCOL = '/ipdw/dht/1.0.0';
-    //private static readonly BOOTSTRAP_ADDR = '/dns4/bootstrap.ipdw.tech/tcp/4001/p2p/12D3KooWCctszqqsrdcmuh151GTsKAHTaCg8Jor9mUbTHjkEaA7S';
-    private static readonly BOOTSTRAP_ADDR = '/dns4/bootstrap.ipdw.tech/tcp/4002/ws/p2p/12D3KooWCctszqqsrdcmuh151GTsKAHTaCg8Jor9mUbTHjkEaA7S';
+    private static readonly BOOTSTRAP_ADDRESSES = [
+        '/dns4/bootstrap.ipdw.tech/tcp/4002/wss/p2p/12D3KooWCctszqqsrdcmuh151GTsKAHTaCg8Jor9mUbTHjkEaA7S',
+        '/dns4/bootstrap.ipdw.tech/tcp/4001/p2p/12D3KooWCctszqqsrdcmuh151GTsKAHTaCg8Jor9mUbTHjkEaA7S'
+    ];
 
     public static async create(): Promise<Libp2p.Libp2p<{ pubsub: PubSub, dht: KadDHT, fetch: Fetch }>> {
         const isWeb = typeof window === 'object' || typeof importScripts === 'function';
-        const nodeOptions = isWeb ? await this.libp2pWebOptions() : await this.libp2pNodeOptions();
+        let nodeOptions = isWeb ? await this.libp2pWebOptions() : await this.libp2pNodeOptions();
+
+        if (DATASTORE_ENABLED) {
+            let metastore = isWeb ? new IDBDatastore('.metastore') : new FsDatastore('.metastore');
+            await metastore.open();
+
+            if (!await metastore.has(new Key('/peer-id')))
+                await metastore.put(new Key('/peer-id'), exportToProtobuf(await createEd25519PeerId()));
+
+            const peerId = await createFromProtobuf(await metastore.get(new Key('/peer-id')));
+            await metastore.close();
+
+            nodeOptions = {peerId, ...nodeOptions}
+        }
 
         const node = await Libp2p.createLibp2p(nodeOptions);
 
-        this.setupEventListeners(node);
-        console.log('p2p:started', node.peerId.toString(), node.getMultiaddrs().map(ma => ma.toString()));
+        debug('p2p:started', node.peerId.toString(), node.getMultiaddrs().map(ma => ma.toString()));
 
         return node as any;
-    }
-
-    private static setupEventListeners(node: Libp2p.Libp2p): void {
-        const events = ['connection:open', 'connection:close', 'peer:connect', 'peer:discovery'];
-        events.forEach((event: any) => {
-            node.addEventListener(event, (e) => {
-                console.log(event, node.peerId.toString(), e.detail);
-            });
-        });
     }
 
     private static getCommonOptions(): Partial<Libp2p.Libp2pOptions> {
@@ -54,7 +69,7 @@ export class Libp2pFactory {
             streamMuxers: [yamux(), mplex()],
             peerDiscovery: [
                 bootstrap({
-                    list: [this.BOOTSTRAP_ADDR]
+                    list: this.BOOTSTRAP_ADDRESSES
                 }),
             ],
             services: {
@@ -81,10 +96,19 @@ export class Libp2pFactory {
     }
 
     private static async libp2pWebOptions(): Promise<Libp2p.Libp2pOptions> {
-        console.log('p2p:configuring:web');
+        debug('p2p:configuring:web');
+
+        const commonOptions = this.getCommonOptions();
 
         return {
-            ...this.getCommonOptions(),
+            ...commonOptions,
+            ...(DATASTORE_ENABLED ? {
+                datastore: await (async () => {
+                    const d = new IDBDatastore('.datastore');
+                    await d.open();
+                    return d;
+                })()
+            } : {}),
             addresses: {
                 listen: ['/webrtc']
             },
@@ -102,10 +126,19 @@ export class Libp2pFactory {
     }
 
     private static async libp2pNodeOptions(): Promise<Libp2p.Libp2pOptions> {
-        console.log('p2p:configuring:node');
+        debug('p2p:configuring:node');
+
+        const commonOptions = this.getCommonOptions();
 
         return {
-            ...this.getCommonOptions(),
+            ...commonOptions,
+            ...(DATASTORE_ENABLED ? {
+                datastore: await (async () => {
+                    const d = new FsDatastore('.datastore');
+                    await d.open();
+                    return d;
+                })()
+            } : {}),
             addresses: {
                 listen: [
                     '/ip4/0.0.0.0/tcp/0',
@@ -121,11 +154,11 @@ export class Libp2pFactory {
                 webSockets({filter: filters.all}),
             ],
             peerDiscovery: [
-                ...(this.getCommonOptions().peerDiscovery || []),
+                ...(commonOptions.peerDiscovery || []),
                 mdns(),
             ],
             services: {
-                ...this.getCommonOptions().services,
+                ...commonOptions.services,
                 upnp: uPnPNAT(),
                 relay: circuitRelayServer()
             },

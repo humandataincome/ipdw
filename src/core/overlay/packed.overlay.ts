@@ -2,12 +2,12 @@ import {StorageProvider} from "../storage";
 
 import {PackFactory} from "../pack";
 
-export class PackedStorageOverlay implements StorageProvider {
-    private storageProvider: StorageProvider;
-    private keyPackFactory: PackFactory;
-    private valuePackFactory: PackFactory;
+export class PackedStorageOverlay<StorageProviderT extends StorageProvider, KeyPackFactoryT extends PackFactory, ValuePackFactoryT extends PackFactory> implements StorageProvider {
+    private storageProvider: StorageProviderT;
+    private keyPackFactory: KeyPackFactoryT;
+    private valuePackFactory: ValuePackFactoryT;
 
-    constructor(storageProvider: StorageProvider, keyPackFactory: PackFactory, valuePackFactory: PackFactory) {
+    constructor(storageProvider: StorageProviderT, keyPackFactory: KeyPackFactoryT, valuePackFactory: ValuePackFactoryT) {
         this.storageProvider = storageProvider;
         this.keyPackFactory = keyPackFactory;
         this.valuePackFactory = valuePackFactory;

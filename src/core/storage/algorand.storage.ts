@@ -1,8 +1,11 @@
 import algosdk, {Account} from 'algosdk';
 
 import {StorageProvider} from "./";
-import {ReadWriteLock, withWriteLock} from "../../utils";
+import {ReadWriteLock, withWriteLock} from "../../";
 
+import Debug from "debug";
+
+const debug = Debug('ipdw:algorand')
 
 export const ALGORAND_TESTNET_SERVER_URL = 'https://testnet-api.algonode.cloud';
 export const ALGORAND_TESTNET_INDEXER_URL = 'https://testnet-idx.algonode.cloud';
@@ -34,11 +37,11 @@ export class AlgorandStorageProvider implements StorageProvider {
         const indexer = new algosdk.Indexer('', indexerUrl, 443);
 
         const account = algosdk.mnemonicToSecretKey(algosdk.secretKeyToMnemonic(Buffer.from(privateKey.slice(2), 'hex')));
-        console.log('ALGO Address is', account.addr);
+        debug('ALGO Address is', account.addr);
 
         const accountInfo = await client.accountInformation(account.addr).do();
         const balance = accountInfo.amount / ALGORAND_TOKEN_UNIT;
-        console.log('ALGO Balance is', balance);
+        debug('ALGO Balance is', balance);
         if (balance < 4) // 0.001 ALGO just for deploy
             throw Error('Keep at least 4 ALGO on the wallet');
 
@@ -92,13 +95,13 @@ export class AlgorandStorageProvider implements StorageProvider {
             const confirmedTxn = await algosdk.waitForConfirmation(client, txId, 4);
 
             resApplicationId = confirmedTxn["application-index"];
-            console.log("Created Application ID:", resApplicationId);
+            debug("Created Application ID:", resApplicationId);
         }
 
         const applicationAddress = algosdk.getApplicationAddress(resApplicationId);
         const applicationAccountInfo = await client.accountInformation(applicationAddress).do();
         const applicationBalance = applicationAccountInfo.amount / ALGORAND_TOKEN_UNIT;
-        console.log('Application ALGO Balance is', applicationBalance);
+        debug('Application ALGO Balance is', applicationBalance);
         if (applicationBalance < 1) {
             const totalCost = 3 * ALGORAND_TOKEN_UNIT;
             const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({

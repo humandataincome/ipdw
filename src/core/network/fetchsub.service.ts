@@ -4,6 +4,10 @@ import {Fetch} from "@libp2p/fetch";
 import {ArrayUtils} from "../../utils";
 import {PeerRecord, RecordEnvelope} from "@libp2p/peer-record";
 
+import Debug from "debug";
+
+const debug = Debug('ipdw:fetchsub');
+
 type ListenerFunction = (type: 'found', peer: PeerId) => Promise<void>;
 
 export class FetchsubService {
@@ -92,7 +96,7 @@ export class FetchsubService {
 
         for (const fetchedSubscriber of fetchedSubscribers) {
             if (!fetchedSubscriber.equals(this.node.peerId) && !currentSubscribers.has(fetchedSubscriber.toString())) {
-                console.log('fetchsub:found', this.node.peerId.toString(), fetchedSubscriber.toString());
+                debug('fetchsub:found', this.node.peerId.toString(), fetchedSubscriber.toString());
 
                 const listeners = this.listeners.get(topic);
                 if (listeners) {

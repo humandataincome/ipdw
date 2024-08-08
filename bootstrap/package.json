@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start:dev": "DEBUG=libp2p:* PRIVATE_KEY=CAESQO8swgDBS6fc3/8o27ErvWERJG4e9+Fgts0YFgC665eWUkjOdH5aVa0bF0BqfrlVAVJwLydZMCdBKB4NqUajwis= DOMAIN=bootstrap.ipdw.tech tsx src/index.ts",
+    "start:dev": "DEBUG=libp2p:*,ipdw:* PRIVATE_KEY=CAESQO8swgDBS6fc3/8o27ErvWERJG4e9+Fgts0YFgC665eWUkjOdH5aVa0bF0BqfrlVAVJwLydZMCdBKB4NqUajwis= DOMAIN=bootstrap.ipdw.tech tsx src/index.ts",
     "start:prod": "node dist/index.js",
     "build": "tsc"
   },
@@ -27,6 +27,7 @@
     "@libp2p/webrtc": "^4.1.4",
     "@libp2p/websockets": "^8.1.4",
     "acme-client": "^5.4.0",
+    "debug": "^4.3.6",
     "libp2p": "^1.8.3",
     "node-forge": "^1.3.1"
   },

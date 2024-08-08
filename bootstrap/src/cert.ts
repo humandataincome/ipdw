@@ -3,6 +3,10 @@ import * as fs from 'fs';
 import * as http from 'http';
 import forge from 'node-forge';
 
+import Debug from "debug";
+
+const debug = Debug('ipdw:bootstrap:cert');
+
 const CERT_PATH = './data/cert.pem';
 const KEY_PATH = './data/key.pem';
 
@@ -48,7 +52,7 @@ async function generateOrRenewCertificate(domain: string): Promise<CertificateIn
 
                 await new Promise<void>((resolve) => {
                     server!.listen(80, () => {
-                        console.log('ACME challenge server listening on port 80');
+                        debug('ACME challenge server listening on port 80');
                         resolve();
                     });
                 });
@@ -58,7 +62,7 @@ async function generateOrRenewCertificate(domain: string): Promise<CertificateIn
             if (server) {
                 await new Promise<void>((resolve) => {
                     server!.close(() => {
-                        console.log('ACME challenge server closed');
+                        debug('ACME challenge server closed');
                         resolve();
                     });
                 });
@@ -69,7 +73,7 @@ async function generateOrRenewCertificate(domain: string): Promise<CertificateIn
         },
     });
 
-    console.log('Certificate generated');
+    debug('Certificate generated');
 
     const expirationDate = parseCertificateExpirationDate(cert)!;
 
@@ -104,16 +108,16 @@ export async function ensureValidCertificate(domain: string): Promise<[Certifica
 
         certInfo = {cert, key, expirationDate};
 
-        console.log('Loaded existing certificate');
+        debug('Loaded existing certificate');
 
         // If the certificate expires in less than 30 days, renew it
         if (expirationDate.getTime() - Date.now() < 30 * 24 * 60 * 60 * 1000) {
-            console.log('Certificate expiring soon. Renewing...');
+            debug('Certificate expiring soon. Renewing...');
             certInfo = await generateOrRenewCertificate(domain);
             changed = true;
         }
     } else {
-        console.log('No existing certificate found. Generating new one...');
+        debug('No existing certificate found. Generating new one...');
         certInfo = await generateOrRenewCertificate(domain);
         changed = true;
     }

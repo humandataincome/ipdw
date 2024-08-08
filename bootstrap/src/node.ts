@@ -25,6 +25,10 @@ import {ensureValidCertificate} from './cert.js';
 import {ArrayUtils} from "./utils.js";
 import type {PubSub} from "@libp2p/interface";
 
+import Debug from "debug";
+
+const debug = Debug('ipdw:bootstrap:libp2p');
+
 export class Libp2pNode {
     public node!: Libp2p.Libp2p<{ pubsub: PubSub, dht: KadDHT, fetch: Fetch }>;
 
@@ -107,23 +111,13 @@ export class Libp2pNode {
             },
         });
 
-        this.setupEventListeners(node);
         this.registerHandleFetchSubscribers(node);
 
         await node.start();
         await node.services.dht.setMode('server');
 
-        console.log('p2p:started', node.peerId, node.getMultiaddrs().map((ma: any) => ma.toString()));
-        console.log('To reuse this Peer ID use this key', uint8ArrayToString(marshalPrivateKey({bytes: peerId.privateKey!}), "base64pad"));
-    }
-
-    private static setupEventListeners(node: Libp2p.Libp2p): void {
-        const events = ['connection:open', 'connection:close', 'peer:connect', 'peer:discovery'];
-        events.forEach((event: any) => {
-            node.addEventListener(event, (e) => {
-                console.log(event, node.peerId.toString(), e.detail);
-            });
-        });
+        debug('p2p:started', node.peerId, node.getMultiaddrs().map((ma: any) => ma.toString()));
+        debug('To reuse this Peer ID use this key', uint8ArrayToString(marshalPrivateKey({bytes: peerId.privateKey!}), "base64pad"));
     }
 
     private static registerHandleFetchSubscribers(node: Libp2p.Libp2p<{ pubsub: PubSub, fetch: Fetch }>): void {
@@ -147,11 +141,11 @@ export class Libp2pNode {
         this.node = await Libp2pNode.createNode(privateKey, domain);
 
         setInterval(async () => {
-            console.log('Checking certificate for renewal...');
+            debug('Checking certificate for renewal...');
             const [certInfo, changed] = await ensureValidCertificate(domain!);
 
             if (changed) {
-                console.log('Certificate renewed. Reloading node...');
+                debug('Certificate renewed. Reloading node...');
                 await this.node.stop();
                 this.node = await Libp2pNode.createNode(privateKey, domain);
             }

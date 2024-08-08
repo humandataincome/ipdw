@@ -6,14 +6,14 @@ interface CacheMetadata {
     hash: string;
 }
 
-export class CachedStorageOverlay implements StorageProvider {
-    private remoteStorage: StorageProvider;
-    private cacheStorage: StorageProvider;
+export class CachedStorageOverlay<RemoteStorageProviderT extends StorageProvider, CacheStorageProviderT extends StorageProvider> implements StorageProvider {
+    private remoteStorage: RemoteStorageProviderT;
+    private cacheStorage: CacheStorageProviderT;
     private cacheMetadata: Map<string, CacheMetadata>;
     private readonly syncInterval = 30 * 1000;
     private syncIntervalId: NodeJS.Timeout | null = null;
 
-    constructor(remoteStorage: StorageProvider, cacheStorage: StorageProvider, startSync: boolean = true) {
+    constructor(remoteStorage: RemoteStorageProviderT, cacheStorage: CacheStorageProviderT, startSync: boolean = true) {
         this.remoteStorage = remoteStorage;
         this.cacheStorage = cacheStorage;
         this.cacheMetadata = new Map();

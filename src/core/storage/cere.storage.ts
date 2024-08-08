@@ -4,6 +4,10 @@ import {StorageProvider} from "./";
 import {Blockchain} from "@cere-ddc-sdk/blockchain";
 import {Bucket} from "@cere-ddc-sdk/blockchain/src/types";
 
+import Debug from "debug";
+
+const debug = Debug('ipdw:cere')
+
 export const CERE_TESTNET_RPC_URL = 'wss://rpc.testnet.cere.network/ws';
 export const CERE_TESTNET_INDEXER_URL = 'https://subsquid.testnet.cere.network/graphql';
 
@@ -31,7 +35,7 @@ export class CereStorageProvider implements StorageProvider {
         const blockchain = ((<any>ddcClient).blockchain as Blockchain);
         //const api = ((<any>blockchain).api as ApiPromise);
         const signer = ((<any>ddcClient).signer as Signer);
-        console.log('CERE Address is', signer.address);
+        debug('CERE Address is', signer.address);
 
         // To get started go to https://docs.cere.network/ddc/developer-guide/setup
 
@@ -48,7 +52,7 @@ export class CereStorageProvider implements StorageProvider {
             const gotBucketName = await bucketNameFileResponse.text();
             if (gotBucketName === bucketName) {
                 resBucketId = bucket.bucketId;
-                console.log('Bucket found with id', resBucketId);
+                debug('Bucket found with id', resBucketId);
                 break;
             }
         }
@@ -64,7 +68,7 @@ export class CereStorageProvider implements StorageProvider {
 
         if (resBucketId === 0n) {
             resBucketId = await ddcClient.createBucket(selectedCluster.clusterId, {isPublic: false});
-            console.log('Bucket created with id', resBucketId)
+            debug('Bucket created with id', resBucketId)
             const bucketNameFileUri = await ddcClient.store(resBucketId, new File(new TextEncoder().encode(bucketName)))
             await ddcNode.storeCnsRecord(resBucketId, new CnsRecord(bucketNameFileUri.cid, '__name__'));
         }

@@ -5,6 +5,10 @@ import {sha256} from "multiformats/hashes/sha2";
 import {CID} from "multiformats/cid";
 import {PeerId} from "@libp2p/interface/src/peer-id";
 
+import Debug from "debug";
+
+const debug = Debug('ipdw:swarmsub');
+
 type ListenerFunction = (type: 'found', peer: PeerId) => Promise<void>;
 
 export class SwarmsubService {
@@ -118,7 +122,7 @@ export class SwarmsubService {
                 if (event.name === 'PROVIDER' && event.providers.length > 0) {
                     for (const peer of event.providers) {
                         if (!peer.id.equals(this.node.peerId) && !this.subscribers.get(cid.toString())?.has(peer.id)) {
-                            console.log('swarm:found', this.node.peerId.toString(), peer.id.toString());
+                            debug('swarm:found', this.node.peerId.toString(), peer.id.toString());
                             this.subscribers.get(cid.toString())?.add(peer.id);
 
                             const listeners = this.listeners.get(cid.toString());
