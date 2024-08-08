@@ -16,3 +16,7 @@ bootstrap
 
 test.ipdw
 ipfs-ipdw*
+
+contracts
+docs
+typedoc.json

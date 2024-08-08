@@ -118,14 +118,13 @@ export class AlgorandStorageProvider implements StorageProvider {
 
     public async getAccountInfo(): Promise<{ address: string, mnemonic: string, balance: bigint }> {
         const accountInfo = await this.client.accountInformation(this.account.addr).do();
-        return {address: this.account.addr, mnemonic: algosdk.secretKeyToMnemonic(this.account.sk), balance: accountInfo.balance};
+        return {address: this.account.addr, mnemonic: algosdk.secretKeyToMnemonic(this.account.sk), balance: accountInfo.amount};
     }
 
     @withWriteLock(function (this: AlgorandStorageProvider) {
         return this.rwLock;
     })
     public async set(key: string, value: Uint8Array | undefined): Promise<void> {
-        console.log(key)
         const txn = algosdk.makeApplicationNoOpTxnFromObject({
             from: this.account.addr,
             appIndex: this.applicationId,

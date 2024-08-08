@@ -1,14 +1,17 @@
 import {StorageProvider} from "./";
 import * as Y from "yjs";
 import {Libp2pFactory, SynchronizationProvider} from "../network";
+import {ArrayUtils} from "../../utils";
 
 export class IPDWStorageProvider implements StorageProvider {
     public readonly synchronizationProvider: SynchronizationProvider;
     private readonly yMap: Y.Map<Uint8Array>;
+    private readonly storageProvider: StorageProvider
 
-    constructor(yMap: Y.Map<Uint8Array>, synchronizationProvider: SynchronizationProvider) {
+    constructor(yMap: Y.Map<Uint8Array>, synchronizationProvider: SynchronizationProvider, storageProvider: StorageProvider) {
         this.yMap = yMap;
         this.synchronizationProvider = synchronizationProvider;
+        this.storageProvider = storageProvider;
     }
 
     public static async Init(privateKey: string, storageProvider: StorageProvider): Promise<IPDWStorageProvider> {
@@ -20,19 +23,21 @@ export class IPDWStorageProvider implements StorageProvider {
         for (const key of keys) {
             const value = await storageProvider.get(key);
             if (value !== undefined) {
-                crdtMap.set(key, value);
+                crdtMap.set(key, new Uint8Array(value));
             }
         }
 
         crdtMap.observe((event: Y.YMapEvent<Uint8Array>) => {
-            event.changes.keys.forEach((change, key) => {
+            event.changes.keys.forEach(async (change, key) => {
                 if (change.action === 'add' || change.action === 'update') {
                     const value = crdtMap.get(key);
                     if (value !== undefined) {
-                        storageProvider.set(key, value);
+                        if (!ArrayUtils.Uint8ArrayEquals((await storageProvider.get(key)) ?? new Uint8Array(), value))
+                            await storageProvider.set(key, value);
                     }
                 } else if (change.action === 'delete') {
-                    storageProvider.set(key, undefined);
+                    if (await storageProvider.has(key))
+                        await storageProvider.set(key, undefined);
                 }
             });
         });
@@ -42,10 +47,12 @@ export class IPDWStorageProvider implements StorageProvider {
 
         await synchronizationProvider.start();
 
-        return new IPDWStorageProvider(crdtMap, synchronizationProvider);
+        return new IPDWStorageProvider(crdtMap, synchronizationProvider, storageProvider);
     }
 
     public async set(key: string, value: Uint8Array | undefined): Promise<void> {
+        await this.storageProvider.set(key, value);
+
         if (!value) {
             this.yMap.delete(key);
         } else {
@@ -66,6 +73,7 @@ export class IPDWStorageProvider implements StorageProvider {
     }
 
     public async clear(): Promise<void> {
+        await this.storageProvider.clear();
         this.yMap.clear();
     }
 }

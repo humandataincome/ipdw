@@ -14,7 +14,7 @@ export class CRDTStorageOverlay implements StorageProvider {
     private readonly syncInterval = 30 * 1000;
     private syncIntervalId: NodeJS.Timeout | null = null;
 
-    constructor(remoteStorage: StorageProvider, cacheStorage: StorageProvider, startSync: true) {
+    constructor(remoteStorage: StorageProvider, cacheStorage: StorageProvider, startSync: boolean = true) {
         this.remoteStorage = remoteStorage;
         this.cacheStorage = cacheStorage;
         this.cacheMetadata = new Map();
