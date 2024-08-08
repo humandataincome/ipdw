@@ -24,8 +24,7 @@ export class EncryptedPackFactory implements PackFactory {
     }
 
     async encode(value: Uint8Array): Promise<Uint8Array> {
-        //const ivSalt = crypto.createHash('sha256').update(this.key).update(value).digest().subarray(0, 4); // Deterministic, use for testing
-        const ivSalt = crypto.randomBytes(4); // Random, use for production
+        const ivSalt = crypto.createHash('sha256').update(this.key).update(value).digest().subarray(0, 4);
 
         const iv = crypto.createHash('sha256').update(this.key).update(ivSalt.toString()).digest().subarray(16);
 
