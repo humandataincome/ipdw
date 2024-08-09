@@ -4,7 +4,13 @@
 
 [ipdw](../globals.md) / CompressedStorageOverlay
 
-# Class: CompressedStorageOverlay
+# Class: CompressedStorageOverlay\<CompressedStorageProviderT, UncompressedStorageProviderT\>
+
+## Type Parameters
+
+• **CompressedStorageProviderT** *extends* [`StorageProvider`](../interfaces/StorageProvider.md)
+
+• **UncompressedStorageProviderT** *extends* [`StorageProvider`](../interfaces/StorageProvider.md)
 
 ## Implements
 
@@ -14,21 +20,21 @@
 
 ### new CompressedStorageOverlay()
 
-> **new CompressedStorageOverlay**(`compressedStorageProvider`, `uncompressedStorageProvider`): [`CompressedStorageOverlay`](CompressedStorageOverlay.md)
+> **new CompressedStorageOverlay**\<`CompressedStorageProviderT`, `UncompressedStorageProviderT`\>(`compressedStorageProvider`, `uncompressedStorageProvider`): [`CompressedStorageOverlay`](CompressedStorageOverlay.md)\<`CompressedStorageProviderT`, `UncompressedStorageProviderT`\>
 
 #### Parameters
 
-• **compressedStorageProvider**: [`StorageProvider`](../interfaces/StorageProvider.md)
+• **compressedStorageProvider**: `CompressedStorageProviderT`
 
-• **uncompressedStorageProvider**: [`StorageProvider`](../interfaces/StorageProvider.md)
+• **uncompressedStorageProvider**: `UncompressedStorageProviderT`
 
 #### Returns
 
-[`CompressedStorageOverlay`](CompressedStorageOverlay.md)
+[`CompressedStorageOverlay`](CompressedStorageOverlay.md)\<`CompressedStorageProviderT`, `UncompressedStorageProviderT`\>
 
 #### Defined in
 
-[src/core/overlay/compressed.overlay.ts:7](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/overlay/compressed.overlay.ts#L7)
+[src/core/overlay/compressed.overlay.ts:7](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/compressed.overlay.ts#L7)
 
 ## Methods
 
@@ -46,7 +52,7 @@
 
 #### Defined in
 
-[src/core/overlay/compressed.overlay.ts:46](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/overlay/compressed.overlay.ts#L46)
+[src/core/overlay/compressed.overlay.ts:46](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/compressed.overlay.ts#L46)
 
 ***
 
@@ -68,7 +74,7 @@
 
 #### Defined in
 
-[src/core/overlay/compressed.overlay.ts:38](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/overlay/compressed.overlay.ts#L38)
+[src/core/overlay/compressed.overlay.ts:38](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/compressed.overlay.ts#L38)
 
 ***
 
@@ -90,7 +96,7 @@
 
 #### Defined in
 
-[src/core/overlay/compressed.overlay.ts:34](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/overlay/compressed.overlay.ts#L34)
+[src/core/overlay/compressed.overlay.ts:34](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/compressed.overlay.ts#L34)
 
 ***
 
@@ -108,7 +114,7 @@
 
 #### Defined in
 
-[src/core/overlay/compressed.overlay.ts:42](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/overlay/compressed.overlay.ts#L42)
+[src/core/overlay/compressed.overlay.ts:42](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/compressed.overlay.ts#L42)
 
 ***
 
@@ -132,7 +138,7 @@
 
 #### Defined in
 
-[src/core/overlay/compressed.overlay.ts:29](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/overlay/compressed.overlay.ts#L29)
+[src/core/overlay/compressed.overlay.ts:29](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/compressed.overlay.ts#L29)
 
 ***
 
@@ -146,22 +152,26 @@
 
 #### Defined in
 
-[src/core/overlay/compressed.overlay.ts:51](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/overlay/compressed.overlay.ts#L51)
+[src/core/overlay/compressed.overlay.ts:51](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/compressed.overlay.ts#L51)
 
 ***
 
 ### Init()
 
-> `static` **Init**(`storageProvider`): `Promise`\<[`CompressedStorageOverlay`](CompressedStorageOverlay.md)\>
+> `static` **Init**\<`CompressedStorageProviderT`\>(`storageProvider`): `Promise`\<[`CompressedStorageOverlay`](CompressedStorageOverlay.md)\<`CompressedStorageProviderT`, [`MemoryStorageProvider`](MemoryStorageProvider.md)\>\>
+
+#### Type Parameters
+
+• **CompressedStorageProviderT** *extends* [`StorageProvider`](../interfaces/StorageProvider.md)
 
 #### Parameters
 
-• **storageProvider**: [`StorageProvider`](../interfaces/StorageProvider.md)
+• **storageProvider**: `CompressedStorageProviderT`
 
 #### Returns
 
-`Promise`\<[`CompressedStorageOverlay`](CompressedStorageOverlay.md)\>
+`Promise`\<[`CompressedStorageOverlay`](CompressedStorageOverlay.md)\<`CompressedStorageProviderT`, [`MemoryStorageProvider`](MemoryStorageProvider.md)\>\>
 
 #### Defined in
 
-[src/core/overlay/compressed.overlay.ts:12](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/overlay/compressed.overlay.ts#L12)
+[src/core/overlay/compressed.overlay.ts:12](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/compressed.overlay.ts#L12)

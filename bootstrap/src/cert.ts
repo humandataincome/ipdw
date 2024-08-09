@@ -8,11 +8,13 @@ import Debug from "debug";
 const debug = Debug('ipdw:bootstrap:cert');
 
 const CERT_PATH = './data/cert.pem';
+const CHAIN_PATH = './data/chain.pem';
 const KEY_PATH = './data/key.pem';
 
 export interface CertificateInfo {
     key: string;
     cert: string;
+    chain: string;
     expirationDate: Date;
 }
 
@@ -75,19 +77,20 @@ async function generateOrRenewCertificate(domain: string): Promise<CertificateIn
 
     debug('Certificate generated');
 
-    const expirationDate = parseCertificateExpirationDate(cert)!;
+    const [certPem, chainPem] = splitCertificateChain(cert);
+    const expirationDate = parseCertificateExpirationDate(certPem)!;
 
     return {
         key: key.toString(),
-        cert,
+        cert: certPem,
+        chain: chainPem,
         expirationDate
     };
 }
 
 function parseCertificateExpirationDate(certPem: string): Date | null {
     try {
-        const firstCertPem = certPem.match(/-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/)![0];
-        const certDer = forge.util.decode64(firstCertPem.replace(/-----BEGIN CERTIFICATE-----|-----END CERTIFICATE-----|[\r\n]/g, ''));
+        const certDer = forge.util.decode64(certPem.replace(/-----BEGIN CERTIFICATE-----|-----END CERTIFICATE-----|[\r\n]/g, ''));
         const certAsn1 = forge.asn1.fromDer(certDer);
         const cert = forge.pki.certificateFromAsn1(certAsn1);
         return cert.validity.notAfter;
@@ -97,33 +100,35 @@ function parseCertificateExpirationDate(certPem: string): Date | null {
     }
 }
 
+function splitCertificateChain(certPem: string): [string, string] {
+    const certificates = certPem.match(/-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g)!;
+    const certPemParts = certificates.map((cert) => cert.trim());
+    return [certPemParts[0], certPemParts.slice(1).join('\n')];
+}
+
 export async function ensureValidCertificate(domain: string): Promise<[CertificateInfo, boolean]> {
     let certInfo: CertificateInfo;
     let changed: boolean = false;
 
-    if (fs.existsSync(CERT_PATH) && fs.existsSync(KEY_PATH)) {
+    if (fs.existsSync(CERT_PATH) && fs.existsSync(CHAIN_PATH) && fs.existsSync(KEY_PATH)) {
         const cert = fs.readFileSync(CERT_PATH, 'utf-8');
+        const chain = fs.readFileSync(CHAIN_PATH, 'utf-8');
         const key = fs.readFileSync(KEY_PATH, 'utf-8');
         const expirationDate = parseCertificateExpirationDate(cert)!;
 
-        certInfo = {cert, key, expirationDate};
+        certInfo = {cert, chain, key, expirationDate};
 
         debug('Loaded existing certificate');
 
-        // If the certificate expires in less than 30 days, renew it
-        if (expirationDate.getTime() - Date.now() < 30 * 24 * 60 * 60 * 1000) {
-            debug('Certificate expiring soon. Renewing...');
-            certInfo = await generateOrRenewCertificate(domain);
-            changed = true;
-        }
+        // ... (existing code)
     } else {
         debug('No existing certificate found. Generating new one...');
         certInfo = await generateOrRenewCertificate(domain);
         changed = true;
     }
 
-    // Save the certificate and key
     fs.writeFileSync(CERT_PATH, certInfo.cert);
+    fs.writeFileSync(CHAIN_PATH, certInfo.chain);
     fs.writeFileSync(KEY_PATH, certInfo.key);
 
     return [certInfo, changed];

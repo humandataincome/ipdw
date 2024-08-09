@@ -1,7 +1,7 @@
 import {noise} from "@chainsafe/libp2p-noise";
 import {yamux} from "@chainsafe/libp2p-yamux";
 import {generateKeyPair, marshalPrivateKey, unmarshalPrivateKey} from "@libp2p/crypto/keys";
-import {KadDHT, kadDHT} from "@libp2p/kad-dht";
+import {KadDHT} from "@libp2p/kad-dht";
 import {mplex} from "@libp2p/mplex";
 import {peerIdFromKeys} from "@libp2p/peer-id";
 import {tcp} from "@libp2p/tcp";
@@ -26,6 +26,7 @@ import {ArrayUtils} from "./utils.js";
 import type {PubSub} from "@libp2p/interface";
 
 import Debug from "debug";
+import * as https from "https";
 
 const debug = Debug('ipdw:bootstrap:libp2p');
 
@@ -44,10 +45,10 @@ export class Libp2pNode {
             const [certInfo, _] = await ensureValidCertificate(domain);
 
             wsConfig = {
-                websocket: {
-                    key: certInfo.key,
-                    cert: certInfo.cert
-                }
+                server: https.createServer({
+                    cert: certInfo.cert,
+                    key: certInfo.key
+                })
             };
 
             announceAddresses = [
@@ -80,12 +81,7 @@ export class Libp2pNode {
             ],
             services: {
                 identify: identify({protocolPrefix: 'ipdw'}),
-                dht: kadDHT({
-                    protocol: '/ipdw/dht/1.0.0',
-                    clientMode: false,
-                    kBucketSize: 1024,
-                    pingTimeout: 10000,
-                }),
+                //dht: kadDHT({protocol: '/ipdw/dht/1.0.0', clientMode: false}),
                 pubsub: gossipsub({
                     fallbackToFloodsub: true,
                     canRelayMessage: true,
@@ -114,7 +110,7 @@ export class Libp2pNode {
         this.registerHandleFetchSubscribers(node);
 
         await node.start();
-        await node.services.dht.setMode('server');
+        //await node.services.dht.setMode('server');
 
         debug('p2p:started', node.peerId, node.getMultiaddrs().map((ma: any) => ma.toString()));
         debug('To reuse this Peer ID use this key', uint8ArrayToString(marshalPrivateKey({bytes: peerId.privateKey!}), "base64pad"));
@@ -148,6 +144,7 @@ export class Libp2pNode {
                 debug('Certificate renewed. Reloading node...');
                 await this.node.stop();
                 this.node = await Libp2pNode.createNode(privateKey, domain);
+                // We could also just reload https server passed in websocket
             }
         }, 24 * 60 * 60 * 1000); // Check every 24 hours
     }

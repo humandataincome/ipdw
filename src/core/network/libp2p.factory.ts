@@ -12,7 +12,7 @@ import {circuitRelayServer, circuitRelayTransport} from "@libp2p/circuit-relay-v
 import {bootstrap} from '@libp2p/bootstrap';
 import type {PubSub} from '@libp2p/interface';
 import {autoNAT} from '@libp2p/autonat';
-import {KadDHT, kadDHT} from '@libp2p/kad-dht';
+import {KadDHT} from '@libp2p/kad-dht';
 import {ping} from '@libp2p/ping';
 import {webTransport} from '@libp2p/webtransport';
 import {tcp} from "@libp2p/tcp";
@@ -29,7 +29,8 @@ import {Key} from 'interface-datastore';
 
 const debug = Debug('ipdw:libp2p');
 
-const DATASTORE_ENABLED = false; // Fix when this is true
+const DATASTORE_ENABLED = false;
+const REUSE_PEER_ENABLED = false;
 
 export class Libp2pFactory {
     private static readonly PROTOCOL_PREFIX = 'ipdw';
@@ -43,8 +44,8 @@ export class Libp2pFactory {
         const isWeb = typeof window === 'object' || typeof importScripts === 'function';
         let nodeOptions = isWeb ? await this.libp2pWebOptions() : await this.libp2pNodeOptions();
 
-        if (DATASTORE_ENABLED) {
-            let metastore = isWeb ? new IDBDatastore('.metastore') : new FsDatastore('.metastore');
+        if (REUSE_PEER_ENABLED) {
+            let metastore = isWeb ? new IDBDatastore('.datastore') : new FsDatastore('.datastore');
             await metastore.open();
 
             if (!await metastore.has(new Key('/peer-id')))
@@ -77,12 +78,7 @@ export class Libp2pFactory {
                     protocolPrefix: this.PROTOCOL_PREFIX,
                     agentVersion: this.getAgentVersion()
                 }),
-                dht: kadDHT({
-                    protocol: this.DHT_PROTOCOL,
-                    clientMode: false,
-                    kBucketSize: 256,
-                    pingTimeout: 10000
-                }),
+                //dht: kadDHT({protocol: this.DHT_PROTOCOL}),
                 pubsub: gossipsub({allowPublishToZeroTopicPeers: true}),
                 autoNAT: autoNAT(),
                 dcutr: dcutr(),
@@ -119,9 +115,6 @@ export class Libp2pFactory {
                 webRTCDirect(),
                 ...(globalThis.WebTransport !== undefined ? [webTransport()] : []),
             ],
-            connectionGater: {
-                denyDialMultiaddr: () => false
-            },
         };
     }
 

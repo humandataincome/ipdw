@@ -26,7 +26,7 @@
 
 #### Defined in
 
-[src/core/storage/filesystem.storage.ts:7](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/storage/filesystem.storage.ts#L7)
+[src/core/storage/filesystem.storage.ts:7](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/filesystem.storage.ts#L7)
 
 ## Methods
 
@@ -44,7 +44,7 @@
 
 #### Defined in
 
-[src/core/storage/filesystem.storage.ts:35](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/storage/filesystem.storage.ts#L35)
+[src/core/storage/filesystem.storage.ts:49](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/filesystem.storage.ts#L49)
 
 ***
 
@@ -66,7 +66,7 @@
 
 #### Defined in
 
-[src/core/storage/filesystem.storage.ts:25](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/storage/filesystem.storage.ts#L25)
+[src/core/storage/filesystem.storage.ts:34](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/filesystem.storage.ts#L34)
 
 ***
 
@@ -88,7 +88,7 @@
 
 #### Defined in
 
-[src/core/storage/filesystem.storage.ts:21](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/storage/filesystem.storage.ts#L21)
+[src/core/storage/filesystem.storage.ts:25](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/filesystem.storage.ts#L25)
 
 ***
 
@@ -106,7 +106,7 @@
 
 #### Defined in
 
-[src/core/storage/filesystem.storage.ts:29](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/storage/filesystem.storage.ts#L29)
+[src/core/storage/filesystem.storage.ts:45](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/filesystem.storage.ts#L45)
 
 ***
 
@@ -130,4 +130,4 @@
 
 #### Defined in
 
-[src/core/storage/filesystem.storage.ts:14](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/storage/filesystem.storage.ts#L14)
+[src/core/storage/filesystem.storage.ts:15](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/filesystem.storage.ts#L15)

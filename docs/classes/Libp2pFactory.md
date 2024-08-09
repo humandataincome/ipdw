@@ -28,4 +28,4 @@
 
 #### Defined in
 
-[src/core/network/libp2p.factory.ts:29](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/network/libp2p.factory.ts#L29)
+[src/core/network/libp2p.factory.ts:43](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/network/libp2p.factory.ts#L43)

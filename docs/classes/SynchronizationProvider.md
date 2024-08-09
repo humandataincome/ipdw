@@ -14,7 +14,7 @@
 
 #### Defined in
 
-[src/core/network/synchronization.provider.ts:25](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/network/synchronization.provider.ts#L25)
+[src/core/network/synchronization.provider.ts:29](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/network/synchronization.provider.ts#L29)
 
 ***
 
@@ -38,7 +38,7 @@
 
 #### Defined in
 
-[src/core/network/synchronization.provider.ts:27](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/network/synchronization.provider.ts#L27)
+[src/core/network/synchronization.provider.ts:31](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/network/synchronization.provider.ts#L31)
 
 ***
 
@@ -48,7 +48,7 @@
 
 #### Defined in
 
-[src/core/network/synchronization.provider.ts:26](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/network/synchronization.provider.ts#L26)
+[src/core/network/synchronization.provider.ts:30](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/network/synchronization.provider.ts#L30)
 
 ## Methods
 
@@ -62,7 +62,7 @@
 
 #### Defined in
 
-[src/core/network/synchronization.provider.ts:57](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/network/synchronization.provider.ts#L57)
+[src/core/network/synchronization.provider.ts:61](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/network/synchronization.provider.ts#L61)
 
 ***
 
@@ -76,7 +76,7 @@
 
 #### Defined in
 
-[src/core/network/synchronization.provider.ts:64](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/network/synchronization.provider.ts#L64)
+[src/core/network/synchronization.provider.ts:68](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/network/synchronization.provider.ts#L68)
 
 ***
 
@@ -98,4 +98,4 @@
 
 #### Defined in
 
-[src/core/network/synchronization.provider.ts:49](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/network/synchronization.provider.ts#L49)
+[src/core/network/synchronization.provider.ts:53](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/network/synchronization.provider.ts#L53)

@@ -4,7 +4,15 @@
 
 [ipdw](../globals.md) / PackedStorageOverlay
 
-# Class: PackedStorageOverlay
+# Class: PackedStorageOverlay\<StorageProviderT, KeyPackFactoryT, ValuePackFactoryT\>
+
+## Type Parameters
+
+• **StorageProviderT** *extends* [`StorageProvider`](../interfaces/StorageProvider.md)
+
+• **KeyPackFactoryT** *extends* [`PackFactory`](../interfaces/PackFactory.md)
+
+• **ValuePackFactoryT** *extends* [`PackFactory`](../interfaces/PackFactory.md)
 
 ## Implements
 
@@ -14,23 +22,23 @@
 
 ### new PackedStorageOverlay()
 
-> **new PackedStorageOverlay**(`storageProvider`, `keyPackFactory`, `valuePackFactory`): [`PackedStorageOverlay`](PackedStorageOverlay.md)
+> **new PackedStorageOverlay**\<`StorageProviderT`, `KeyPackFactoryT`, `ValuePackFactoryT`\>(`storageProvider`, `keyPackFactory`, `valuePackFactory`): [`PackedStorageOverlay`](PackedStorageOverlay.md)\<`StorageProviderT`, `KeyPackFactoryT`, `ValuePackFactoryT`\>
 
 #### Parameters
 
-• **storageProvider**: [`StorageProvider`](../interfaces/StorageProvider.md)
+• **storageProvider**: `StorageProviderT`
 
-• **keyPackFactory**: [`PackFactory`](../interfaces/PackFactory.md)
+• **keyPackFactory**: `KeyPackFactoryT`
 
-• **valuePackFactory**: [`PackFactory`](../interfaces/PackFactory.md)
+• **valuePackFactory**: `ValuePackFactoryT`
 
 #### Returns
 
-[`PackedStorageOverlay`](PackedStorageOverlay.md)
+[`PackedStorageOverlay`](PackedStorageOverlay.md)\<`StorageProviderT`, `KeyPackFactoryT`, `ValuePackFactoryT`\>
 
 #### Defined in
 
-[src/core/overlay/packed.overlay.ts:10](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/overlay/packed.overlay.ts#L10)
+[src/core/overlay/packed.overlay.ts:10](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/packed.overlay.ts#L10)
 
 ## Methods
 
@@ -48,7 +56,7 @@
 
 #### Defined in
 
-[src/core/overlay/packed.overlay.ts:48](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/overlay/packed.overlay.ts#L48)
+[src/core/overlay/packed.overlay.ts:48](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/packed.overlay.ts#L48)
 
 ***
 
@@ -70,7 +78,7 @@
 
 #### Defined in
 
-[src/core/overlay/packed.overlay.ts:31](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/overlay/packed.overlay.ts#L31)
+[src/core/overlay/packed.overlay.ts:31](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/packed.overlay.ts#L31)
 
 ***
 
@@ -92,7 +100,7 @@
 
 #### Defined in
 
-[src/core/overlay/packed.overlay.ts:24](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/overlay/packed.overlay.ts#L24)
+[src/core/overlay/packed.overlay.ts:24](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/packed.overlay.ts#L24)
 
 ***
 
@@ -110,7 +118,7 @@
 
 #### Defined in
 
-[src/core/overlay/packed.overlay.ts:39](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/overlay/packed.overlay.ts#L39)
+[src/core/overlay/packed.overlay.ts:39](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/packed.overlay.ts#L39)
 
 ***
 
@@ -134,4 +142,4 @@
 
 #### Defined in
 
-[src/core/overlay/packed.overlay.ts:16](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/overlay/packed.overlay.ts#L16)
+[src/core/overlay/packed.overlay.ts:16](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/packed.overlay.ts#L16)

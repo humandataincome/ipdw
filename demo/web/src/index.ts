@@ -4,7 +4,7 @@ Wallet(IPDW TEST) - Address: 0xB5ea1eC38f0547004d5841a2FB5F33Ee07113Bcf - Privat
 
 import {ALGORAND_TESTNET_INDEXER_URL, ALGORAND_TESTNET_SERVER_URL, AlgorandStorageProvider, DataWallet, IPDWStorageProvider, MemoryStorageProvider} from "ipdw";
 
-//localStorage.debug = 'libp2p:*';
+localStorage.debug = 'libp2p:*,ipdw:*,-libp2p:kad-dht:*';
 //localStorage.debug = '';
 
 const orig_console_log = console.log;

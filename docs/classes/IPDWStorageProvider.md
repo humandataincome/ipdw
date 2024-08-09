@@ -14,7 +14,7 @@
 
 ### new IPDWStorageProvider()
 
-> **new IPDWStorageProvider**(`yMap`, `synchronizationProvider`): [`IPDWStorageProvider`](IPDWStorageProvider.md)
+> **new IPDWStorageProvider**(`yMap`, `synchronizationProvider`, `storageProvider`): [`IPDWStorageProvider`](IPDWStorageProvider.md)
 
 #### Parameters
 
@@ -22,13 +22,15 @@
 
 • **synchronizationProvider**: [`SynchronizationProvider`](SynchronizationProvider.md)
 
+• **storageProvider**: [`StorageProvider`](../interfaces/StorageProvider.md)
+
 #### Returns
 
 [`IPDWStorageProvider`](IPDWStorageProvider.md)
 
 #### Defined in
 
-[src/core/storage/ipdw.storage.ts:9](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/storage/ipdw.storage.ts#L9)
+[src/core/storage/ipdw.storage.ts:11](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/ipdw.storage.ts#L11)
 
 ## Properties
 
@@ -38,7 +40,7 @@
 
 #### Defined in
 
-[src/core/storage/ipdw.storage.ts:6](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/storage/ipdw.storage.ts#L6)
+[src/core/storage/ipdw.storage.ts:7](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/ipdw.storage.ts#L7)
 
 ## Methods
 
@@ -56,7 +58,7 @@
 
 #### Defined in
 
-[src/core/storage/ipdw.storage.ts:68](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/storage/ipdw.storage.ts#L68)
+[src/core/storage/ipdw.storage.ts:75](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/ipdw.storage.ts#L75)
 
 ***
 
@@ -78,7 +80,7 @@
 
 #### Defined in
 
-[src/core/storage/ipdw.storage.ts:60](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/storage/ipdw.storage.ts#L60)
+[src/core/storage/ipdw.storage.ts:67](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/ipdw.storage.ts#L67)
 
 ***
 
@@ -100,7 +102,7 @@
 
 #### Defined in
 
-[src/core/storage/ipdw.storage.ts:56](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/storage/ipdw.storage.ts#L56)
+[src/core/storage/ipdw.storage.ts:63](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/ipdw.storage.ts#L63)
 
 ***
 
@@ -118,7 +120,7 @@
 
 #### Defined in
 
-[src/core/storage/ipdw.storage.ts:64](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/storage/ipdw.storage.ts#L64)
+[src/core/storage/ipdw.storage.ts:71](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/ipdw.storage.ts#L71)
 
 ***
 
@@ -142,7 +144,7 @@
 
 #### Defined in
 
-[src/core/storage/ipdw.storage.ts:48](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/storage/ipdw.storage.ts#L48)
+[src/core/storage/ipdw.storage.ts:53](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/ipdw.storage.ts#L53)
 
 ***
 
@@ -162,4 +164,4 @@
 
 #### Defined in
 
-[src/core/storage/ipdw.storage.ts:14](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/storage/ipdw.storage.ts#L14)
+[src/core/storage/ipdw.storage.ts:17](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/ipdw.storage.ts#L17)

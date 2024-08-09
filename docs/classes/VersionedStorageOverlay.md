@@ -4,7 +4,11 @@
 
 [ipdw](../globals.md) / VersionedStorageOverlay
 
-# Class: VersionedStorageOverlay
+# Class: VersionedStorageOverlay\<StorageProviderT\>
+
+## Type Parameters
+
+• **StorageProviderT** *extends* [`StorageProvider`](../interfaces/StorageProvider.md)
 
 ## Implements
 
@@ -14,19 +18,19 @@
 
 ### new VersionedStorageOverlay()
 
-> **new VersionedStorageOverlay**(`storageProvider`): [`VersionedStorageOverlay`](VersionedStorageOverlay.md)
+> **new VersionedStorageOverlay**\<`StorageProviderT`\>(`storageProvider`): [`VersionedStorageOverlay`](VersionedStorageOverlay.md)\<`StorageProviderT`\>
 
 #### Parameters
 
-• **storageProvider**: [`StorageProvider`](../interfaces/StorageProvider.md)
+• **storageProvider**: `StorageProviderT`
 
 #### Returns
 
-[`VersionedStorageOverlay`](VersionedStorageOverlay.md)
+[`VersionedStorageOverlay`](VersionedStorageOverlay.md)\<`StorageProviderT`\>
 
 #### Defined in
 
-[src/core/overlay/versioned.overlay.ts:9](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/overlay/versioned.overlay.ts#L9)
+[src/core/overlay/versioned.overlay.ts:9](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/versioned.overlay.ts#L9)
 
 ## Methods
 
@@ -44,7 +48,7 @@
 
 #### Defined in
 
-[src/core/overlay/versioned.overlay.ts:41](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/overlay/versioned.overlay.ts#L41)
+[src/core/overlay/versioned.overlay.ts:41](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/versioned.overlay.ts#L41)
 
 ***
 
@@ -66,7 +70,7 @@
 
 #### Defined in
 
-[src/core/overlay/versioned.overlay.ts:33](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/overlay/versioned.overlay.ts#L33)
+[src/core/overlay/versioned.overlay.ts:33](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/versioned.overlay.ts#L33)
 
 ***
 
@@ -88,7 +92,7 @@
 
 #### Defined in
 
-[src/core/overlay/versioned.overlay.ts:29](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/overlay/versioned.overlay.ts#L29)
+[src/core/overlay/versioned.overlay.ts:29](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/versioned.overlay.ts#L29)
 
 ***
 
@@ -106,7 +110,7 @@
 
 #### Defined in
 
-[src/core/overlay/versioned.overlay.ts:37](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/overlay/versioned.overlay.ts#L37)
+[src/core/overlay/versioned.overlay.ts:37](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/versioned.overlay.ts#L37)
 
 ***
 
@@ -130,22 +134,26 @@
 
 #### Defined in
 
-[src/core/overlay/versioned.overlay.ts:19](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/overlay/versioned.overlay.ts#L19)
+[src/core/overlay/versioned.overlay.ts:19](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/versioned.overlay.ts#L19)
 
 ***
 
 ### Init()
 
-> `static` **Init**(`storageProvider`): `Promise`\<[`VersionedStorageOverlay`](VersionedStorageOverlay.md)\>
+> `static` **Init**\<`StorageProviderT`\>(`storageProvider`): `Promise`\<[`VersionedStorageOverlay`](VersionedStorageOverlay.md)\<`StorageProviderT`\>\>
+
+#### Type Parameters
+
+• **StorageProviderT** *extends* [`StorageProvider`](../interfaces/StorageProvider.md)
 
 #### Parameters
 
-• **storageProvider**: [`StorageProvider`](../interfaces/StorageProvider.md)
+• **storageProvider**: `StorageProviderT`
 
 #### Returns
 
-`Promise`\<[`VersionedStorageOverlay`](VersionedStorageOverlay.md)\>
+`Promise`\<[`VersionedStorageOverlay`](VersionedStorageOverlay.md)\<`StorageProviderT`\>\>
 
 #### Defined in
 
-[src/core/overlay/versioned.overlay.ts:13](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/core/overlay/versioned.overlay.ts#L13)
+[src/core/overlay/versioned.overlay.ts:13](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/versioned.overlay.ts#L13)

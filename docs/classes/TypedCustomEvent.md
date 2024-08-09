@@ -36,7 +36,7 @@
 
 #### Defined in
 
-[src/utils/event.utils.ts:48](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/utils/event.utils.ts#L48)
+[src/utils/event.utils.ts:48](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/utils/event.utils.ts#L48)
 
 ## Properties
 
@@ -396,7 +396,7 @@ node\_modules/typescript/lib/lib.dom.d.ts:8233
 
 #### Defined in
 
-[src/utils/event.utils.ts:53](https://github.com/ansi-code/ipdw/blob/d3334c70f49293ce3e0ff61a485778d41bda3a8d/src/utils/event.utils.ts#L53)
+[src/utils/event.utils.ts:53](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/utils/event.utils.ts#L53)
 
 ## Methods
 

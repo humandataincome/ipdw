@@ -1,18 +1,18 @@
 version: '3.8'
 
 services:
-  app:
+  ipdw-bootstrap-node:
     build: .
     restart: always
     ports:
       - "4001:4001"
       - "4002:4002"
-      - "4002:4002/udp"
       - "443:443"
       - "80:80"
     environment:
       NODE_ENV: production
       PRIVATE_KEY:
       DOMAIN: bootstrap.ipdw.tech
+      DEBUG: libp2p:*,ipdw:*,-libp2p:kad-dht:*
     volumes:
       - ./data:/app/data

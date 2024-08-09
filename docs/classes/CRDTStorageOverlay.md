@@ -2,9 +2,9 @@
 
 ***
 
-[ipdw](../globals.md) / CachedStorageOverlay
+[ipdw](../globals.md) / CRDTStorageOverlay
 
-# Class: CachedStorageOverlay\<RemoteStorageProviderT, CacheStorageProviderT\>
+# Class: CRDTStorageOverlay\<RemoteStorageProviderT, CacheStorageProviderT\>
 
 ## Type Parameters
 
@@ -18,9 +18,9 @@
 
 ## Constructors
 
-### new CachedStorageOverlay()
+### new CRDTStorageOverlay()
 
-> **new CachedStorageOverlay**\<`RemoteStorageProviderT`, `CacheStorageProviderT`\>(`remoteStorage`, `cacheStorage`, `startSync`): [`CachedStorageOverlay`](CachedStorageOverlay.md)\<`RemoteStorageProviderT`, `CacheStorageProviderT`\>
+> **new CRDTStorageOverlay**\<`RemoteStorageProviderT`, `CacheStorageProviderT`\>(`remoteStorage`, `cacheStorage`, `startSync`): [`CRDTStorageOverlay`](CRDTStorageOverlay.md)\<`RemoteStorageProviderT`, `CacheStorageProviderT`\>
 
 #### Parameters
 
@@ -32,11 +32,11 @@
 
 #### Returns
 
-[`CachedStorageOverlay`](CachedStorageOverlay.md)\<`RemoteStorageProviderT`, `CacheStorageProviderT`\>
+[`CRDTStorageOverlay`](CRDTStorageOverlay.md)\<`RemoteStorageProviderT`, `CacheStorageProviderT`\>
 
 #### Defined in
 
-[src/core/overlay/cached.overlay.ts:16](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/cached.overlay.ts#L16)
+[src/core/overlay/crdt.overlay.ts:17](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/crdt.overlay.ts#L17)
 
 ## Methods
 
@@ -54,7 +54,7 @@
 
 #### Defined in
 
-[src/core/overlay/cached.overlay.ts:58](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/cached.overlay.ts#L58)
+[src/core/overlay/crdt.overlay.ts:61](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/crdt.overlay.ts#L61)
 
 ***
 
@@ -76,7 +76,7 @@
 
 #### Defined in
 
-[src/core/overlay/cached.overlay.ts:42](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/cached.overlay.ts#L42)
+[src/core/overlay/crdt.overlay.ts:44](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/crdt.overlay.ts#L44)
 
 ***
 
@@ -98,7 +98,7 @@
 
 #### Defined in
 
-[src/core/overlay/cached.overlay.ts:36](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/cached.overlay.ts#L36)
+[src/core/overlay/crdt.overlay.ts:38](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/crdt.overlay.ts#L38)
 
 ***
 
@@ -116,7 +116,7 @@
 
 #### Defined in
 
-[src/core/overlay/cached.overlay.ts:54](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/cached.overlay.ts#L54)
+[src/core/overlay/crdt.overlay.ts:57](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/crdt.overlay.ts#L57)
 
 ***
 
@@ -140,7 +140,7 @@
 
 #### Defined in
 
-[src/core/overlay/cached.overlay.ts:24](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/cached.overlay.ts#L24)
+[src/core/overlay/crdt.overlay.ts:25](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/crdt.overlay.ts#L25)
 
 ***
 
@@ -154,7 +154,7 @@
 
 #### Defined in
 
-[src/core/overlay/cached.overlay.ts:96](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/cached.overlay.ts#L96)
+[src/core/overlay/crdt.overlay.ts:68](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/crdt.overlay.ts#L68)
 
 ***
 
@@ -168,7 +168,7 @@
 
 #### Defined in
 
-[src/core/overlay/cached.overlay.ts:102](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/cached.overlay.ts#L102)
+[src/core/overlay/crdt.overlay.ts:74](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/crdt.overlay.ts#L74)
 
 ***
 
@@ -182,4 +182,4 @@
 
 #### Defined in
 
-[src/core/overlay/cached.overlay.ts:65](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/cached.overlay.ts#L65)
+[src/core/overlay/crdt.overlay.ts:81](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/overlay/crdt.overlay.ts#L81)
