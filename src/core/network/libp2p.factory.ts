@@ -12,7 +12,7 @@ import {circuitRelayServer, circuitRelayTransport} from "@libp2p/circuit-relay-v
 import {bootstrap} from '@libp2p/bootstrap';
 import type {PubSub} from '@libp2p/interface';
 import {autoNAT} from '@libp2p/autonat';
-import {KadDHT} from '@libp2p/kad-dht';
+import {kadDHT, KadDHT} from '@libp2p/kad-dht';
 import {ping} from '@libp2p/ping';
 import {webTransport} from '@libp2p/webtransport';
 import {tcp} from "@libp2p/tcp";
@@ -78,7 +78,7 @@ export class Libp2pFactory {
                     protocolPrefix: this.PROTOCOL_PREFIX,
                     agentVersion: this.getAgentVersion()
                 }),
-                //dht: kadDHT({protocol: this.DHT_PROTOCOL}),
+                dht: kadDHT({protocol: this.DHT_PROTOCOL}),
                 pubsub: gossipsub({allowPublishToZeroTopicPeers: true}),
                 autoNAT: autoNAT(),
                 dcutr: dcutr(),

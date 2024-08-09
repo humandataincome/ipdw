@@ -1,11 +1,16 @@
 import {StorageProvider} from "../storage";
 import {FlattenedMap} from "./";
 
-export class FlattenedArray {
-    constructor(private storage: StorageProvider, private prefix: string = '') {
+export class FlattenedArray<StorageProviderT extends StorageProvider> {
+    private readonly storage: StorageProviderT;
+    private readonly prefix: string;
+
+    constructor(storage: StorageProviderT, prefix: string = '') {
+        this.storage = storage;
+        this.prefix = prefix;
     }
 
-    public async get(index: number): Promise<string | FlattenedMap | FlattenedArray | undefined> {
+    public async get(index: number): Promise<string | FlattenedMap<StorageProviderT> | FlattenedArray<StorageProviderT> | undefined> {
         const fullKey = `${this.prefix}${index}`;
         const keys = await this.storage.ls();
         const relevantKeys = keys.filter(k => k.startsWith(fullKey));
@@ -26,7 +31,7 @@ export class FlattenedArray {
         return new FlattenedArray(this.storage, `${fullKey}.`);
     }
 
-    public async set(index: number, value: string | FlattenedMap | FlattenedArray | undefined): Promise<void> {
+    public async set(index: number, value: string | FlattenedMap<StorageProviderT> | FlattenedArray<StorageProviderT> | undefined): Promise<void> {
         const length = await this.length();
         if (index >= length) {
             throw new Error("Cannot set item with index greater than or equal to length");
@@ -74,7 +79,7 @@ export class FlattenedArray {
         }
     }
 
-    public async insert(index: number, value: string | FlattenedMap | FlattenedArray): Promise<void> {
+    public async insert(index: number, value: string | FlattenedMap<StorageProviderT> | FlattenedArray<StorageProviderT>): Promise<void> {
         const length = await this.length();
         if (index > length) {
             throw new Error("Cannot insert item at an index greater than length");
@@ -90,7 +95,7 @@ export class FlattenedArray {
         await this.set(index, value);
     }
 
-    public async push(value: string | FlattenedMap | FlattenedArray): Promise<number> {
+    public async push(value: string | FlattenedMap<StorageProviderT> | FlattenedArray<StorageProviderT>): Promise<number> {
         const length = await this.length();
         await this.set(length, value);
         return length + 1;

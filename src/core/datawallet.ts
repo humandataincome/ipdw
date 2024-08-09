@@ -2,7 +2,7 @@ import {CombinedPackFactory, EncryptedPackFactory, FlattenedMap, PackedStorageOv
 import {CryptoUtils} from "../";
 
 export class DataWallet {
-    public static async Create(privateKey: string, storageProvider: StorageProvider, salt: Buffer = Buffer.from('1Qmzz2vn', 'utf8')): Promise<FlattenedMap> {
+    public static async Create<StorageProviderT extends StorageProvider>(privateKey: string, storageProvider: StorageProviderT, salt: Buffer = Buffer.from('1Qmzz2vn', 'utf8')): Promise<FlattenedMap<PackedStorageOverlay<VersionedStorageOverlay<StorageProviderT>, EncryptedPackFactory, CombinedPackFactory>>> {
         const versionedOverlay = await VersionedStorageOverlay.Init(storageProvider);
 
         const [privateKeyBuffer, publicKeyBuffer] = await CryptoUtils.GetKeyPair(Buffer.from(privateKey.slice(2), 'hex'));

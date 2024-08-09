@@ -1,11 +1,16 @@
 import {StorageProvider} from "../storage";
 import {FlattenedArray} from "./";
 
-export class FlattenedMap {
-    constructor(private storage: StorageProvider, private prefix: string = '') {
+export class FlattenedMap<StorageProviderT extends StorageProvider> {
+    private readonly storage: StorageProviderT;
+    private readonly prefix: string;
+
+    constructor(storage: StorageProviderT, prefix: string = '') {
+        this.storage = storage;
+        this.prefix = prefix;
     }
 
-    public async get(key: string): Promise<string | FlattenedMap | FlattenedArray | undefined> {
+    public async get(key: string): Promise<string | FlattenedMap<StorageProviderT> | FlattenedArray<StorageProviderT> | undefined> {
         const fullKey = `${this.prefix}${key}`;
         const keys = await this.storage.ls();
         const relevantKeys = keys.filter(k => k.startsWith(fullKey));
@@ -26,7 +31,7 @@ export class FlattenedMap {
         return new FlattenedArray(this.storage, `${fullKey}.`);
     }
 
-    public async set(key: string, value: string | FlattenedMap | FlattenedArray | undefined): Promise<void> {
+    public async set(key: string, value: string | FlattenedMap<StorageProviderT> | FlattenedArray<StorageProviderT> | undefined): Promise<void> {
         const fullKey = `${this.prefix}${key}`;
         if (typeof value === 'string') {
             await this.storage.set(fullKey, new TextEncoder().encode(value));
