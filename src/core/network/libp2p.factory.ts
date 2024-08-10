@@ -140,6 +140,7 @@ export class Libp2pFactory {
                 listen: [
                     '/ip4/0.0.0.0/tcp/0',
                     '/ip4/0.0.0.0/tcp/0/ws',
+                    '/webrtc'
                 ]
             },
             transports: [

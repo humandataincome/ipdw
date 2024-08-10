@@ -30,7 +30,7 @@
 
 #### Defined in
 
-[src/core/storage/algorand.storage.ts:29](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/algorand.storage.ts#L29)
+[src/core/storage/algorand.storage.ts:29](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/algorand.storage.ts#L29)
 
 ## Methods
 
@@ -48,7 +48,7 @@
 
 #### Defined in
 
-[src/core/storage/algorand.storage.ts:166](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/algorand.storage.ts#L166)
+[src/core/storage/algorand.storage.ts:166](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/algorand.storage.ts#L166)
 
 ***
 
@@ -70,7 +70,7 @@
 
 #### Defined in
 
-[src/core/storage/algorand.storage.ts:149](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/algorand.storage.ts#L149)
+[src/core/storage/algorand.storage.ts:149](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/algorand.storage.ts#L149)
 
 ***
 
@@ -96,7 +96,7 @@
 
 #### Defined in
 
-[src/core/storage/algorand.storage.ts:122](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/algorand.storage.ts#L122)
+[src/core/storage/algorand.storage.ts:122](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/algorand.storage.ts#L122)
 
 ***
 
@@ -118,7 +118,7 @@
 
 #### Defined in
 
-[src/core/storage/algorand.storage.ts:144](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/algorand.storage.ts#L144)
+[src/core/storage/algorand.storage.ts:144](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/algorand.storage.ts#L144)
 
 ***
 
@@ -136,7 +136,7 @@
 
 #### Defined in
 
-[src/core/storage/algorand.storage.ts:161](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/algorand.storage.ts#L161)
+[src/core/storage/algorand.storage.ts:161](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/algorand.storage.ts#L161)
 
 ***
 
@@ -160,7 +160,7 @@
 
 #### Defined in
 
-[src/core/storage/algorand.storage.ts:130](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/algorand.storage.ts#L130)
+[src/core/storage/algorand.storage.ts:130](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/algorand.storage.ts#L130)
 
 ***
 
@@ -184,4 +184,4 @@
 
 #### Defined in
 
-[src/core/storage/algorand.storage.ts:35](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/algorand.storage.ts#L35)
+[src/core/storage/algorand.storage.ts:35](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/algorand.storage.ts#L35)

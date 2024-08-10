@@ -4,27 +4,31 @@
 
 [ipdw](../globals.md) / FlattenedMap
 
-# Class: FlattenedMap
+# Class: FlattenedMap\<StorageProviderT\>
+
+## Type Parameters
+
+• **StorageProviderT** *extends* [`StorageProvider`](../interfaces/StorageProvider.md)
 
 ## Constructors
 
 ### new FlattenedMap()
 
-> **new FlattenedMap**(`storage`, `prefix`): [`FlattenedMap`](FlattenedMap.md)
+> **new FlattenedMap**\<`StorageProviderT`\>(`storage`, `prefix`): [`FlattenedMap`](FlattenedMap.md)\<`StorageProviderT`\>
 
 #### Parameters
 
-• **storage**: [`StorageProvider`](../interfaces/StorageProvider.md)
+• **storage**: `StorageProviderT`
 
 • **prefix**: `string` = `''`
 
 #### Returns
 
-[`FlattenedMap`](FlattenedMap.md)
+[`FlattenedMap`](FlattenedMap.md)\<`StorageProviderT`\>
 
 #### Defined in
 
-[src/core/struct/map.flattened.ts:5](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/struct/map.flattened.ts#L5)
+[src/core/struct/map.flattened.ts:8](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/struct/map.flattened.ts#L8)
 
 ## Methods
 
@@ -44,7 +48,7 @@
 
 #### Defined in
 
-[src/core/struct/map.flattened.ts:61](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/struct/map.flattened.ts#L61)
+[src/core/struct/map.flattened.ts:66](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/struct/map.flattened.ts#L66)
 
 ***
 
@@ -62,13 +66,13 @@
 
 #### Defined in
 
-[src/core/struct/map.flattened.ts:44](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/struct/map.flattened.ts#L44)
+[src/core/struct/map.flattened.ts:49](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/struct/map.flattened.ts#L49)
 
 ***
 
 ### get()
 
-> **get**(`key`): `Promise`\<`undefined` \| `string` \| [`FlattenedArray`](FlattenedArray.md) \| [`FlattenedMap`](FlattenedMap.md)\>
+> **get**(`key`): `Promise`\<`undefined` \| `string` \| [`FlattenedMap`](FlattenedMap.md)\<`StorageProviderT`\> \| [`FlattenedArray`](FlattenedArray.md)\<`StorageProviderT`\>\>
 
 #### Parameters
 
@@ -76,11 +80,11 @@
 
 #### Returns
 
-`Promise`\<`undefined` \| `string` \| [`FlattenedArray`](FlattenedArray.md) \| [`FlattenedMap`](FlattenedMap.md)\>
+`Promise`\<`undefined` \| `string` \| [`FlattenedMap`](FlattenedMap.md)\<`StorageProviderT`\> \| [`FlattenedArray`](FlattenedArray.md)\<`StorageProviderT`\>\>
 
 #### Defined in
 
-[src/core/struct/map.flattened.ts:8](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/struct/map.flattened.ts#L8)
+[src/core/struct/map.flattened.ts:13](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/struct/map.flattened.ts#L13)
 
 ***
 
@@ -98,7 +102,7 @@
 
 #### Defined in
 
-[src/core/struct/map.flattened.ts:40](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/struct/map.flattened.ts#L40)
+[src/core/struct/map.flattened.ts:45](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/struct/map.flattened.ts#L45)
 
 ***
 
@@ -112,7 +116,7 @@
 
 #### Defined in
 
-[src/core/struct/map.flattened.ts:53](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/struct/map.flattened.ts#L53)
+[src/core/struct/map.flattened.ts:58](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/struct/map.flattened.ts#L58)
 
 ***
 
@@ -124,7 +128,7 @@
 
 • **key**: `string`
 
-• **value**: `undefined` \| `string` \| [`FlattenedArray`](FlattenedArray.md) \| [`FlattenedMap`](FlattenedMap.md)
+• **value**: `undefined` \| `string` \| [`FlattenedMap`](FlattenedMap.md)\<`StorageProviderT`\> \| [`FlattenedArray`](FlattenedArray.md)\<`StorageProviderT`\>
 
 #### Returns
 
@@ -132,4 +136,4 @@
 
 #### Defined in
 
-[src/core/struct/map.flattened.ts:29](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/struct/map.flattened.ts#L29)
+[src/core/struct/map.flattened.ts:34](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/struct/map.flattened.ts#L34)

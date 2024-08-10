@@ -22,7 +22,7 @@
 
 #### Defined in
 
-[src/core/network/fetchsub.service.ts:20](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/network/fetchsub.service.ts#L20)
+[src/core/network/fetchsub.service.ts:23](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/network/fetchsub.service.ts#L23)
 
 ## Methods
 
@@ -42,7 +42,7 @@
 
 #### Defined in
 
-[src/core/network/fetchsub.service.ts:51](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/network/fetchsub.service.ts#L51)
+[src/core/network/fetchsub.service.ts:56](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/network/fetchsub.service.ts#L56)
 
 ***
 
@@ -60,7 +60,7 @@
 
 #### Defined in
 
-[src/core/network/fetchsub.service.ts:68](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/network/fetchsub.service.ts#L68)
+[src/core/network/fetchsub.service.ts:73](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/network/fetchsub.service.ts#L73)
 
 ***
 
@@ -80,7 +80,7 @@
 
 #### Defined in
 
-[src/core/network/fetchsub.service.ts:58](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/network/fetchsub.service.ts#L58)
+[src/core/network/fetchsub.service.ts:63](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/network/fetchsub.service.ts#L63)
 
 ***
 
@@ -94,7 +94,7 @@
 
 #### Defined in
 
-[src/core/network/fetchsub.service.ts:26](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/network/fetchsub.service.ts#L26)
+[src/core/network/fetchsub.service.ts:29](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/network/fetchsub.service.ts#L29)
 
 ***
 
@@ -108,7 +108,7 @@
 
 #### Defined in
 
-[src/core/network/fetchsub.service.ts:34](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/network/fetchsub.service.ts#L34)
+[src/core/network/fetchsub.service.ts:39](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/network/fetchsub.service.ts#L39)
 
 ***
 
@@ -126,7 +126,7 @@
 
 #### Defined in
 
-[src/core/network/fetchsub.service.ts:39](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/network/fetchsub.service.ts#L39)
+[src/core/network/fetchsub.service.ts:44](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/network/fetchsub.service.ts#L44)
 
 ***
 
@@ -140,7 +140,7 @@
 
 #### Defined in
 
-[src/core/network/fetchsub.service.ts:47](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/network/fetchsub.service.ts#L47)
+[src/core/network/fetchsub.service.ts:52](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/network/fetchsub.service.ts#L52)
 
 ***
 
@@ -158,4 +158,4 @@
 
 #### Defined in
 
-[src/core/network/fetchsub.service.ts:43](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/network/fetchsub.service.ts#L43)
+[src/core/network/fetchsub.service.ts:48](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/network/fetchsub.service.ts#L48)

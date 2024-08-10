@@ -28,7 +28,7 @@
 
 #### Defined in
 
-[src/core/storage/indexeddb.storage.ts:7](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/indexeddb.storage.ts#L7)
+[src/core/storage/indexeddb.storage.ts:7](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/indexeddb.storage.ts#L7)
 
 ## Methods
 
@@ -46,7 +46,7 @@
 
 #### Defined in
 
-[src/core/storage/indexeddb.storage.ts:59](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/indexeddb.storage.ts#L59)
+[src/core/storage/indexeddb.storage.ts:59](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/indexeddb.storage.ts#L59)
 
 ***
 
@@ -68,7 +68,7 @@
 
 #### Defined in
 
-[src/core/storage/indexeddb.storage.ts:49](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/indexeddb.storage.ts#L49)
+[src/core/storage/indexeddb.storage.ts:49](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/indexeddb.storage.ts#L49)
 
 ***
 
@@ -90,7 +90,7 @@
 
 #### Defined in
 
-[src/core/storage/indexeddb.storage.ts:45](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/indexeddb.storage.ts#L45)
+[src/core/storage/indexeddb.storage.ts:45](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/indexeddb.storage.ts#L45)
 
 ***
 
@@ -108,7 +108,7 @@
 
 #### Defined in
 
-[src/core/storage/indexeddb.storage.ts:55](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/indexeddb.storage.ts#L55)
+[src/core/storage/indexeddb.storage.ts:55](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/indexeddb.storage.ts#L55)
 
 ***
 
@@ -132,7 +132,7 @@
 
 #### Defined in
 
-[src/core/storage/indexeddb.storage.ts:35](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/indexeddb.storage.ts#L35)
+[src/core/storage/indexeddb.storage.ts:35](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/indexeddb.storage.ts#L35)
 
 ***
 
@@ -150,4 +150,4 @@
 
 #### Defined in
 
-[src/core/storage/indexeddb.storage.ts:12](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/indexeddb.storage.ts#L12)
+[src/core/storage/indexeddb.storage.ts:12](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/indexeddb.storage.ts#L12)

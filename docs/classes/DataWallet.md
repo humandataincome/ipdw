@@ -20,20 +20,24 @@
 
 ### Create()
 
-> `static` **Create**(`privateKey`, `storageProvider`, `salt`): `Promise`\<[`FlattenedMap`](FlattenedMap.md)\>
+> `static` **Create**\<`StorageProviderT`\>(`privateKey`, `storageProvider`, `salt`): `Promise`\<[`FlattenedMap`](FlattenedMap.md)\<[`PackedStorageOverlay`](PackedStorageOverlay.md)\<[`VersionedStorageOverlay`](VersionedStorageOverlay.md)\<`StorageProviderT`\>, [`EncryptedPackFactory`](EncryptedPackFactory.md), [`CombinedPackFactory`](CombinedPackFactory.md)\>\>\>
+
+#### Type Parameters
+
+• **StorageProviderT** *extends* [`StorageProvider`](../interfaces/StorageProvider.md)
 
 #### Parameters
 
 • **privateKey**: `string`
 
-• **storageProvider**: [`StorageProvider`](../interfaces/StorageProvider.md)
+• **storageProvider**: `StorageProviderT`
 
 • **salt**: `Buffer` = `...`
 
 #### Returns
 
-`Promise`\<[`FlattenedMap`](FlattenedMap.md)\>
+`Promise`\<[`FlattenedMap`](FlattenedMap.md)\<[`PackedStorageOverlay`](PackedStorageOverlay.md)\<[`VersionedStorageOverlay`](VersionedStorageOverlay.md)\<`StorageProviderT`\>, [`EncryptedPackFactory`](EncryptedPackFactory.md), [`CombinedPackFactory`](CombinedPackFactory.md)\>\>\>
 
 #### Defined in
 
-[src/core/datawallet.ts:5](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/datawallet.ts#L5)
+[src/core/datawallet.ts:5](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/datawallet.ts#L5)

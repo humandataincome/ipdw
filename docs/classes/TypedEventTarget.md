@@ -52,7 +52,7 @@ node\_modules/typescript/lib/lib.dom.d.ts:8354
 
 #### Defined in
 
-[src/utils/event.utils.ts:18](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/utils/event.utils.ts#L18)
+[src/utils/event.utils.ts:18](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/utils/event.utils.ts#L18)
 
 ***
 
@@ -70,7 +70,7 @@ node\_modules/typescript/lib/lib.dom.d.ts:8354
 
 #### Defined in
 
-[src/utils/event.utils.ts:29](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/utils/event.utils.ts#L29)
+[src/utils/event.utils.ts:29](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/utils/event.utils.ts#L29)
 
 ***
 
@@ -96,7 +96,7 @@ node\_modules/typescript/lib/lib.dom.d.ts:8354
 
 #### Defined in
 
-[src/utils/event.utils.ts:24](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/utils/event.utils.ts#L24)
+[src/utils/event.utils.ts:24](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/utils/event.utils.ts#L24)
 
 ## Methods
 
@@ -120,4 +120,4 @@ node\_modules/typescript/lib/lib.dom.d.ts:8354
 
 #### Defined in
 
-[src/utils/event.utils.ts:33](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/utils/event.utils.ts#L33)
+[src/utils/event.utils.ts:33](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/utils/event.utils.ts#L33)

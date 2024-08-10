@@ -26,7 +26,7 @@
 
 #### Defined in
 
-[src/core/storage/ipfs.storage.ts:83](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/ipfs.storage.ts#L83)
+[src/core/storage/ipfs.storage.ts:83](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/ipfs.storage.ts#L83)
 
 ***
 
@@ -48,7 +48,7 @@
 
 #### Defined in
 
-[src/core/storage/ipfs.storage.ts:62](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/ipfs.storage.ts#L62)
+[src/core/storage/ipfs.storage.ts:62](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/ipfs.storage.ts#L62)
 
 ***
 
@@ -70,7 +70,7 @@
 
 #### Defined in
 
-[src/core/storage/ipfs.storage.ts:57](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/ipfs.storage.ts#L57)
+[src/core/storage/ipfs.storage.ts:57](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/ipfs.storage.ts#L57)
 
 ***
 
@@ -88,7 +88,7 @@
 
 #### Defined in
 
-[src/core/storage/ipfs.storage.ts:78](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/ipfs.storage.ts#L78)
+[src/core/storage/ipfs.storage.ts:78](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/ipfs.storage.ts#L78)
 
 ***
 
@@ -112,7 +112,7 @@
 
 #### Defined in
 
-[src/core/storage/ipfs.storage.ts:42](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/ipfs.storage.ts#L42)
+[src/core/storage/ipfs.storage.ts:42](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/ipfs.storage.ts#L42)
 
 ***
 
@@ -132,4 +132,4 @@
 
 #### Defined in
 
-[src/core/storage/ipfs.storage.ts:28](https://github.com/ansi-code/ipdw/blob/01fadcc9abca9fbd90e38855b259b101aa727349/src/core/storage/ipfs.storage.ts#L28)
+[src/core/storage/ipfs.storage.ts:28](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/ipfs.storage.ts#L28)
