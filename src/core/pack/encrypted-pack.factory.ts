@@ -20,14 +20,13 @@ export class EncryptedPackFactory implements PackFactory {
 
         const decipher = crypto.createDecipheriv('aes-256-cbc', this.key, iv);
         const decryptedPayloadBuffer = Buffer.concat([decipher.update(payload), decipher.final()]);
-        return new Uint8Array(decryptedPayloadBuffer.buffer.slice(decryptedPayloadBuffer.byteOffset, decryptedPayloadBuffer.byteOffset + decryptedPayloadBuffer.byteLength));
+        return new Uint8Array(decryptedPayloadBuffer);
     }
 
     async encode(value: Uint8Array): Promise<Uint8Array> {
         const ivSalt = crypto.createHash('sha256').update(this.key).update(value).digest().subarray(0, 4);
 
         const iv = crypto.createHash('sha256').update(this.key).update(ivSalt.toString()).digest().subarray(16);
-
         const cipher = crypto.createCipheriv('aes-256-cbc', this.key, iv);
         const payload = Buffer.concat([cipher.update(Buffer.from(value)), cipher.final()]);
         const encryptedPackBuffer = Buffer.alloc(4 + payload.length);
@@ -35,7 +34,8 @@ export class EncryptedPackFactory implements PackFactory {
         encryptedPackBuffer.fill(ivSalt, 0);
         encryptedPackBuffer.fill(payload, 4);
 
-        return new Uint8Array(encryptedPackBuffer.buffer.slice(encryptedPackBuffer.byteOffset, encryptedPackBuffer.byteOffset + encryptedPackBuffer.byteLength));
+
+        return new Uint8Array(encryptedPackBuffer);
     }
 
 }

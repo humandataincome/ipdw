@@ -19,7 +19,7 @@ export class CombinedPackFactory implements PackFactory {
         let res = value;
         for (let i = 0; i < this.packFactories.length; i++)
             res = (await this.packFactories[i].encode(res))!;
+
         return res;
     }
-
 }

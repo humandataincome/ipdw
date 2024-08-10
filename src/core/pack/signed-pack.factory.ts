@@ -24,7 +24,7 @@ export class SignedPackFactory implements PackFactory {
         if (!verified)
             return undefined;
 
-        return new Uint8Array(payload.buffer.slice(payload.byteOffset, payload.byteOffset + payload.byteLength));
+        return new Uint8Array(payload);
     }
 
     async encode(value: Uint8Array): Promise<Uint8Array> {
@@ -41,7 +41,7 @@ export class SignedPackFactory implements PackFactory {
         signedPackBuffer.fill(signature, 1);
         signedPackBuffer.fill(payload, 73);
 
-        return new Uint8Array(signedPackBuffer.buffer.slice(signedPackBuffer.byteOffset, signedPackBuffer.byteOffset + signedPackBuffer.byteLength))
+        return new Uint8Array(signedPackBuffer)
     }
 
 }

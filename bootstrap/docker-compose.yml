@@ -13,6 +13,6 @@ services:
       NODE_ENV: production
       PRIVATE_KEY:
       DOMAIN: bootstrap.ipdw.tech
-      DEBUG: libp2p:*,ipdw:*,-libp2p:kad-dht:*
+      DEBUG: libp2p:*,ipdw:*
     volumes:
       - ./data:/app/data

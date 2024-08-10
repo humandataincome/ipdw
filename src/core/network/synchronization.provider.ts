@@ -52,7 +52,7 @@ export class SynchronizationProvider {
 
     public static async Init(node: Libp2p<{ pubsub: PubSub, dht: KadDHT, fetch: Fetch }>, crdtDoc: Y.Doc, privateKey: string): Promise<SynchronizationProvider> {
         const [privateKeyBuff, publicKeyBuff] = await CryptoUtils.GetKeyPair(Buffer.from(privateKey.slice(2), 'hex'));
-        const derivedKeyBuffer = await util.promisify(crypto.pbkdf2)(privateKey, IPDW_DEFAULT_ADDRESS_DERIVATION_SALT, 100100, 32, 'sha256');
+        const derivedKeyBuffer = await util.promisify(crypto.pbkdf2)(publicKeyBuff, IPDW_DEFAULT_ADDRESS_DERIVATION_SALT, 100100, 32, 'sha256');
         const address = derivedKeyBuffer.toString('hex').slice(0, 32);
 
         return new SynchronizationProvider(node, crdtDoc, privateKeyBuff, publicKeyBuff, address);
@@ -61,6 +61,7 @@ export class SynchronizationProvider {
     public async start(): Promise<void> {
         this.crdtDoc.on('update', this.onDocumentUpdate.bind(this));
         await this.node.handle(this.syncProtocolName, this.onSyncProtocol.bind(this), {runOnTransientConnection: true});
+        this.node.services.fetch.registerLookupFunction(this.authFetchPath, this.onAuthFetch.bind(this));
         this.setupPubSubListeners();
         await this.setupFetchSub();
     }
@@ -68,6 +69,7 @@ export class SynchronizationProvider {
     public async stop(): Promise<void> {
         this.crdtDoc.off('update', this.onDocumentUpdate.bind(this));
         await this.node.unhandle(this.syncProtocolName);
+        this.node.services.fetch.unregisterLookupFunction(this.authFetchPath);
         this.teardownPubSubListeners();
         await this.teardownFetchSub();
     }
@@ -125,12 +127,17 @@ export class SynchronizationProvider {
     }
 
     private async runAuthFetch(peerId: PeerId): Promise<boolean> {
-        const challenge = Date.now().toString();
-        const signature = await this.node.services.fetch.fetch(peerId, this.authFetchPath + challenge);
-        if (!signature) return false;
+        try {
+            const challenge = Date.now().toString();
+            const signature = await this.node.services.fetch.fetch(peerId, this.authFetchPath + challenge);
+            if (!signature) return false;
 
-        const payload = [new Uint8Array(Buffer.from(challenge)), peerId.publicKey!];
-        return CryptoUtils.Verify(this.publicKey, Buffer.from(signature), Buffer.from(ArrayUtils.Uint8ArrayMarshal(payload)));
+            const payload = [new Uint8Array(Buffer.from(challenge)), peerId.publicKey!];
+            return CryptoUtils.Verify(this.publicKey, Buffer.from(signature), Buffer.from(ArrayUtils.Uint8ArrayMarshal(payload)));
+        } catch (e) {
+            debug('ipdw:peer:auth failed', e);
+        }
+        return false;
     }
 
     private async onAuthFetch(path: string): Promise<Uint8Array> {
@@ -145,13 +152,17 @@ export class SynchronizationProvider {
 
             const stream = await this.node.dialProtocol(peerId, this.syncProtocolName, {runOnTransientConnection: true});
 
-            await stream.sink([Y.encodeStateVector(this.crdtDoc)]);
-            const stateRes = await stream.source.next();
+            const _this = this;
+            await stream.sink((async function* () {
+                yield Y.encodeStateVector(_this.crdtDoc);
+                const stateRes = await stream.source.next();
 
-            if (!stateRes.done) {
-                const remoteStateVector = stateRes.value.subarray();
-                await stream.sink([Y.encodeStateAsUpdate(this.crdtDoc, remoteStateVector)]);
-            }
+                if (!stateRes.done) {
+                    const remoteStateVector = stateRes.value.subarray();
+                    yield Y.encodeStateAsUpdate(_this.crdtDoc, remoteStateVector);
+                }
+                //await stream.close();
+            })());
 
             this.events.dispatchTypedEvent('peer:synced', new TypedCustomEvent('peer:synced', {detail: {peerId, type: 'OUT' as 'OUT'}}));
         } catch (e: any) {

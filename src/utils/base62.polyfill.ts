@@ -8,23 +8,53 @@ function encodeBase62(buffer: Buffer): string {
     if (number === 0n) return '0';
 
     let result = '';
+
+    // Handle leading zeros
+    let leadingZeroCount = 0;
+    for (const byte of buffer) {
+        if (byte === 0) {
+            leadingZeroCount++;
+        } else {
+            break;
+        }
+    }
+
+    // Encode the number to base62
     while (number > 0) {
         result = BASE62[Number(number % BASE)] + result;
         number = number / BASE;
     }
 
-    return result;
+    // Add the leading zeroes in encoded format
+    return '0'.repeat(leadingZeroCount) + result;
 }
 
 function decodeBase62(str: string): Buffer {
     let number = 0n;
-    for (let i = 0; i < str.length; i++) {
+    let leadingZeroCount = 0;
+
+    // Count leading zeros
+    while (leadingZeroCount < str.length && str[leadingZeroCount] === '0') {
+        leadingZeroCount++;
+    }
+
+    // Decode the base62 string to a number
+    for (let i = leadingZeroCount; i < str.length; i++) {
         number = number * BASE + BigInt(BASE62.indexOf(str[i]));
     }
 
-    const hex = number.toString(16);
-    const paddedHex = hex.length % 2 ? '0' + hex : hex;
-    return Buffer.from(paddedHex, 'hex');
+    // Convert the number to hex and then to a buffer
+    let hex = number.toString(16);
+    if (hex.length % 2 !== 0) {
+        hex = '0' + hex; // Ensure even length hex string
+    }
+    const buffer = Buffer.from(hex, 'hex');
+
+    // Prepend leading zeros
+    const result = Buffer.alloc(leadingZeroCount + buffer.length);
+    buffer.copy(result, leadingZeroCount);
+
+    return result;
 }
 
 declare global {

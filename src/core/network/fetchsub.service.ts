@@ -5,8 +5,10 @@ import {ArrayUtils} from "../../utils";
 import {PeerRecord, RecordEnvelope} from "@libp2p/peer-record";
 
 import Debug from "debug";
+import {Buffer} from "buffer";
 
 const debug = Debug('ipdw:fetchsub');
+
 
 type ListenerFunction = (type: 'found', peer: PeerId) => Promise<void>;
 
@@ -16,6 +18,7 @@ export class FetchsubService {
     private running = false;
     private readonly subscribersFetchPathPrefix = '/tracker/subscribers/1.0.0/';
     private readonly pullInterval = 30 * 1000;
+    private readonly initialPullDelay = 5 * 1000;
 
     constructor(node: Libp2p<{ pubsub: PubSub; fetch: Fetch }>) {
         this.node = node;
@@ -28,7 +31,9 @@ export class FetchsubService {
         this.running = true;
 
         this.node.addEventListener('connection:open', this.onConnectionOpen);
-        this.startPullingSubscribers().then();
+        setTimeout(() => {
+            this.startPullingSubscribers().then();
+        }, this.initialPullDelay);
     }
 
     public stop(): void {
@@ -110,7 +115,7 @@ export class FetchsubService {
 
     private registerHandleFetchSubscribers(): void {
         this.node.services.fetch.registerLookupFunction(this.subscribersFetchPathPrefix, async (key: string) => {
-            const topic = key.slice(this.subscribersFetchPathPrefix.length);
+            const topic = Buffer.from(key.slice(this.subscribersFetchPathPrefix.length), 'hex').toString('utf8');
             const peers = await Promise.all(this.node.services.pubsub.getSubscribers(topic).map(p => this.node.peerStore.get(p)));
             const peerRecordEnvelopes = await Promise.all(peers.map(p =>
                 RecordEnvelope.seal(new PeerRecord({
@@ -125,7 +130,7 @@ export class FetchsubService {
 
     private async fetchSubscribers(topic: string, peerId: PeerId): Promise<PeerId[]> {
         try {
-            const peersFetchData = await this.node.services.fetch.fetch(peerId, this.subscribersFetchPathPrefix + topic);
+            const peersFetchData = await this.node.services.fetch.fetch(peerId, this.subscribersFetchPathPrefix + Buffer.from(topic, 'utf8').toString('hex'));
             if (!peersFetchData) return [];
 
             const peersRecordEnvelopesData = ArrayUtils.Uint8ArrayUnmarshal(peersFetchData);

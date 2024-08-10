@@ -42,6 +42,11 @@ export class VersionedStorageOverlay<StorageProviderT extends StorageProvider> i
         return this.storageProvider.clear();
     }
 
+    public async getVersion(key: string): Promise<string | undefined> {
+        const version = await this.storageProvider.get('__version__');
+        return version ? Buffer.from(version).toString('utf8') : undefined;
+    }
+
     private async migrateIfNeeded(): Promise<void> {
         const version = await this.storageProvider.get('__version__');
 
