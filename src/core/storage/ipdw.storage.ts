@@ -50,9 +50,12 @@ export class IPDWStorageProvider implements StorageProvider {
         return new IPDWStorageProvider(crdtMap, synchronizationProvider, storageProvider);
     }
 
-    public async set(key: string, value: Uint8Array | undefined): Promise<void> {
-        await this.storageProvider.set(key, value);
+    public async batch(f: () => Promise<void>): Promise<void> {
+        await this.yMap.doc?.transact(f);
+    }
 
+    public async set(key: string, value: Uint8Array | undefined): Promise<void> {
+        await this.storageProvider.set(key, value); // Maybe unnecessary
         if (!value) {
             this.yMap.delete(key);
         } else {
@@ -73,7 +76,7 @@ export class IPDWStorageProvider implements StorageProvider {
     }
 
     public async clear(): Promise<void> {
-        await this.storageProvider.clear();
+        await this.storageProvider.clear(); // Maybe unnecessary
         this.yMap.clear();
     }
 }
