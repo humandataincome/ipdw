@@ -46,7 +46,7 @@ export class CereStorageProvider implements StorageProvider {
 
         let resBucketId = 0n;
         for (let bucket of buckets) {
-            const bucketNameCnsResponse = await ddcNode.getCnsRecord(bucket.bucketId, '__name__');
+            const bucketNameCnsResponse = await ddcNode.getCnsRecord(bucket.bucketId, '__name__', {cacheControl: 'no-cache'});
             if (!bucketNameCnsResponse) continue;
             const bucketNameFileResponse = await ddcClient.read(new FileUri(bucket.bucketId, bucketNameCnsResponse.cid));
             const gotBucketName = await bucketNameFileResponse.text();
@@ -78,7 +78,7 @@ export class CereStorageProvider implements StorageProvider {
 
     private static async GetBucketList(indexerUrl: string, ownerId: string): Promise<any> {
         const body = JSON.stringify({
-            query: `query { ddcBuckets(where: { ownerId: { id_eq: "${ownerId}" } }) { bucketId ownerId { id } clusterId { id } isPublic isRemoved } }`
+            query: `query { ddcBuckets(where: { ownerId: { id_eq: "${ownerId}" } }) { id ownerId { id } clusterId { id } isPublic isRemoved } }`
         });
 
         const response = await fetch(indexerUrl, {
@@ -88,7 +88,6 @@ export class CereStorageProvider implements StorageProvider {
             },
             body: body
         });
-
 
         return (await response.json()).data.ddcBuckets.map((b: any) => b == null ? undefined : ({bucketId: b.bucketId, ownerId: b.ownerId.id, clusterId: b.clusterId.id, isPublic: b.isPublic, isRemoved: b.isRemoved} as Bucket));
     }
@@ -143,7 +142,7 @@ export class CereStorageProvider implements StorageProvider {
     }
 
     private async getIndex(): Promise<Record<string, string>> {
-        const indexCnsResponse = await this.ddcNode.getCnsRecord(this.bucketId, '__index__');
+        const indexCnsResponse = await this.ddcNode.getCnsRecord(this.bucketId, '__index__', {cacheControl: 'no-cache'});
         if (!indexCnsResponse)
             return {};
 
