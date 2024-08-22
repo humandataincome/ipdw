@@ -1,7 +1,7 @@
 {
   "name": "ipdw",
-  "version": "3.0.8",
-  "author": "Andrea Silvi",
+  "version": "3.0.9",
+  "author": "humandataincome",
   "type": "module",
   "main": "./dist/node/index.js",
   "browser": "./dist/web/index.js",
@@ -47,13 +47,13 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ansi-code/ipdw.git"
+    "url": "git+https://github.com/humandataincome/ipdw.git"
   },
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/ansi-code/ipdw/issues"
+    "url": "https://github.com/humandataincome/ipdw/issues"
   },
-  "homepage": "https://github.com/ansi-code/ipdw#readme",
+  "homepage": "https://github.com/humandataincome/ipdw#readme",
   "dependencies": {
     "@bnb-chain/greenfield-js-sdk": "^2.1.1",
     "@bnb-chain/reed-solomon": "^1.1.3",
