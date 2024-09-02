@@ -1,4 +1,4 @@
-FROM node:18 AS build
+FROM node:20 AS build
 
 WORKDIR /app
 
@@ -9,7 +9,7 @@ COPY ./src ./src
 COPY tsconfig.json ./
 RUN npm run build
 
-FROM node:18-slim
+FROM node:20-slim
 
 WORKDIR /app
 
