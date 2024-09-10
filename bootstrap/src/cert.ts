@@ -120,7 +120,12 @@ export async function ensureValidCertificate(domain: string): Promise<[Certifica
 
         debug('Loaded existing certificate');
 
-        // ... (existing code)
+        // If the certificate expires in less than 30 days, renew it
+        if (expirationDate.getTime() - Date.now() < 30 * 24 * 60 * 60 * 1000) {
+            debug('Certificate expiring soon. Renewing...');
+            certInfo = await generateOrRenewCertificate(domain);
+            changed = true;
+        }
     } else {
         debug('No existing certificate found. Generating new one...');
         certInfo = await generateOrRenewCertificate(domain);
