@@ -163,7 +163,7 @@ export class Libp2pFactory {
     }
 
     private static getAgentVersion(): string {
-        const platform = typeof process !== 'undefined' ? `node-${process.versions.node}` : globalThis.navigator.userAgent;
+        const platform = typeof process !== 'undefined' && process.versions?.node ? `node-${process.versions.node}` : globalThis.navigator.userAgent;
         return `ipdw/client/1.0.0 ${libp2pInfo.name}/${libp2pInfo.version} UserAgent=${platform}`;
     }
 }
