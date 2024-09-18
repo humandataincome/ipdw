@@ -3,7 +3,10 @@ import algosdk, {Account} from 'algosdk';
 import {StorageProvider} from "./";
 import {ReadWriteLock, withWriteLock} from "../../";
 
+import crypto from 'crypto';
+
 import Debug from "debug";
+import {Buffer} from "buffer";
 
 const debug = Debug('ipdw:algorand')
 
@@ -124,16 +127,45 @@ export class AlgorandStorageProvider implements StorageProvider {
         return {address: this.account.addr, mnemonic: algosdk.secretKeyToMnemonic(this.account.sk), balance: accountInfo.amount};
     }
 
+    private static hashKey(key: string): Uint8Array {
+        return new Uint8Array(crypto.createHash('sha512').update(key).digest());
+    }
+
+    private static encodeValue(key: string, value: Uint8Array | undefined): Uint8Array {
+        if (value === undefined) {
+            return new Uint8Array(0);
+        }
+        const buffer = Buffer.alloc(2 + key.length + value.length);
+        buffer.writeUInt16BE(key.length, 0);
+        buffer.fill(Buffer.from(key, 'utf8'), 2);
+        buffer.fill(value, 2 + key.length);
+
+        return new Uint8Array(buffer);
+    }
+
+    private static decodeValue(encodedValue: Uint8Array): { key: string, value: Uint8Array } {
+        const buffer = Buffer.from(encodedValue);
+
+        const keyLength = buffer.subarray(0, 2).readUInt16BE(0);
+        const key = buffer.subarray(2, 2 + keyLength).toString('utf8');
+        const value = buffer.subarray(2 + keyLength, buffer.length);
+
+        return {key, value};
+    }
+
     @withWriteLock(function (this: AlgorandStorageProvider) {
         return this.rwLock;
     })
     public async set(key: string, value: Uint8Array | undefined): Promise<void> {
+        const hashedKey = AlgorandStorageProvider.hashKey(key);
+        const encodedValue = AlgorandStorageProvider.encodeValue(key, value);
+
         const txn = algosdk.makeApplicationNoOpTxnFromObject({
             from: this.account.addr,
             appIndex: this.applicationId,
-            appArgs: [new Uint8Array(Buffer.from('set')), new Uint8Array(Buffer.from(key)), new Uint8Array(value ?? [])],
+            appArgs: [new Uint8Array(Buffer.from('set')), hashedKey, encodedValue],
             suggestedParams: await this.client.getTransactionParams().do(),
-            boxes: [{name: new Uint8Array(Buffer.from(key)), appIndex: this.applicationId}]
+            boxes: [{name: hashedKey, appIndex: this.applicationId}]
         });
 
         const signedTxn = txn.signTxn(this.account.sk);
@@ -148,8 +180,16 @@ export class AlgorandStorageProvider implements StorageProvider {
 
     public async get(key: string): Promise<Uint8Array | undefined> {
         try {
-            const boxResponse = await this.client.getApplicationBoxByName(this.applicationId, Buffer.from(key)).do();
-            return boxResponse.value;
+            const hashedKey = AlgorandStorageProvider.hashKey(key);
+            const boxResponse = await this.client.getApplicationBoxByName(this.applicationId, hashedKey).do();
+            const decodedValue = AlgorandStorageProvider.decodeValue(boxResponse.value);
+
+            if (decodedValue.key !== key) {
+                debug(`Hash collision detected: ${key} vs ${decodedValue.key}`);
+                return undefined;
+            }
+
+            return decodedValue.value;
         } catch (e: any) {
             if (e.message.includes('box not found')) {
                 return undefined;
@@ -160,7 +200,19 @@ export class AlgorandStorageProvider implements StorageProvider {
 
     public async ls(): Promise<string[]> {
         const boxes = await this.client.getApplicationBoxes(this.applicationId).do();
-        return boxes.boxes.map((box) => Buffer.from(box.name).toString('utf8'));
+        const keys: string[] = [];
+
+        for (const box of boxes.boxes) {
+            try {
+                const boxResponse = await this.client.getApplicationBoxByName(this.applicationId, box.name).do();
+                const decodedValue = AlgorandStorageProvider.decodeValue(boxResponse.value);
+                keys.push(decodedValue.key);
+            } catch (e: any) {
+                debug(`Error decoding box: ${e.message}`);
+            }
+        }
+
+        return keys;
     }
 
     public async clear(): Promise<void> {
