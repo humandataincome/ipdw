@@ -8,5 +8,5 @@ export * from "./ipdw.storage";
 
 export * from "./algorand.storage";
 export * from "./bnbgreenfield.storage";
-//export * from "./cere.storage";
+export * from "./cere.storage";
 export * from "./ipfs.storage";
