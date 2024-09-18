@@ -167,10 +167,7 @@ export class BNBGreenfieldStorageProvider implements StorageProvider {
             await this.client.object.headObject(this.bucketName, key);
             return true;
         } catch (e: any) {
-            if (e.message.includes('No such object')) {
-                return false;
-            }
-            throw e;
+            return false;
         }
     }
 
