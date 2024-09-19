@@ -215,9 +215,24 @@ export class AlgorandStorageProvider implements StorageProvider {
         return keys;
     }
 
+    @withWriteLock(function (this: AlgorandStorageProvider) {
+        return this.rwLock;
+    })
     public async clear(): Promise<void> {
-        // Here we can also delete the app and clear user state
-        const keys = await this.ls();
-        await Promise.all(keys.map(key => this.set(key, undefined)));
+        const boxes = await this.client.getApplicationBoxes(this.applicationId).do();
+        for (const box of boxes.boxes) {
+            const txn = algosdk.makeApplicationNoOpTxnFromObject({
+                from: this.account.addr,
+                appIndex: this.applicationId,
+                appArgs: [new Uint8Array(Buffer.from('set')), box.name, new Uint8Array(0)],
+                suggestedParams: await this.client.getTransactionParams().do(),
+                boxes: [{name: box.name, appIndex: this.applicationId}]
+            });
+
+            const signedTxn = txn.signTxn(this.account.sk);
+            const {txId} = await this.client.sendRawTransaction(signedTxn).do();
+            await algosdk.waitForConfirmation(this.client, txId, 4);
+        }
     }
+
 }
