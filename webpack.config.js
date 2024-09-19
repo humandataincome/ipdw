@@ -75,7 +75,8 @@ export default (env, argv) => ([
                 '@libp2p/upnp-nat': false,
                 '@libp2p/tcp': false,
                 '@libp2p/mdns': false,
-                'datastore-fs': false
+                'datastore-fs': false,
+                '@polkadot/extension-dapp': false
             }
         },
 
@@ -103,7 +104,8 @@ export default (env, argv) => ([
         resolve: {
             alias: {
                 '@libp2p/webtransport': false,
-                'datastore-idb': false
+                'datastore-idb': false,
+                '@polkadot/extension-dapp': false
             }
         },
 
