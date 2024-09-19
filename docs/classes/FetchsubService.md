@@ -22,7 +22,7 @@
 
 #### Defined in
 
-[src/core/network/fetchsub.service.ts:23](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/network/fetchsub.service.ts#L23)
+[src/core/network/fetchsub.service.ts:23](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/network/fetchsub.service.ts#L23)
 
 ## Methods
 
@@ -42,7 +42,7 @@
 
 #### Defined in
 
-[src/core/network/fetchsub.service.ts:56](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/network/fetchsub.service.ts#L56)
+[src/core/network/fetchsub.service.ts:56](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/network/fetchsub.service.ts#L56)
 
 ***
 
@@ -60,7 +60,7 @@
 
 #### Defined in
 
-[src/core/network/fetchsub.service.ts:73](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/network/fetchsub.service.ts#L73)
+[src/core/network/fetchsub.service.ts:73](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/network/fetchsub.service.ts#L73)
 
 ***
 
@@ -80,7 +80,7 @@
 
 #### Defined in
 
-[src/core/network/fetchsub.service.ts:63](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/network/fetchsub.service.ts#L63)
+[src/core/network/fetchsub.service.ts:63](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/network/fetchsub.service.ts#L63)
 
 ***
 
@@ -94,7 +94,7 @@
 
 #### Defined in
 
-[src/core/network/fetchsub.service.ts:29](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/network/fetchsub.service.ts#L29)
+[src/core/network/fetchsub.service.ts:29](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/network/fetchsub.service.ts#L29)
 
 ***
 
@@ -108,7 +108,7 @@
 
 #### Defined in
 
-[src/core/network/fetchsub.service.ts:39](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/network/fetchsub.service.ts#L39)
+[src/core/network/fetchsub.service.ts:39](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/network/fetchsub.service.ts#L39)
 
 ***
 
@@ -126,7 +126,7 @@
 
 #### Defined in
 
-[src/core/network/fetchsub.service.ts:44](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/network/fetchsub.service.ts#L44)
+[src/core/network/fetchsub.service.ts:44](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/network/fetchsub.service.ts#L44)
 
 ***
 
@@ -140,7 +140,7 @@
 
 #### Defined in
 
-[src/core/network/fetchsub.service.ts:52](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/network/fetchsub.service.ts#L52)
+[src/core/network/fetchsub.service.ts:52](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/network/fetchsub.service.ts#L52)
 
 ***
 
@@ -158,4 +158,4 @@
 
 #### Defined in
 
-[src/core/network/fetchsub.service.ts:48](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/network/fetchsub.service.ts#L48)
+[src/core/network/fetchsub.service.ts:48](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/network/fetchsub.service.ts#L48)

@@ -30,7 +30,7 @@
 
 #### Defined in
 
-[src/core/storage/ipdw.storage.ts:11](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/ipdw.storage.ts#L11)
+[src/core/storage/ipdw.storage.ts:11](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/storage/ipdw.storage.ts#L11)
 
 ## Properties
 
@@ -40,9 +40,27 @@
 
 #### Defined in
 
-[src/core/storage/ipdw.storage.ts:7](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/ipdw.storage.ts#L7)
+[src/core/storage/ipdw.storage.ts:7](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/storage/ipdw.storage.ts#L7)
 
 ## Methods
+
+### batch()
+
+> **batch**(`f`): `Promise`\<`void`\>
+
+#### Parameters
+
+• **f**
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Defined in
+
+[src/core/storage/ipdw.storage.ts:53](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/storage/ipdw.storage.ts#L53)
+
+***
 
 ### clear()
 
@@ -58,7 +76,7 @@
 
 #### Defined in
 
-[src/core/storage/ipdw.storage.ts:75](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/ipdw.storage.ts#L75)
+[src/core/storage/ipdw.storage.ts:78](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/storage/ipdw.storage.ts#L78)
 
 ***
 
@@ -80,7 +98,7 @@
 
 #### Defined in
 
-[src/core/storage/ipdw.storage.ts:67](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/ipdw.storage.ts#L67)
+[src/core/storage/ipdw.storage.ts:70](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/storage/ipdw.storage.ts#L70)
 
 ***
 
@@ -102,7 +120,7 @@
 
 #### Defined in
 
-[src/core/storage/ipdw.storage.ts:63](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/ipdw.storage.ts#L63)
+[src/core/storage/ipdw.storage.ts:66](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/storage/ipdw.storage.ts#L66)
 
 ***
 
@@ -120,7 +138,7 @@
 
 #### Defined in
 
-[src/core/storage/ipdw.storage.ts:71](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/ipdw.storage.ts#L71)
+[src/core/storage/ipdw.storage.ts:74](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/storage/ipdw.storage.ts#L74)
 
 ***
 
@@ -144,7 +162,7 @@
 
 #### Defined in
 
-[src/core/storage/ipdw.storage.ts:53](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/ipdw.storage.ts#L53)
+[src/core/storage/ipdw.storage.ts:57](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/storage/ipdw.storage.ts#L57)
 
 ***
 
@@ -164,4 +182,4 @@
 
 #### Defined in
 
-[src/core/storage/ipdw.storage.ts:17](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/ipdw.storage.ts#L17)
+[src/core/storage/ipdw.storage.ts:17](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/storage/ipdw.storage.ts#L17)

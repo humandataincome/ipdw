@@ -26,7 +26,7 @@
 
 #### Defined in
 
-[src/core/pack/encrypted-pack.factory.ts:9](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/pack/encrypted-pack.factory.ts#L9)
+[src/core/pack/encrypted-pack.factory.ts:9](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/pack/encrypted-pack.factory.ts#L9)
 
 ## Methods
 
@@ -48,7 +48,7 @@
 
 #### Defined in
 
-[src/core/pack/encrypted-pack.factory.ts:13](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/pack/encrypted-pack.factory.ts#L13)
+[src/core/pack/encrypted-pack.factory.ts:13](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/pack/encrypted-pack.factory.ts#L13)
 
 ***
 
@@ -70,4 +70,4 @@
 
 #### Defined in
 
-[src/core/pack/encrypted-pack.factory.ts:26](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/pack/encrypted-pack.factory.ts#L26)
+[src/core/pack/encrypted-pack.factory.ts:26](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/pack/encrypted-pack.factory.ts#L26)

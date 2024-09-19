@@ -28,7 +28,7 @@
 
 #### Defined in
 
-[src/core/pack/signed-pack.factory.ts:10](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/pack/signed-pack.factory.ts#L10)
+[src/core/pack/signed-pack.factory.ts:10](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/pack/signed-pack.factory.ts#L10)
 
 ## Methods
 
@@ -50,7 +50,7 @@
 
 #### Defined in
 
-[src/core/pack/signed-pack.factory.ts:15](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/pack/signed-pack.factory.ts#L15)
+[src/core/pack/signed-pack.factory.ts:15](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/pack/signed-pack.factory.ts#L15)
 
 ***
 
@@ -72,4 +72,4 @@
 
 #### Defined in
 
-[src/core/pack/signed-pack.factory.ts:30](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/pack/signed-pack.factory.ts#L30)
+[src/core/pack/signed-pack.factory.ts:30](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/pack/signed-pack.factory.ts#L30)

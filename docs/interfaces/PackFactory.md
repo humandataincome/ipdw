@@ -22,7 +22,7 @@
 
 #### Defined in
 
-[src/core/pack/pack-factory.interface.ts:2](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/pack/pack-factory.interface.ts#L2)
+[src/core/pack/pack-factory.interface.ts:2](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/pack/pack-factory.interface.ts#L2)
 
 ***
 
@@ -40,4 +40,4 @@
 
 #### Defined in
 
-[src/core/pack/pack-factory.interface.ts:4](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/pack/pack-factory.interface.ts#L4)
+[src/core/pack/pack-factory.interface.ts:4](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/pack/pack-factory.interface.ts#L4)

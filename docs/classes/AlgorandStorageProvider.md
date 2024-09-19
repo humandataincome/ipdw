@@ -20,7 +20,7 @@
 
 • **account**: `Account`
 
-• **applicationId**: `number`
+• **applicationId**: `bigint`
 
 • **client**: `AlgodClient`
 
@@ -30,7 +30,7 @@
 
 #### Defined in
 
-[src/core/storage/algorand.storage.ts:29](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/algorand.storage.ts#L29)
+[src/core/storage/algorand.storage.ts:32](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/storage/algorand.storage.ts#L32)
 
 ## Methods
 
@@ -48,7 +48,7 @@
 
 #### Defined in
 
-[src/core/storage/algorand.storage.ts:166](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/algorand.storage.ts#L166)
+[src/core/storage/algorand.storage.ts:222](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/storage/algorand.storage.ts#L222)
 
 ***
 
@@ -70,7 +70,7 @@
 
 #### Defined in
 
-[src/core/storage/algorand.storage.ts:149](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/algorand.storage.ts#L149)
+[src/core/storage/algorand.storage.ts:182](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/storage/algorand.storage.ts#L182)
 
 ***
 
@@ -96,7 +96,7 @@
 
 #### Defined in
 
-[src/core/storage/algorand.storage.ts:122](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/algorand.storage.ts#L122)
+[src/core/storage/algorand.storage.ts:152](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/storage/algorand.storage.ts#L152)
 
 ***
 
@@ -118,7 +118,7 @@
 
 #### Defined in
 
-[src/core/storage/algorand.storage.ts:144](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/algorand.storage.ts#L144)
+[src/core/storage/algorand.storage.ts:177](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/storage/algorand.storage.ts#L177)
 
 ***
 
@@ -136,7 +136,7 @@
 
 #### Defined in
 
-[src/core/storage/algorand.storage.ts:161](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/algorand.storage.ts#L161)
+[src/core/storage/algorand.storage.ts:202](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/storage/algorand.storage.ts#L202)
 
 ***
 
@@ -160,7 +160,7 @@
 
 #### Defined in
 
-[src/core/storage/algorand.storage.ts:130](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/algorand.storage.ts#L130)
+[src/core/storage/algorand.storage.ts:160](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/storage/algorand.storage.ts#L160)
 
 ***
 
@@ -184,4 +184,4 @@
 
 #### Defined in
 
-[src/core/storage/algorand.storage.ts:35](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/storage/algorand.storage.ts#L35)
+[src/core/storage/algorand.storage.ts:38](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/storage/algorand.storage.ts#L38)

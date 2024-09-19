@@ -10,4 +10,4 @@
 
 ## Defined in
 
-[src/core/network/synchronization.provider.ts:18](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/network/synchronization.provider.ts#L18)
+[src/core/network/synchronization.provider.ts:18](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/network/synchronization.provider.ts#L18)

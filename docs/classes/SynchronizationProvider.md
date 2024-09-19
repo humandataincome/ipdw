@@ -14,7 +14,7 @@
 
 #### Defined in
 
-[src/core/network/synchronization.provider.ts:29](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/network/synchronization.provider.ts#L29)
+[src/core/network/synchronization.provider.ts:29](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/network/synchronization.provider.ts#L29)
 
 ***
 
@@ -38,7 +38,7 @@
 
 #### Defined in
 
-[src/core/network/synchronization.provider.ts:31](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/network/synchronization.provider.ts#L31)
+[src/core/network/synchronization.provider.ts:31](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/network/synchronization.provider.ts#L31)
 
 ***
 
@@ -48,7 +48,7 @@
 
 #### Defined in
 
-[src/core/network/synchronization.provider.ts:30](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/network/synchronization.provider.ts#L30)
+[src/core/network/synchronization.provider.ts:30](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/network/synchronization.provider.ts#L30)
 
 ## Methods
 
@@ -62,7 +62,7 @@
 
 #### Defined in
 
-[src/core/network/synchronization.provider.ts:61](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/network/synchronization.provider.ts#L61)
+[src/core/network/synchronization.provider.ts:61](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/network/synchronization.provider.ts#L61)
 
 ***
 
@@ -76,7 +76,7 @@
 
 #### Defined in
 
-[src/core/network/synchronization.provider.ts:69](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/network/synchronization.provider.ts#L69)
+[src/core/network/synchronization.provider.ts:69](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/network/synchronization.provider.ts#L69)
 
 ***
 
@@ -98,4 +98,4 @@
 
 #### Defined in
 
-[src/core/network/synchronization.provider.ts:53](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/network/synchronization.provider.ts#L53)
+[src/core/network/synchronization.provider.ts:53](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/network/synchronization.provider.ts#L53)

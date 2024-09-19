@@ -28,7 +28,7 @@
 
 #### Defined in
 
-[src/core/struct/array.flattened.ts:8](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/struct/array.flattened.ts#L8)
+[src/core/struct/array.flattened.ts:8](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/struct/array.flattened.ts#L8)
 
 ## Methods
 
@@ -48,7 +48,7 @@
 
 #### Defined in
 
-[src/core/struct/array.flattened.ts:113](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/struct/array.flattened.ts#L113)
+[src/core/struct/array.flattened.ts:113](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/struct/array.flattened.ts#L113)
 
 ***
 
@@ -66,7 +66,7 @@
 
 #### Defined in
 
-[src/core/struct/array.flattened.ts:54](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/struct/array.flattened.ts#L54)
+[src/core/struct/array.flattened.ts:54](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/struct/array.flattened.ts#L54)
 
 ***
 
@@ -84,7 +84,7 @@
 
 #### Defined in
 
-[src/core/struct/array.flattened.ts:13](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/struct/array.flattened.ts#L13)
+[src/core/struct/array.flattened.ts:13](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/struct/array.flattened.ts#L13)
 
 ***
 
@@ -102,7 +102,7 @@
 
 #### Defined in
 
-[src/core/struct/array.flattened.ts:50](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/struct/array.flattened.ts#L50)
+[src/core/struct/array.flattened.ts:50](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/struct/array.flattened.ts#L50)
 
 ***
 
@@ -122,7 +122,7 @@
 
 #### Defined in
 
-[src/core/struct/array.flattened.ts:82](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/struct/array.flattened.ts#L82)
+[src/core/struct/array.flattened.ts:82](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/struct/array.flattened.ts#L82)
 
 ***
 
@@ -136,7 +136,7 @@
 
 #### Defined in
 
-[src/core/struct/array.flattened.ts:104](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/struct/array.flattened.ts#L104)
+[src/core/struct/array.flattened.ts:104](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/struct/array.flattened.ts#L104)
 
 ***
 
@@ -154,7 +154,7 @@
 
 #### Defined in
 
-[src/core/struct/array.flattened.ts:98](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/struct/array.flattened.ts#L98)
+[src/core/struct/array.flattened.ts:98](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/struct/array.flattened.ts#L98)
 
 ***
 
@@ -174,4 +174,4 @@
 
 #### Defined in
 
-[src/core/struct/array.flattened.ts:34](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/core/struct/array.flattened.ts#L34)
+[src/core/struct/array.flattened.ts:34](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/core/struct/array.flattened.ts#L34)

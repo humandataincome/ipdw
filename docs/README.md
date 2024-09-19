@@ -54,23 +54,28 @@ import {IPDW, MemoryStorageProvider} from "ipdw";
 
 // On device 1
 (async function () {
-    const ipdw = await IPDW.create('b577c4367d79f1a7a0c8353f7937d601758d92c35df958781d72d70f9177e52f', new MemoryStorageProvider());
+    const privateKey = '0xb577c4367d79f1a7a0c8353f7937d601758d92c35df958781d72d70f9177e52f';
+    const provider = await IPDWStorageProvider.Init(privateKey, new MemoryStorageProvider());
+    const dataWallet = await DataWallet.Create(privateKey, provider);
+    
+    await dataWallet.set('test1', 'hello');
 
-    await ipdw.data.set('test1', 'hello');
-
-    const value1 = await ipdw.data.get('test1');
+    const value1 = await dataWallet.get('test1');
     console.log('test1 value:', value1);
     // test1 value: hello
 
     // Run "device 2" and if reachable it will be discovered and synced
-    const value2 = await ipdw.data.get('test2');
+    const value2 = await dataWallet.get('test2');
     console.log('test2 value:', value2);
     // test2 value: world
 })();
 
 // On device 2
 (async function () {
-    const ipdw = await IPDW.create('b577c4367d79f1a7a0c8353f7937d601758d92c35df958781d72d70f9177e52f', new MemoryStorageProvider());
+    const privateKey = '0xb577c4367d79f1a7a0c8353f7937d601758d92c35df958781d72d70f9177e52f';
+    const provider = await IPDWStorageProvider.Init(privateKey, new MemoryStorageProvider());
+    const dataWallet = await DataWallet.Create(privateKey, provider);
+    
     await ipdw.data.set('test2', 'world');
 })();
 ```

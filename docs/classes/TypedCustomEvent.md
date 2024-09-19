@@ -36,7 +36,7 @@
 
 #### Defined in
 
-[src/utils/event.utils.ts:48](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/utils/event.utils.ts#L48)
+[src/utils/event.utils.ts:48](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/utils/event.utils.ts#L48)
 
 ## Properties
 
@@ -50,49 +50,7 @@
 
 #### Defined in
 
-node\_modules/typescript/lib/lib.dom.d.ts:8226
-
-***
-
-### BUBBLING\_PHASE
-
-> `readonly` **BUBBLING\_PHASE**: `3`
-
-#### Inherited from
-
-`Event.BUBBLING_PHASE`
-
-#### Defined in
-
-node\_modules/typescript/lib/lib.dom.d.ts:8227
-
-***
-
-### CAPTURING\_PHASE
-
-> `readonly` **CAPTURING\_PHASE**: `1`
-
-#### Inherited from
-
-`Event.CAPTURING_PHASE`
-
-#### Defined in
-
-node\_modules/typescript/lib/lib.dom.d.ts:8225
-
-***
-
-### NONE
-
-> `readonly` **NONE**: `0`
-
-#### Inherited from
-
-`Event.NONE`
-
-#### Defined in
-
-node\_modules/typescript/lib/lib.dom.d.ts:8224
+node\_modules/typescript/lib/lib.dom.d.ts:8192
 
 ***
 
@@ -110,25 +68,21 @@ Returns true or false depending on how event was initialized. True if event goes
 
 #### Defined in
 
-node\_modules/typescript/lib/lib.dom.d.ts:8121
+node\_modules/typescript/lib/lib.dom.d.ts:8087
 
 ***
 
-### ~~cancelBubble~~
+### BUBBLING\_PHASE
 
-> **cancelBubble**: `boolean`
-
-#### Deprecated
-
-[MDN Reference](https://developer.mozilla.org/docs/Web/API/Event/cancelBubble)
+> `readonly` **BUBBLING\_PHASE**: `3`
 
 #### Inherited from
 
-`Event.cancelBubble`
+`Event.BUBBLING_PHASE`
 
 #### Defined in
 
-node\_modules/typescript/lib/lib.dom.d.ts:8127
+node\_modules/typescript/lib/lib.dom.d.ts:8193
 
 ***
 
@@ -146,7 +100,39 @@ Returns true or false depending on how event was initialized. Its return value d
 
 #### Defined in
 
-node\_modules/typescript/lib/lib.dom.d.ts:8133
+node\_modules/typescript/lib/lib.dom.d.ts:8099
+
+***
+
+### ~~cancelBubble~~
+
+> **cancelBubble**: `boolean`
+
+#### Deprecated
+
+[MDN Reference](https://developer.mozilla.org/docs/Web/API/Event/cancelBubble)
+
+#### Inherited from
+
+`Event.cancelBubble`
+
+#### Defined in
+
+node\_modules/typescript/lib/lib.dom.d.ts:8093
+
+***
+
+### CAPTURING\_PHASE
+
+> `readonly` **CAPTURING\_PHASE**: `1`
+
+#### Inherited from
+
+`Event.CAPTURING_PHASE`
+
+#### Defined in
+
+node\_modules/typescript/lib/lib.dom.d.ts:8191
 
 ***
 
@@ -164,7 +150,7 @@ Returns true or false depending on how event was initialized. True if event invo
 
 #### Defined in
 
-node\_modules/typescript/lib/lib.dom.d.ts:8139
+node\_modules/typescript/lib/lib.dom.d.ts:8105
 
 ***
 
@@ -182,7 +168,7 @@ Returns the object whose event listener's callback is currently being invoked.
 
 #### Defined in
 
-node\_modules/typescript/lib/lib.dom.d.ts:8145
+node\_modules/typescript/lib/lib.dom.d.ts:8111
 
 ***
 
@@ -200,7 +186,7 @@ Returns true if preventDefault() was invoked successfully to indicate cancelatio
 
 #### Defined in
 
-node\_modules/typescript/lib/lib.dom.d.ts:8151
+node\_modules/typescript/lib/lib.dom.d.ts:8117
 
 ***
 
@@ -218,7 +204,7 @@ Returns the event's phase, which is one of NONE, CAPTURING_PHASE, AT_TARGET, and
 
 #### Defined in
 
-node\_modules/typescript/lib/lib.dom.d.ts:8157
+node\_modules/typescript/lib/lib.dom.d.ts:8123
 
 ***
 
@@ -236,7 +222,21 @@ Returns true if event was dispatched by the user agent, and false otherwise.
 
 #### Defined in
 
-node\_modules/typescript/lib/lib.dom.d.ts:8163
+node\_modules/typescript/lib/lib.dom.d.ts:8129
+
+***
+
+### NONE
+
+> `readonly` **NONE**: `0`
+
+#### Inherited from
+
+`Event.NONE`
+
+#### Defined in
+
+node\_modules/typescript/lib/lib.dom.d.ts:8190
 
 ***
 
@@ -254,7 +254,7 @@ node\_modules/typescript/lib/lib.dom.d.ts:8163
 
 #### Defined in
 
-node\_modules/typescript/lib/lib.dom.d.ts:8169
+node\_modules/typescript/lib/lib.dom.d.ts:8135
 
 ***
 
@@ -272,7 +272,7 @@ node\_modules/typescript/lib/lib.dom.d.ts:8169
 
 #### Defined in
 
-node\_modules/typescript/lib/lib.dom.d.ts:8175
+node\_modules/typescript/lib/lib.dom.d.ts:8141
 
 ***
 
@@ -290,7 +290,7 @@ Returns the object to which event is dispatched (its target).
 
 #### Defined in
 
-node\_modules/typescript/lib/lib.dom.d.ts:8181
+node\_modules/typescript/lib/lib.dom.d.ts:8147
 
 ***
 
@@ -308,7 +308,7 @@ Returns the event's timestamp as the number of milliseconds measured relative to
 
 #### Defined in
 
-node\_modules/typescript/lib/lib.dom.d.ts:8187
+node\_modules/typescript/lib/lib.dom.d.ts:8153
 
 ***
 
@@ -326,7 +326,7 @@ Returns the type of event, e.g. "click", "hashchange", or "submit".
 
 #### Defined in
 
-node\_modules/typescript/lib/lib.dom.d.ts:8193
+node\_modules/typescript/lib/lib.dom.d.ts:8159
 
 ***
 
@@ -340,7 +340,7 @@ node\_modules/typescript/lib/lib.dom.d.ts:8193
 
 #### Defined in
 
-node\_modules/typescript/lib/lib.dom.d.ts:8235
+node\_modules/typescript/lib/lib.dom.d.ts:8201
 
 ***
 
@@ -354,7 +354,7 @@ node\_modules/typescript/lib/lib.dom.d.ts:8235
 
 #### Defined in
 
-node\_modules/typescript/lib/lib.dom.d.ts:8236
+node\_modules/typescript/lib/lib.dom.d.ts:8202
 
 ***
 
@@ -368,7 +368,7 @@ node\_modules/typescript/lib/lib.dom.d.ts:8236
 
 #### Defined in
 
-node\_modules/typescript/lib/lib.dom.d.ts:8234
+node\_modules/typescript/lib/lib.dom.d.ts:8200
 
 ***
 
@@ -382,7 +382,7 @@ node\_modules/typescript/lib/lib.dom.d.ts:8234
 
 #### Defined in
 
-node\_modules/typescript/lib/lib.dom.d.ts:8233
+node\_modules/typescript/lib/lib.dom.d.ts:8199
 
 ## Accessors
 
@@ -396,7 +396,7 @@ node\_modules/typescript/lib/lib.dom.d.ts:8233
 
 #### Defined in
 
-[src/utils/event.utils.ts:53](https://github.com/ansi-code/ipdw/blob/ddce49f30075d034810cb5fb58d4bd8d0a9b98e6/src/utils/event.utils.ts#L53)
+[src/utils/event.utils.ts:53](https://github.com/humandataincome/ipdw/blob/cffd44f47ee394d38eaa57c50e77342565775d5e/src/utils/event.utils.ts#L53)
 
 ## Methods
 
@@ -418,7 +418,7 @@ Returns the invocation target objects of event's path (objects on which listener
 
 #### Defined in
 
-node\_modules/typescript/lib/lib.dom.d.ts:8199
+node\_modules/typescript/lib/lib.dom.d.ts:8165
 
 ***
 
@@ -448,7 +448,7 @@ node\_modules/typescript/lib/lib.dom.d.ts:8199
 
 #### Defined in
 
-node\_modules/typescript/lib/lib.dom.d.ts:8205
+node\_modules/typescript/lib/lib.dom.d.ts:8171
 
 ***
 
@@ -470,7 +470,7 @@ If invoked when the cancelable attribute value is true, and while executing a li
 
 #### Defined in
 
-node\_modules/typescript/lib/lib.dom.d.ts:8211
+node\_modules/typescript/lib/lib.dom.d.ts:8177
 
 ***
 
@@ -492,7 +492,7 @@ Invoking this method prevents event from reaching any registered event listeners
 
 #### Defined in
 
-node\_modules/typescript/lib/lib.dom.d.ts:8217
+node\_modules/typescript/lib/lib.dom.d.ts:8183
 
 ***
 
@@ -514,4 +514,4 @@ When dispatched in a tree, invoking this method prevents event from reaching any
 
 #### Defined in
 
-node\_modules/typescript/lib/lib.dom.d.ts:8223
+node\_modules/typescript/lib/lib.dom.d.ts:8189
