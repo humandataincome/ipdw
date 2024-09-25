@@ -89,7 +89,7 @@ export class CereStorageProvider implements StorageProvider {
             body: body
         });
 
-        return (await response.json()).data.ddcBuckets.map((b: any) => b == null ? undefined : ({bucketId: b.bucketId, ownerId: b.ownerId.id, clusterId: b.clusterId.id, isPublic: b.isPublic, isRemoved: b.isRemoved} as Bucket));
+        return (await response.json()).data.ddcBuckets.map((b: any) => b == null ? undefined : ({bucketId: b.id, ownerId: b.ownerId.id, clusterId: b.clusterId.id, isPublic: b.isPublic, isRemoved: b.isRemoved} as Bucket));
     }
 
     public async getAccountInfo(): Promise<{ address: string, balance: bigint }> {
