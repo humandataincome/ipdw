@@ -1,7 +1,7 @@
 import {DdcClient, File, FileUri, Signer} from '@cere-ddc-sdk/ddc-client';
 import {CnsRecord, NodeInterface} from '@cere-ddc-sdk/ddc';
 import {StorageProvider} from "./";
-import {Blockchain} from "@cere-ddc-sdk/blockchain";
+import {Blockchain, Cluster} from "@cere-ddc-sdk/blockchain";
 import {Bucket} from "@cere-ddc-sdk/blockchain/src/types";
 
 import Debug from "debug";
@@ -21,12 +21,16 @@ export const CERE_TOKEN_UNIT = 10_000_000_000n;
 export class CereStorageProvider implements StorageProvider {
     private ddcClient: DdcClient;
     private ddcNode: NodeInterface;
-    private readonly bucketId: bigint;
+    private bucketId: bigint;
+    private cluster: Cluster;
+    private bucketName: string;
 
-    private constructor(ddcClient: DdcClient, ddcNode: NodeInterface, bucketId: bigint) {
+    private constructor(ddcClient: DdcClient, ddcNode: NodeInterface, cluster: Cluster, bucketId: bigint, bucketName: string) {
         this.ddcClient = ddcClient;
         this.ddcNode = ddcNode;
+        this.cluster = cluster;
         this.bucketId = bucketId;
+        this.bucketName = bucketName;
     }
 
     public static async Init(privateKey: string, rpcUrl: string = CERE_MAINNET_RPC_URL, indexerUrl: string = CERE_MAINNET_INDEXER_URL, bucketName: string = CERE_DEFAULT_BUCKET_NAME): Promise<CereStorageProvider> {
@@ -56,24 +60,28 @@ export class CereStorageProvider implements StorageProvider {
                 break;
             }
         }
-        const deposit = await ddcClient.getDeposit();
+
+
+        return new CereStorageProvider(ddcClient, ddcNode, selectedCluster, resBucketId, bucketName);
+    }
+
+    public async setup() {
+        const deposit = await this.ddcClient.getDeposit();
 
         if (deposit < 1n * CERE_TOKEN_UNIT) {
-            const balance = await ddcClient.getBalance();
+            const balance = await this.ddcClient.getBalance();
             if (balance < 5n * CERE_TOKEN_UNIT)
                 throw Error('Keep at least 5 CERE on the wallet, they will be automatically deposited for storage when needed. Use https://bridge.cere.network/transfer');
 
-            await ddcClient.depositBalance(5n * CERE_TOKEN_UNIT);
+            await this.ddcClient.depositBalance(5n * CERE_TOKEN_UNIT);
         }
 
-        if (resBucketId === 0n) {
-            resBucketId = await ddcClient.createBucket(selectedCluster.clusterId, {isPublic: false});
-            debug('Bucket created with id', resBucketId)
-            const bucketNameFileUri = await ddcClient.store(resBucketId, new File(new TextEncoder().encode(bucketName)))
-            await ddcNode.storeCnsRecord(resBucketId, new CnsRecord(bucketNameFileUri.cid, '__name__'));
+        if (this.bucketId === 0n) {
+            this.bucketId = await this.ddcClient.createBucket(this.cluster.clusterId, {isPublic: false});
+            debug('Bucket created with id', this.bucketId)
+            const bucketNameFileUri = await this.ddcClient.store(this.bucketId, new File(new TextEncoder().encode(this.bucketName)))
+            await this.ddcNode.storeCnsRecord(this.bucketId, new CnsRecord(bucketNameFileUri.cid, '__name__'));
         }
-
-        return new CereStorageProvider(ddcClient, ddcNode, resBucketId);
     }
 
     private static async GetBucketList(indexerUrl: string, ownerId: string): Promise<any> {

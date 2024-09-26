@@ -26,12 +26,14 @@ export class AlgorandStorageProvider implements StorageProvider {
     private rwLock = new ReadWriteLock();
 
     private account: algosdk.Account;
-    private readonly applicationId: bigint;
+    private applicationId: bigint;
     private readonly client: algosdk.Algodv2;
+    private readonly contractName: string;
 
-    constructor(account: Account, applicationId: bigint, client: algosdk.Algodv2) {
+    constructor(account: Account, applicationId: bigint, contractName: string, client: algosdk.Algodv2) {
         this.account = account;
         this.applicationId = applicationId;
+        this.contractName = contractName;
         this.client = client;
     }
 
@@ -41,12 +43,6 @@ export class AlgorandStorageProvider implements StorageProvider {
 
         const account = algosdk.mnemonicToSecretKey(algosdk.secretKeyToMnemonic(Buffer.from(privateKey.slice(2), 'hex')));
         debug('ALGO Address is', account.addr);
-
-        const accountInfo = await client.accountInformation(account.addr).do();
-        const balance = accountInfo.amount / ALGORAND_TOKEN_UNIT;
-        debug('ALGO Balance is', balance);
-        if (balance < 4) // 0.001 ALGO just for deploy
-            throw Error('Keep at least 4 ALGO on the wallet');
 
         let resApplicationId: bigint | undefined = undefined;
         let nextToken: string | undefined = '';
@@ -71,18 +67,28 @@ export class AlgorandStorageProvider implements StorageProvider {
             nextToken = response.nextToken;
         } while (nextToken);
 
+        return new AlgorandStorageProvider(account, resApplicationId!, contractName, client);
+    }
 
-        if (resApplicationId === undefined) {
+    public async setup() {
+        const accountInfo = await this.client.accountInformation(this.account.addr).do();
+
+        const balance = accountInfo.amount / ALGORAND_TOKEN_UNIT;
+        debug('ALGO Balance is', balance);
+        if (balance < 4) // 0.001 ALGO just for deploy
+            throw Error('Keep at least 4 ALGO on the wallet');
+
+        if (this.applicationId === undefined) {
             const appArgs = [
-                new TextEncoder().encode(contractName)
+                new TextEncoder().encode(this.contractName)
             ];
 
-            const compiledApprovalProgram = await client.compile(Buffer.from(ALGORAND_STORAGE_APPROVAL_CODE, 'base64')).do();
-            const compiledClearProgram = await client.compile(Buffer.from(ALGORAND_STORAGE_CLEAR_CODE, 'base64')).do();
-            const suggestedParams = await client.getTransactionParams().do();
+            const compiledApprovalProgram = await this.client.compile(Buffer.from(ALGORAND_STORAGE_APPROVAL_CODE, 'base64')).do();
+            const compiledClearProgram = await this.client.compile(Buffer.from(ALGORAND_STORAGE_CLEAR_CODE, 'base64')).do();
+            const suggestedParams = await this.client.getTransactionParams().do();
 
             const txn = algosdk.makeApplicationCreateTxnFromObject({
-                sender: account.addr,
+                sender: this.account.addr,
                 suggestedParams: suggestedParams,
                 onComplete: algosdk.OnApplicationComplete.NoOpOC,
                 approvalProgram: new Uint8Array(Buffer.from(compiledApprovalProgram.result, "base64")),
@@ -94,33 +100,31 @@ export class AlgorandStorageProvider implements StorageProvider {
                 appArgs: appArgs
             });
 
-            const signedTxn = txn.signTxn(account.sk);
-            const {txid} = await client.sendRawTransaction(signedTxn).do();
-            const confirmedTxn = await algosdk.waitForConfirmation(client, txid, 4);
+            const signedTxn = txn.signTxn(this.account.sk);
+            const {txid} = await this.client.sendRawTransaction(signedTxn).do();
+            const confirmedTxn = await algosdk.waitForConfirmation(this.client, txid, 4);
 
-            resApplicationId = confirmedTxn.applicationIndex;
-            debug("Created Application ID:", resApplicationId);
+            this.applicationId = confirmedTxn.applicationIndex!;
+            debug("Created Application ID:", this.applicationId);
         }
 
-        const applicationAddress = algosdk.getApplicationAddress(resApplicationId!);
-        const applicationAccountInfo = await client.accountInformation(applicationAddress).do();
+        const applicationAddress = algosdk.getApplicationAddress(this.applicationId!);
+        const applicationAccountInfo = await this.client.accountInformation(applicationAddress).do();
         const applicationBalance = applicationAccountInfo.amount / ALGORAND_TOKEN_UNIT;
         debug('Application ALGO Balance is', applicationBalance);
         if (applicationBalance < 1) {
             const totalCost = 3n * ALGORAND_TOKEN_UNIT;
             const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-                sender: account.addr,
+                sender: this.account.addr,
                 receiver: applicationAddress,
                 amount: totalCost,
-                suggestedParams: await client.getTransactionParams().do(),
+                suggestedParams: await this.client.getTransactionParams().do(),
             })
 
-            const signedTxn = txn.signTxn(account.sk);
-            const {txid} = await client.sendRawTransaction(signedTxn).do();
-            await algosdk.waitForConfirmation(client, txid, 4);
+            const signedTxn = txn.signTxn(this.account.sk);
+            const {txid} = await this.client.sendRawTransaction(signedTxn).do();
+            await algosdk.waitForConfirmation(this.client, txid, 4);
         }
-
-        return new AlgorandStorageProvider(account, resApplicationId!, client);
     }
 
     private static hashKey(key: string): Uint8Array {

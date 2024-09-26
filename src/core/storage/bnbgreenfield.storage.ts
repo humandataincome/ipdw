@@ -42,50 +42,56 @@ export class BNBGreenfieldStorageProvider implements StorageProvider {
 
         const address = web3.eth.accounts.privateKeyToAccount(privateKey).address;
 
-        const balance = await client.account.getAccountBalance({
-            address: address,
+        // To check buckets go to https://testnet.dcellar.io/buckets
+        return new BNBGreenfieldStorageProvider(privateKey, address, bucketName, primarySP.endpoint, client);
+    }
+
+    public async setup() {
+        const balance = await this.client.account.getAccountBalance({
+            address: this.address,
             denom: 'BNB',
         });
 
-        // To check buckets go to https://testnet.dcellar.io/buckets
 
         if (BigInt(balance.balance!.amount) < 10 ** (18 - 2)) {
             throw Error('Keep at least 0.01 BNB on the wallet on Greenfield network, use https://greenfield.bnbchain.org/en/bridge?type=transfer-in');
         }
 
-        const quota = await client.bucket.getBucketReadQuota({
-            bucketName: bucketName
+        const quota = await this.client.bucket.getBucketReadQuota({
+            bucketName: this.bucketName
         }, {
             type: 'ECDSA',
-            privateKey: privateKey,
+            privateKey: this.privateKey,
         });
 
         if (quota.body) {
             const availableQuota = (quota.body!.freeQuota - quota.body!.freeConsumedSize) + (quota.body!.readQuota - quota.body!.consumedQuota) + (quota.body!.monthlyFreeQuota - quota.body!.monthlyQuotaConsumedSize);
             if (availableQuota < 1024 * 1024 * 128) { // 128 Mb
-                const updateBucketTx = await client.bucket.updateBucketInfo({
-                    bucketName: bucketName,
-                    operator: address,
+                const updateBucketTx = await this.client.bucket.updateBucketInfo({
+                    bucketName: this.bucketName,
+                    operator: this.address,
                     chargedReadQuota: Long.fromNumber(1024 * 1024 * 512).toString(), // 512 Mb
                     visibility: VisibilityType.VISIBILITY_TYPE_PRIVATE,
-                    paymentAddress: address,
+                    paymentAddress: this.address,
                 });
-                await BNBGreenfieldStorageProvider.SendTransaction(updateBucketTx, privateKey);
+                await BNBGreenfieldStorageProvider.SendTransaction(updateBucketTx, this.privateKey);
             }
         } else {
-            const createBucketTx = await client.bucket.createBucket({
-                    bucketName: bucketName,
-                    creator: address,
+            const sps = await this.client.sp.getStorageProviders();
+            const sortedSps = sps.sort((a, b) => a.id - b.id);
+            const primarySP = sortedSps[0];
+
+            const createBucketTx = await this.client.bucket.createBucket({
+                    bucketName: this.bucketName,
+                    creator: this.address,
                     visibility: VisibilityType.VISIBILITY_TYPE_PRIVATE,
                     chargedReadQuota: Long.fromNumber(1024 * 1024 * 512), // 512 Gb
                     primarySpAddress: primarySP.operatorAddress,
-                    paymentAddress: address,
+                    paymentAddress: this.address,
                 },
             );
-            await BNBGreenfieldStorageProvider.SendTransaction(createBucketTx, privateKey);
+            await BNBGreenfieldStorageProvider.SendTransaction(createBucketTx, this.privateKey);
         }
-
-        return new BNBGreenfieldStorageProvider(privateKey, address, bucketName, primarySP.endpoint, client);
     }
 
     private static async SendTransaction(transaction: TxResponse, privateKey: string): Promise<DeliverTxResponse> {
